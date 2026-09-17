@@ -2,159 +2,445 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Images Used – StreamVerse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>StreamVerse – Movies & Series</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
     body {
       background: #0b0b0f;
       color: #fff;
-      font-family: system-ui, sans-serif;
-      padding: 16px;
+      padding-bottom: 40px;
+      -webkit-tap-highlight-color: transparent;
     }
-    h1 {
-      font-size: 20px;
-      margin-bottom: 16px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      background: #16161e;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
+
+    /* ---------- HEADER ---------- */
+    .header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #111118 0%, #0b0b0f 100%);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    img {
-      width: 70px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #e50914, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .info {
+
+    .search-bar {
+      background: #1c1c26;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 16px;
+      color: #aaa;
+      width: 55%;
       font-size: 14px;
-      line-height: 1.4;
-      word-break: break-all;
+      outline: none;
     }
-    .title {
+
+    .search-bar::placeholder {
+      color: #666;
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      padding: 20px 16px 10px;
+    }
+
+    .hero h1 {
+      font-size: 26px;
       font-weight: 700;
-      margin-bottom: 4px;
-      color: #e50914;
+      margin-bottom: 6px;
     }
-    .url {
-      font-size: 11px;
+
+    .hero p {
       color: #888;
+      font-size: 14px;
+    }
+
+    /* ---------- SECTION ---------- */
+    .section {
+      padding: 16px 16px 8px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #ddd;
+    }
+
+    /* ---------- TRENDING (HORIZONTAL SCROLL) ---------- */
+    .trending-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .trending-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .trending-card {
+      flex: 0 0 130px;
+      scroll-snap-align: start;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #1a1a24;
+      transition: transform 0.2s;
+    }
+
+    .trending-card:active {
+      transform: scale(0.97);
+    }
+
+    .trending-card img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .trending-card .title {
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #ccc;
+    }
+
+    /* ---------- GRID ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 16px;
+    }
+
+    .grid-card {
+      border-radius: 10px;
+      overflow: hidden;
+      background: #1a1a24;
+      transition: transform 0.2s;
+    }
+
+    .grid-card:active {
+      transform: scale(0.97);
+    }
+
+    .grid-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .grid-card .info {
+      padding: 8px 10px 10px;
+    }
+
+    .grid-card .info .title {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #eee;
+    }
+
+    .grid-card .info .meta {
+      font-size: 11px;
+      color: #777;
+      margin-top: 2px;
+    }
+
+    /* ---------- SIGN-UP OVERLAY ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;          /* hidden by default */
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .overlay-card {
+      background: #16161e;
+      border-radius: 20px;
+      padding: 36px 28px 32px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      border: 1px solid #2a2a36;
+    }
+
+    .overlay-card .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .overlay-card h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .overlay-card p {
+      font-size: 14px;
+      color: #999;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .signup-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e50914, #b20710);
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .signup-btn:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+
+    .overlay-card .small-note {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    /* ---------- FOOTER ---------- */
+    .footer {
+      text-align: center;
+      padding: 24px 16px 10px;
+      font-size: 11px;
+      color: #444;
     }
   </style>
 </head>
 <body>
 
-  <h1>Images used in StreamVerse</h1>
+  <!-- ========== HEADER ========== -->
+  <header class="header">
+    <div class="logo">StreamVerse</div>
+    <input class="search-bar" type="text" placeholder="Search movies, series…" readonly>
+  </header>
 
-  <ul>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg" alt="Inception">
-      <div class="info">
+  <!-- ========== HERO ========== -->
+  <div class="hero">
+    <h1>What's Hot 🔥</h1>
+    <p>Trending movies & series this week</p>
+  </div>
+
+  <!-- ========== TRENDING ========== -->
+  <div class="section">
+    <h2>Trending Now</h2>
+    <div class="trending-scroll">
+
+      <div class="trending-card">
+        <img src="https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg" alt="Inception">
         <div class="title">Inception</div>
-        <div class="url">https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things">
-      <div class="info">
+
+      <div class="trending-card">
+        <img src="https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things">
         <div class="title">Stranger Things</div>
-        <div class="url">https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg" alt="The Dark Knight">
-      <div class="info">
+
+      <div class="trending-card">
+        <img src="https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg" alt="The Dark Knight">
         <div class="title">The Dark Knight</div>
-        <div class="url">https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
-      <div class="info">
+
+      <div class="trending-card">
+        <img src="https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
         <div class="title">Breaking Bad</div>
-        <div class="url">https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg" alt="Interstellar">
-      <div class="info">
+
+      <div class="trending-card">
+        <img src="https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg" alt="Interstellar">
         <div class="title">Interstellar</div>
-        <div class="url">https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/fbwAbi56M7lul0PIWPKdLhWZg13.jpg" alt="The Mandalorian">
-      <div class="info">
+
+      <div class="trending-card">
+        <img src="https://image.tmdb.org/t/p/original/fbwAbi56M7lul0PIWPKdLhWZg13.jpg" alt="The Mandalorian">
         <div class="title">The Mandalorian</div>
-        <div class="url">https://image.tmdb.org/t/p/original/fbwAbi56M7lul0PIWPKdLhWZg13.jpg</div>
       </div>
-    </li>
-    <li>
+
+    </div>
+  </div>
+
+  <!-- ========== POPULAR GRID ========== -->
+  <div class="section">
+    <h2>Popular on StreamVerse</h2>
+  </div>
+
+  <div class="grid">
+
+    <div class="grid-card">
       <img src="https://image.tmdb.org/t/p/original/iYk8s3VdwvGVLT5y4SoKMZyeVXL.jpg" alt="The Witcher">
       <div class="info">
         <div class="title">The Witcher</div>
-        <div class="url">https://image.tmdb.org/t/p/original/iYk8s3VdwvGVLT5y4SoKMZyeVXL.jpg</div>
+        <div class="meta">2019 · Fantasy</div>
       </div>
-    </li>
-    <li>
+    </div>
+
+    <div class="grid-card">
       <img src="https://image.tmdb.org/t/p/original/MoEKaPFHABtA1xKoOteirGaHl1.jpg" alt="Money Heist">
       <div class="info">
         <div class="title">Money Heist</div>
-        <div class="url">https://image.tmdb.org/t/p/original/MoEKaPFHABtA1xKoOteirGaHl1.jpg</div>
+        <div class="meta">2017 · Crime</div>
       </div>
-    </li>
-    <li>
+    </div>
+
+    <div class="grid-card">
       <img src="https://image.tmdb.org/t/p/original/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg" alt="The Queen's Gambit">
       <div class="info">
         <div class="title">The Queen's Gambit</div>
-        <div class="url">https://image.tmdb.org/t/p/original/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg</div>
+        <div class="meta">2020 · Drama</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg" alt="The Dark Knight (repeat)">
+    </div>
+
+    <div class="grid-card">
+      <img src="https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg" alt="The Dark Knight">
       <div class="info">
-        <div class="title">The Dark Knight (repeat)</div>
-        <div class="url">https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg</div>
+        <div class="title">The Dark Knight</div>
+        <div class="meta">2008 · Action</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things (repeat)">
+    </div>
+
+    <div class="grid-card">
+      <img src="https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things">
       <div class="info">
-        <div class="title">Stranger Things (repeat)</div>
-        <div class="url">https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg</div>
+        <div class="title">Stranger Things</div>
+        <div class="meta">2016 · Sci-Fi</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad (repeat)">
+    </div>
+
+    <div class="grid-card">
+      <img src="https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
       <div class="info">
-        <div class="title">Breaking Bad (repeat)</div>
-        <div class="url">https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg</div>
+        <div class="title">Breaking Bad</div>
+        <div class="meta">2008 · Crime</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg" alt="Inception (repeat)">
+    </div>
+
+    <div class="grid-card">
+      <img src="https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg" alt="Inception">
       <div class="info">
-        <div class="title">Inception (repeat)</div>
-        <div class="url">https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg</div>
+        <div class="title">Inception</div>
+        <div class="meta">2010 · Sci-Fi</div>
       </div>
-    </li>
-    <li>
-      <img src="https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg" alt="Interstellar (repeat)">
+    </div>
+
+    <div class="grid-card">
+      <img src="https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg" alt="Interstellar">
       <div class="info">
-        <div class="title">Interstellar (repeat)</div>
-        <div class="url">https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg</div>
+        <div class="title">Interstellar</div>
+        <div class="meta">2014 · Sci-Fi</div>
       </div>
-    </li>
-  </ul>
+    </div>
+
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <div class="footer">
+    © 2025 StreamVerse. All rights reserved.
+  </div>
+
+  <!-- ========== SIGN-UP OVERLAY (hidden by default) ========== -->
+  <div class="overlay" id="signupOverlay">
+    <div class="overlay-card">
+      <div class="icon">🎬</div>
+      <h2>Unlock Unlimited Streaming</h2>
+      <p>
+        Join StreamVerse and watch thousands of movies & series in HD.
+        No credit card required.
+      </p>
+      <button class="signup-btn" id="signupBtn">
+        Sign Up Free
+      </button>
+      <div class="small-note">
+        By signing up, you agree to our Terms & Privacy Policy.
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== JAVASCRIPT ========== -->
+  <script>
+    (function () {
+      const overlay = document.getElementById('signupOverlay');
+      const signupBtn = document.getElementById('signupBtn');
+
+      // Show the overlay after 7 seconds
+      setTimeout(() => {
+        overlay.classList.add('active');
+      }, 7000);
+
+      // Sign-up button action (placeholder)
+      signupBtn.addEventListener('click', () => {
+        // In a real app, this would redirect to a sign-up form.
+        // Here we just close the overlay as a simple demo.
+        overlay.classList.remove('active');
+        alert('Welcome to StreamVerse! 🎉');
+      });
+
+      // Prevent any interaction with the background while overlay is active
+      // (The overlay covers the whole screen, so pointer events are naturally blocked.)
+      // But we also disable scrolling for extra safety.
+      overlay.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+      }, { passive: false });
+
+      // Disable body scroll when overlay is active
+      const observer = new MutationObserver(() => {
+        if (overlay.classList.contains('active')) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      });
+      observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+    })();
+  </script>
 
 </body>
 </html>
