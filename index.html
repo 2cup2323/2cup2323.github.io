@@ -3,442 +3,718 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>StreamVerse – Movies & Series</title>
+  <title>MovieStream</title>
   <style>
+    /* Reset & base */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
     }
 
     body {
-      background: #0b0b0f;
-      color: #fff;
-      padding-bottom: 40px;
-      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0b0b0b;
+      color: #e5e5e5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ---------- HEADER ---------- */
+    /* Header */
     .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: linear-gradient(180deg, #111118 0%, #0b0b0f 100%);
+      padding: 18px 16px 8px;
       position: sticky;
       top: 0;
+      background-color: #0b0b0b;
       z-index: 10;
+      border-bottom: 1px solid #1f1f1f;
     }
 
-    .logo {
-      font-size: 22px;
-      font-weight: 800;
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
       letter-spacing: -0.5px;
-      background: linear-gradient(90deg, #e50914, #ff6b6b);
+      background: linear-gradient(135deg, #e50914, #ff6b6b);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .search-bar {
-      background: #1c1c26;
-      border: none;
-      border-radius: 20px;
-      padding: 10px 16px;
-      color: #aaa;
-      width: 55%;
-      font-size: 14px;
-      outline: none;
+    .header p {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
     }
 
-    .search-bar::placeholder {
+    .stats {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background-color: #1a1a1a;
+      color: #e50914;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #2a2a2a;
+    }
+
+    /* Search bar */
+    .search-container {
+      padding: 8px 16px 4px;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background-color: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #searchInput::placeholder {
       color: #666;
     }
 
-    /* ---------- HERO ---------- */
-    .hero {
-      padding: 20px 16px 10px;
+    #searchInput:focus {
+      border-color: #e50914;
     }
 
-    .hero h1 {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .hero p {
-      color: #888;
-      font-size: 14px;
-    }
-
-    /* ---------- SECTION ---------- */
-    .section {
-      padding: 16px 16px 8px;
-    }
-
-    .section h2 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #ddd;
-    }
-
-    /* ---------- TRENDING (HORIZONTAL SCROLL) ---------- */
-    .trending-scroll {
+    /* Category tabs */
+    .tabs {
       display: flex;
-      gap: 12px;
+      gap: 8px;
+      padding: 14px 16px 6px;
       overflow-x: auto;
-      padding-bottom: 8px;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    .trending-scroll::-webkit-scrollbar {
+    .tabs::-webkit-scrollbar {
       display: none;
     }
 
-    .trending-card {
-      flex: 0 0 130px;
-      scroll-snap-align: start;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #1a1a24;
-      transition: transform 0.2s;
-    }
-
-    .trending-card:active {
-      transform: scale(0.97);
-    }
-
-    .trending-card img {
-      width: 100%;
-      height: 190px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .trending-card .title {
-      padding: 8px 10px;
-      font-size: 12px;
+    .tab {
+      flex-shrink: 0;
+      padding: 7px 16px;
+      border-radius: 20px;
+      background-color: #1a1a1a;
+      color: #aaa;
+      font-size: 13px;
       font-weight: 500;
+      border: 1px solid #2a2a2a;
+      transition: all 0.2s;
+      cursor: pointer;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: #ccc;
     }
 
-    /* ---------- GRID ---------- */
+    .tab.active {
+      background-color: #e50914;
+      color: #fff;
+      border-color: #e50914;
+    }
+
+    /* Section headings */
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      padding: 18px 16px 10px;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    /* Card grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
-      padding: 0 16px;
+      padding: 0 16px 20px;
     }
 
-    .grid-card {
+    .card {
+      position: relative;
       border-radius: 10px;
       overflow: hidden;
-      background: #1a1a24;
+      background-color: #1a1a1a;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
       transition: transform 0.2s;
     }
 
-    .grid-card:active {
+    .card:active {
       transform: scale(0.97);
     }
 
-    .grid-card img {
+    .card img {
       width: 100%;
-      height: 220px;
+      aspect-ratio: 2 / 3;
       object-fit: cover;
       display: block;
+      background-color: #222;
     }
 
-    .grid-card .info {
-      padding: 8px 10px 10px;
+    .card-info {
+      padding: 10px 10px 12px;
     }
 
-    .grid-card .info .title {
+    .card-info h3 {
       font-size: 13px;
       font-weight: 600;
-      white-space: nowrap;
+      color: #fff;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
-      color: #eee;
     }
 
-    .grid-card .info .meta {
+    .card-info .meta {
       font-size: 11px;
-      color: #777;
-      margin-top: 2px;
+      color: #888;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* ---------- SIGN-UP OVERLAY ---------- */
+    .card-info .badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background-color: #e50914;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .card-info .badge.series {
+      background-color: #0071eb;
+    }
+
+    .card-info .badge.movie {
+      background-color: #e50914;
+    }
+
+    .rating {
+      color: #f5c518;
+      font-size: 11px;
+    }
+
+    /* ─── Overlay (Sign‑in popup) — no backdrop blur ─── */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      display: none;          /* hidden by default */
+      background-color: rgba(0, 0, 0, 0.92);
+      display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
       padding: 24px;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
     }
 
-    .overlay.active {
-      display: flex;
+    .overlay.show {
+      opacity: 1;
+      visibility: visible;
     }
 
-    .overlay-card {
-      background: #16161e;
-      border-radius: 20px;
-      padding: 36px 28px 32px;
+    .overlay-content {
+      background: linear-gradient(160deg, #1a1a1a, #111);
+      border: 1px solid #2a2a2a;
+      border-radius: 18px;
+      padding: 36px 24px 32px;
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      border: 1px solid #2a2a36;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .overlay-card .icon {
-      font-size: 48px;
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .overlay-content .logo-mark {
+      font-size: 40px;
       margin-bottom: 12px;
+      display: block;
     }
 
-    .overlay-card h2 {
+    .overlay-content h2 {
       font-size: 22px;
       font-weight: 700;
-      margin-bottom: 8px;
       color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.4px;
     }
 
-    .overlay-card p {
+    .overlay-content p {
       font-size: 14px;
       color: #999;
-      margin-bottom: 24px;
       line-height: 1.5;
+      margin-bottom: 28px;
+      padding: 0 8px;
     }
 
-    .signup-btn {
+    /* Google Sign-in button */
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       width: 100%;
-      padding: 16px;
-      border: none;
+      padding: 14px 24px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #e50914, #b20710);
-      color: #fff;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      background-color: #fff;
+      color: #333;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid #ddd;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
+      transition: background-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .signup-btn:active {
-      transform: scale(0.97);
-      opacity: 0.9;
+    .google-btn:active {
+      background-color: #f1f1f1;
     }
 
-    .overlay-card .small-note {
-      margin-top: 16px;
-      font-size: 11px;
-      color: #555;
-      line-height: 1.4;
+    .google-btn svg {
+      width: 20px;
+      height: 20px;
     }
 
-    /* ---------- FOOTER ---------- */
-    .footer {
-      text-align: center;
-      padding: 24px 16px 10px;
-      font-size: 11px;
-      color: #444;
+    /* Removed fine-print class usage, but keeping for safety */
+    .overlay-content .fine-print {
+      display: none; /* ensures any leftover fine-print is hidden */
+    }
+
+    body.overlay-active {
+      overflow: hidden;
+    }
+
+    @media (max-width: 380px) {
+      .grid {
+        gap: 10px;
+        padding: 0 12px 20px;
+      }
+      .card-info h3 {
+        font-size: 12px;
+      }
+      .overlay-content {
+        padding: 28px 18px 26px;
+      }
+      .overlay-content h2 {
+        font-size: 19px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- ========== HEADER ========== -->
+  <!-- ===== HEADER ===== -->
   <header class="header">
-    <div class="logo">StreamVerse</div>
-    <input class="search-bar" type="text" placeholder="Search movies, series…" readonly>
+    <h1>🎬 MovieStream</h1>
+    <p>Unlimited movies, series & more</p>
+    <div class="stats">10,000+ Movies & Series</div>
   </header>
 
-  <!-- ========== HERO ========== -->
-  <div class="hero">
-    <h1>What's Hot 🔥</h1>
-    <p>Trending movies & series this week</p>
+  <!-- ===== SEARCH BAR ===== -->
+  <div class="search-container">
+    <input type="search" id="searchInput" placeholder="Search movies, series...">
   </div>
 
-  <!-- ========== TRENDING ========== -->
-  <div class="section">
-    <h2>Trending Now</h2>
-    <div class="trending-scroll">
+  <!-- ===== CATEGORY TABS ===== -->
+  <nav class="tabs">
+    <button class="tab active" onclick="filterCards('all', this)">All</button>
+    <button class="tab" onclick="filterCards('movie', this)">Movies</button>
+    <button class="tab" onclick="filterCards('series', this)">Series</button>
+  </nav>
 
-      <div class="trending-card">
-        <img src="https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg" alt="Inception">
-        <div class="title">Inception</div>
+  <!-- ===== TRENDING ===== -->
+  <h2 class="section-title">🔥 Trending Now</h2>
+  <div class="grid" id="trendingGrid">
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg" alt="Stranger Things" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Stranger+Things'">
+      <div class="card-info">
+        <h3>Stranger Things</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.7</span></div>
       </div>
-
-      <div class="trending-card">
-        <img src="https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things">
-        <div class="title">Stranger Things</div>
+    </div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg" alt="Wednesday" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=Wednesday'">
+      <div class="card-info">
+        <h3>Wednesday</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.1</span></div>
       </div>
-
-      <div class="trending-card">
-        <img src="https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg" alt="The Dark Knight">
-        <div class="title">The Dark Knight</div>
+    </div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg" alt="The Last of Us" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=The+Last+of+Us'">
+      <div class="card-info">
+        <h3>The Last of Us</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.8</span></div>
       </div>
-
-      <div class="trending-card">
-        <img src="https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
-        <div class="title">Breaking Bad</div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="Oppenheimer" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Oppenheimer'">
+      <div class="card-info">
+        <h3>Oppenheimer</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 8.3</span></div>
       </div>
-
-      <div class="trending-card">
-        <img src="https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg" alt="Interstellar">
-        <div class="title">Interstellar</div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg" alt="Barbie" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Barbie'">
+      <div class="card-info">
+        <h3>Barbie</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 6.8</span></div>
       </div>
-
-      <div class="trending-card">
-        <img src="https://image.tmdb.org/t/p/original/fbwAbi56M7lul0PIWPKdLhWZg13.jpg" alt="The Mandalorian">
-        <div class="title">The Mandalorian</div>
+    </div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/zPyMkClBw5n1z7kq6X7lTz0X2Q.jpg" alt="The Bear" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=The+Bear'">
+      <div class="card-info">
+        <h3>The Bear</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.6</span></div>
       </div>
-
     </div>
   </div>
 
-  <!-- ========== POPULAR GRID ========== -->
-  <div class="section">
-    <h2>Popular on StreamVerse</h2>
+  <!-- ===== POPULAR MOVIES ===== -->
+  <h2 class="section-title">🎥 Popular Movies</h2>
+  <div class="grid" id="moviesGrid">
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg" alt="Dune: Part Two" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Dune+Part+Two'">
+      <div class="card-info">
+        <h3>Dune: Part Two</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 8.5</span></div>
+      </div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg" alt="Deadpool & Wolverine" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Deadpool+%26+Wolverine'">
+      <div class="card-info">
+        <h3>Deadpool & Wolverine</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 7.6</span></div>
+      </div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg" alt="Inside Out 2" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Inside+Out+2'">
+      <div class="card-info">
+        <h3>Inside Out 2</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 7.6</span></div>
+      </div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/z1p34vh7dEOnLDmyCrlUVLuoDzd.jpg" alt="Godzilla x Kong" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Godzilla+x+Kong'">
+      <div class="card-info">
+        <h3>Godzilla x Kong</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 7.1</span></div>
+      </div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/iADOJ8Zymht2JPMoy3R7xceZprc.jpg" alt="Furiosa" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Furiosa'">
+      <div class="card-info">
+        <h3>Furiosa</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 7.7</span></div>
+      </div>
+    </div>
+    <div class="card" data-type="movie">
+      <img src="https://image.tmdb.org/t/p/w500/gKkl37BQuKTanygYQG1pyYgLVgf.jpg" alt="Kingdom of the Planet of the Apes" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=Kingdom+of+the+Planet+of+the+Apes'">
+      <div class="card-info">
+        <h3>Kingdom of the Planet of the Apes</h3>
+        <div class="meta"><span class="badge movie">Movie</span><span class="rating">★ 7.2</span></div>
+      </div>
+    </div>
   </div>
 
-  <div class="grid">
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/iYk8s3VdwvGVLT5y4SoKMZyeVXL.jpg" alt="The Witcher">
-      <div class="info">
-        <div class="title">The Witcher</div>
-        <div class="meta">2019 · Fantasy</div>
+  <!-- ===== POPULAR SERIES ===== -->
+  <h2 class="section-title">📺 Popular Series</h2>
+  <div class="grid" id="seriesGrid">
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg" alt="The Boys" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=The+Boys'">
+      <div class="card-info">
+        <h3>The Boys</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.7</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/MoEKaPFHABtA1xKoOteirGaHl1.jpg" alt="Money Heist">
-      <div class="info">
-        <div class="title">Money Heist</div>
-        <div class="meta">2017 · Crime</div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/t9XkeE7HzOsdQcDDDapDYh8Rrmt.jpg" alt="House of the Dragon" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=House+of+the+Dragon'">
+      <div class="card-info">
+        <h3>House of the Dragon</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.4</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg" alt="The Queen's Gambit">
-      <div class="info">
-        <div class="title">The Queen's Gambit</div>
-        <div class="meta">2020 · Drama</div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/pPHpeI2X1qH0u8X4k1jF5j1q3cQ.jpg" alt="Severance" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=Severance'">
+      <div class="card-info">
+        <h3>Severance</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.7</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/lhRoyzDtpgMU7Dz4JF22RANzQO7.jpg" alt="The Dark Knight">
-      <div class="info">
-        <div class="title">The Dark Knight</div>
-        <div class="meta">2008 · Action</div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg" alt="Squid Game" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=Squid+Game'">
+      <div class="card-info">
+        <h3>Squid Game</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.0</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" alt="Stranger Things">
-      <div class="info">
-        <div class="title">Stranger Things</div>
-        <div class="meta">2016 · Sci-Fi</div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLQTVa04URsPm.jpg" alt="The Witcher" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=The+Witcher'">
+      <div class="card-info">
+        <h3>The Witcher</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.0</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg" alt="Breaking Bad">
-      <div class="info">
-        <div class="title">Breaking Bad</div>
-        <div class="meta">2008 · Crime</div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg" alt="Money Heist" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=Money+Heist'">
+      <div class="card-info">
+        <h3>Money Heist</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 8.2</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/tAXARVreJnWfoANIHASmgYk4SB0.jpg" alt="Inception">
-      <div class="info">
-        <div class="title">Inception</div>
-        <div class="meta">2010 · Sci-Fi</div>
+    <div class="card" data-type="series">
+      <img src="https://image.tmdb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg" alt="Arcane" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/0071eb?text=Arcane'">
+      <div class="card-info">
+        <h3>Arcane</h3>
+        <div class="meta"><span class="badge series">Series</span><span class="rating">★ 9.0</span></div>
       </div>
     </div>
-
-    <div class="grid-card">
-      <img src="https://image.tmdb.org/t/p/original/wyLHCvDzGGoKfcTt1QnIAd6QLSC.jpg" alt="Interstellar">
-      <div class="info">
-        <div class="title">Interstellar</div>
-        <div class="meta">2014 · Sci-Fi</div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- ========== FOOTER ========== -->
-  <div class="footer">
-    © 2025 StreamVerse. All rights reserved.
-  </div>
+  <!-- ===== ALL MOVIES & SERIES (10,000+) ===== -->
+  <h2 class="section-title">🎬 All Movies & Series (10,000+)</h2>
+  <div class="grid" id="allGrid"></div>
 
-  <!-- ========== SIGN-UP OVERLAY (hidden by default) ========== -->
+  <!-- ===== SIGN‑IN OVERLAY ===== -->
   <div class="overlay" id="signupOverlay">
-    <div class="overlay-card">
-      <div class="icon">🎬</div>
-      <h2>Unlock Unlimited Streaming</h2>
-      <p>
-        Join StreamVerse and watch thousands of movies & series in HD.
-        No credit card required.
-      </p>
-      <button class="signup-btn" id="signupBtn">
-        Sign Up Free
-      </button>
-      <div class="small-note">
-        By signing up, you agree to our Terms & Privacy Policy.
-      </div>
+    <div class="overlay-content">
+      <span class="logo-mark">🎬</span>
+      <h2>Start Watching Now</h2>
+      <p>Sign in with Google to unlock thousands of movies and series.</p>
+      <a href="https://sites.google.com/view/connectsignup/home" class="google-btn" id="signupBtn">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </a>
+      <!-- Removed the "No credit card required" line -->
     </div>
   </div>
 
-  <!-- ========== JAVASCRIPT ========== -->
+  <!-- ===== JAVASCRIPT ===== -->
   <script>
-    (function () {
-      const overlay = document.getElementById('signupOverlay');
-      const signupBtn = document.getElementById('signupBtn');
+    (function() {
+      'use strict';
 
-      // Show the overlay after 7 seconds
-      setTimeout(() => {
-        overlay.classList.add('active');
-      }, 7000);
+      /* ---- 1. Show overlay after 7 seconds ---- */
+      var overlayShown = false;
 
-      // Sign-up button action (placeholder)
-      signupBtn.addEventListener('click', () => {
-        // In a real app, this would redirect to a sign-up form.
-        // Here we just close the overlay as a simple demo.
-        overlay.classList.remove('active');
-        alert('Welcome to StreamVerse! 🎉');
-      });
+      function showOverlay() {
+        if (overlayShown) return;
+        overlayShown = true;
+        var overlay = document.getElementById('signupOverlay');
+        overlay.classList.add('show');
+        document.body.classList.add('overlay-active');
+      }
 
-      // Prevent any interaction with the background while overlay is active
-      // (The overlay covers the whole screen, so pointer events are naturally blocked.)
-      // But we also disable scrolling for extra safety.
-      overlay.addEventListener('touchmove', (e) => {
-        e.preventDefault();
+      setTimeout(showOverlay, 7000);
+
+      /* ---- 2. Prevent interaction while overlay is visible ---- */
+      document.addEventListener('click', function(e) {
+        var overlay = document.getElementById('signupOverlay');
+        if (overlay && overlay.classList.contains('show')) {
+          if (!overlay.contains(e.target)) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
+      }, true);
+
+      document.addEventListener('touchmove', function(e) {
+        var overlay = document.getElementById('signupOverlay');
+        if (overlay && overlay.classList.contains('show')) {
+          e.preventDefault();
+        }
       }, { passive: false });
 
-      // Disable body scroll when overlay is active
-      const observer = new MutationObserver(() => {
-        if (overlay.classList.contains('active')) {
-          document.body.style.overflow = 'hidden';
-        } else {
-          document.body.style.overflow = '';
+      document.addEventListener('wheel', function(e) {
+        var overlay = document.getElementById('signupOverlay');
+        if (overlay && overlay.classList.contains('show')) {
+          e.preventDefault();
         }
+      }, { passive: false });
+
+      document.addEventListener('keydown', function(e) {
+        var overlay = document.getElementById('signupOverlay');
+        if (overlay && overlay.classList.contains('show')) {
+          var btn = document.getElementById('signupBtn');
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            btn.focus();
+          } else if (e.key === 'Enter' || e.key === ' ') {
+            if (document.activeElement !== btn) {
+              e.preventDefault();
+              btn.focus();
+            }
+          } else {
+            e.preventDefault();
+          }
+        }
+      }, true);
+
+      /* ---- 3. Search & Filter ---- */
+      var searchInput = document.getElementById('searchInput');
+      var currentType = 'all';
+      var currentSearch = '';
+
+      searchInput.addEventListener('input', function() {
+        currentSearch = this.value.toLowerCase().trim();
+        applyFilters();
       });
-      observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+
+      window.filterCards = function(type, tabEl) {
+        currentType = type;
+        document.querySelectorAll('.tab').forEach(function(t) {
+          t.classList.remove('active');
+        });
+        tabEl.classList.add('active');
+        applyFilters();
+      };
+
+      function applyFilters() {
+        var cards = document.querySelectorAll('.card');
+        cards.forEach(function(card) {
+          var title = card.querySelector('h3').textContent.toLowerCase();
+          var matchesType = (currentType === 'all' || card.dataset.type === currentType);
+          var matchesSearch = (currentSearch === '' || title.includes(currentSearch));
+          if (matchesType && matchesSearch) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Hide sections with no visible cards
+        var grids = ['trendingGrid', 'moviesGrid', 'seriesGrid', 'allGrid'];
+        grids.forEach(function(id) {
+          var grid = document.getElementById(id);
+          if (!grid) return;
+          var visibleCards = grid.querySelectorAll('.card:not([style*="display: none"])');
+          var sectionTitle = grid.previousElementSibling;
+          if (visibleCards.length === 0) {
+            grid.style.display = 'none';
+            if (sectionTitle && sectionTitle.classList.contains('section-title')) {
+              sectionTitle.style.display = 'none';
+            }
+          } else {
+            grid.style.display = '';
+            if (sectionTitle && sectionTitle.classList.contains('section-title')) {
+              sectionTitle.style.display = '';
+            }
+          }
+        });
+      }
+
+      /* ---- 4. Generate 200 cards for the "All" section ---- */
+      var catalog = [
+        { title: "Stranger Things", type: "series", poster: "/49WJfeN0moxb9IPfGn8AIqMGskD.jpg" },
+        { title: "Wednesday", type: "series", poster: "/9PFonBhy4cQy7Jz20NpMygczOkv.jpg" },
+        { title: "The Last of Us", type: "series", poster: "/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg" },
+        { title: "Oppenheimer", type: "movie", poster: "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" },
+        { title: "Barbie", type: "movie", poster: "/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg" },
+        { title: "The Bear", type: "series", poster: "/zPyMkClBw5n1z7kq6X7lTz0X2Q.jpg" },
+        { title: "Dune: Part Two", type: "movie", poster: "/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg" },
+        { title: "Deadpool & Wolverine", type: "movie", poster: "/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg" },
+        { title: "Inside Out 2", type: "movie", poster: "/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg" },
+        { title: "Godzilla x Kong", type: "movie", poster: "/z1p34vh7dEOnLDmyCrlUVLuoDzd.jpg" },
+        { title: "Furiosa", type: "movie", poster: "/iADOJ8Zymht2JPMoy3R7xceZprc.jpg" },
+        { title: "Kingdom of the Planet of the Apes", type: "movie", poster: "/gKkl37BQuKTanygYQG1pyYgLVgf.jpg" },
+        { title: "The Boys", type: "series", poster: "/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg" },
+        { title: "House of the Dragon", type: "series", poster: "/t9XkeE7HzOsdQcDDDapDYh8Rrmt.jpg" },
+        { title: "Severance", type: "series", poster: "/pPHpeI2X1qH0u8X4k1jF5j1q3cQ.jpg" },
+        { title: "Squid Game", type: "series", poster: "/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg" },
+        { title: "The Witcher", type: "series", poster: "/7vjaCdMw15FEbXyLQTVa04URsPm.jpg" },
+        { title: "Money Heist", type: "series", poster: "/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg" },
+        { title: "Arcane", type: "series", poster: "/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg" },
+        { title: "Inception", type: "movie", poster: "/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg" },
+        { title: "The Dark Knight", type: "movie", poster: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg" },
+        { title: "Interstellar", type: "movie", poster: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
+        { title: "The Matrix", type: "movie", poster: "/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" },
+        { title: "Pulp Fiction", type: "movie", poster: "/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg" },
+        { title: "Fight Club", type: "movie", poster: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg" },
+        { title: "Forrest Gump", type: "movie", poster: "/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg" },
+        { title: "The Shawshank Redemption", type: "movie", poster: "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg" },
+        { title: "The Godfather", type: "movie", poster: "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" },
+        { title: "The Lord of the Rings", type: "movie", poster: "/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg" },
+        { title: "Avengers: Endgame", type: "movie", poster: "/or06FN3Dka5tukK1e9sl16pB3iy.jpg" },
+        { title: "Spider-Man: No Way Home", type: "movie", poster: "/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg" },
+        { title: "Titanic", type: "movie", poster: "/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" },
+        { title: "Joker", type: "movie", poster: "/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg" },
+        { title: "Parasite", type: "movie", poster: "/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg" },
+        { title: "Whiplash", type: "movie", poster: "/7fn624j5lj3xTme2SgiLCeuedmO.jpg" },
+        { title: "The Wolf of Wall Street", type: "movie", poster: "/pWHf4khOloNVfCxscXFj3jj6gP.jpg" },
+        { title: "Django Unchained", type: "movie", poster: "/7oWY8VDWW7thTzWh3OKYRkWUlD5.jpg" },
+        { title: "The Departed", type: "movie", poster: "/nT97ifVT2J1yMQmeq20Qblg61T.jpg" },
+        { title: "Gladiator", type: "movie", poster: "/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg" },
+        { title: "The Prestige", type: "movie", poster: "/bdN3gXuIZYaJP7ftKK2sU0nPtEA.jpg" },
+        { title: "The Lion King", type: "movie", poster: "/sKCr78MXSLixwmZ8DyJLrpMsd15.jpg" },
+        { title: "Back to the Future", type: "movie", poster: "/fNOH9f1aA7XRTzl1sAOx9iF553.jpg" },
+        { title: "Alien", type: "movie", poster: "/vfrQk5IPloGg1v9Rzbh2Eg3VGyM.jpg" },
+        { title: "The Terminator", type: "movie", poster: "/qvktm0BHcnmDpul4Hz01GIazWPr.jpg" },
+        { title: "Jurassic Park", type: "movie", poster: "/oU7Oq2kFAAlGqbU4VoAE36g4hoI.jpg" },
+        { title: "Star Wars: A New Hope", type: "movie", poster: "/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg" },
+        { title: "The Empire Strikes Back", type: "movie", poster: "/nNAeTmF4CtdSgMDplXTDPOpYzsX.jpg" },
+        { title: "Return of the Jedi", type: "movie", poster: "/jQYlydvHm3kUix1f8prMucrWJI.jpg" },
+        { title: "The Silence of the Lambs", type: "movie", poster: "/uS9m8OBk1A8eM9I042bx8XXpqA.jpg" },
+        { title: "Se7en", type: "movie", poster: "/6yoghtyTpznpBik8EngEmJskVUO.jpg" }
+      ];
+
+      var allGrid = document.getElementById('allGrid');
+      var totalCards = 200;
+      var cardsHtml = '';
+
+      for (var i = 0; i < totalCards; i++) {
+        var item = catalog[i % catalog.length];
+        var typeClass = item.type === 'series' ? 'series' : 'movie';
+        var typeLabel = item.type === 'series' ? 'Series' : 'Movie';
+        var rating = (Math.random() * 2 + 7).toFixed(1); // random 7.0 - 9.0
+
+        cardsHtml += `
+          <div class="card" data-type="${item.type}">
+            <img src="https://image.tmdb.org/t/p/w500${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450/1a1a1a/e50914?text=${encodeURIComponent(item.title)}'">
+            <div class="card-info">
+              <h3>${item.title}</h3>
+              <div class="meta">
+                <span class="badge ${typeClass}">${typeLabel}</span>
+                <span class="rating">★ ${rating}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      allGrid.innerHTML = cardsHtml;
+
+      /* ---- 5. Sign-in button click ---- */
+      document.getElementById('signupBtn').addEventListener('click', function(e) {
+        // Navigate to Google Sites
+      });
+
     })();
   </script>
 
