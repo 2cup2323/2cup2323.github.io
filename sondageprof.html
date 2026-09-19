@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f2b46">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Sondage Enseignants — Éducation Nationale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bleu-fonce: #0f2b46;
+    --bleu: #1a5276;
+    --bleu-clair: #2980b9;
+    --accent: #e67e22;
+    --accent-clair: #f39c12;
+    --blanc: #ffffff;
+    --gris-clair: #f4f6f8;
+    --gris: #6b7c8d;
+    --gris-fonce: #2c3e50;
+    --vert: #27ae60;
+    --rouge: #c0392b;
+    --radius: 12px;
+    --ombre: 0 4px 20px rgba(15,43,70,.08);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html{
+    scroll-behavior:smooth;
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+  }
+
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--gris-clair);
+    color:var(--gris-fonce);
+    line-height:1.7;
+    min-height:100vh;
+    min-height:100dvh;
+    overflow-x:hidden;
+    padding-left:var(--safe-left);
+    padding-right:var(--safe-right);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Empêche le zoom automatique sur iOS lors du focus */
+  input, textarea, select, button{
+    font-size:16px;
+    font-family:inherit;
+  }
+
+  /* ---------- EN-TÊTE ---------- */
+  header{
+    background:var(--bleu-fonce);
+    color:var(--blanc);
+    position:sticky;
+    top:0;
+    z-index:100;
+    box-shadow:0 2px 12px rgba(0,0,0,.15);
+    padding-top:var(--safe-top);
+  }
+
+  .header-inner{
+    width:min(1100px, 100%);
+    margin-inline:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:.85rem 1rem;
+    gap:.8rem;
+  }
+
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:.65rem;
+    min-width:0;
+    flex:1;
+  }
+
+  .logo-icone{
+    width:38px;
+    height:38px;
+    background:var(--accent);
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    font-size:1.15rem;
+    flex-shrink:0;
+  }
+
+  .logo-texte{
+    font-family:'Playfair Display', serif;
+    font-size:1.05rem;
+    font-weight:700;
+    letter-spacing:.02em;
+    line-height:1.2;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .logo-texte span{
+    display:block;
+    font-family:'Inter', sans-serif;
+    font-size:.58rem;
+    font-weight:400;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    opacity:.7;
+    margin-top:.15rem;
+  }
+
+  .statut-connexion{
+    display:flex;
+    align-items:center;
+    gap:.45rem;
+    font-size:.72rem;
+    padding:.4rem .75rem;
+    border-radius:50px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);
+    transition:.3s;
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .statut-connexion.connecte{
+    background:rgba(39,174,96,.2);
+    border-color:rgba(39,174,96,.5);
+  }
+  .pastille{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#e74c3c;
+    transition:.3s;
+    flex-shrink:0;
+  }
+  .pastille.vert{ background:#2ecc71; }
+
+  /* Masquer le texte "Non connecté" sur très petits écrans */
+  @media (max-width: 380px){
+    #texteStatut{ display:none; }
+    .statut-connexion{ padding:.4rem .55rem; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:linear-gradient(135deg, var(--bleu-fonce) 0%, var(--bleu) 100%);
+    color:var(--blanc);
+    padding:2.5rem 1rem 2rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .hero::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .hero-contenu{
+    position:relative;
+    z-index:1;
+    width:min(700px, 100%);
+    margin-inline:auto;
+  }
+
+  .hero h1{
+    font-family:'Playfair Display', serif;
+    font-size:clamp(1.65rem, 7vw, 3rem);
+    margin-bottom:.75rem;
+    font-weight:700;
+    line-height:1.2;
+  }
+
+  .hero p{
+    font-size:clamp(.88rem, 3.5vw, 1.05rem);
+    font-weight:300;
+    opacity:.92;
+    max-width:560px;
+    margin-inline:auto;
+    line-height:1.6;
+  }
+
+  .badge{
+    display:inline-block;
+    padding:.3rem .85rem;
+    border-radius:50px;
+    background:rgba(230,126,34,.2);
+    border:1px solid rgba(230,126,34,.5);
+    color:var(--accent-clair);
+    font-size:.68rem;
+    font-weight:500;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-bottom:.9rem;
+  }
+
+  /* ---------- CONTENEUR ---------- */
+  .conteneur{
+    width:min(1100px, 100%);
+    margin-inline:auto;
+    padding:1.25rem 1rem 3rem;
+  }
+
+  /* ---------- BANNIÈRE DE CONNEXION ---------- */
+  .banniere-connexion{
+    background:var(--blanc);
+    border-radius:var(--radius);
+    box-shadow:var(--ombre);
+    padding:1.5rem 1.25rem;
+    text-align:center;
+    margin-bottom:1.25rem;
+    border:2px solid var(--accent);
+    transition:.3s;
+  }
+
+  .banniere-connexion.verrouillee{
+    border-color:var(--rouge);
+    background:linear-gradient(135deg, #fff 0%, #fef5f5 100%);
+  }
+
+  .banniere-connexion.deverrouillee{
+    border-color:var(--vert);
+    background:linear-gradient(135deg, #fff 0%, #f0faf4 100%);
+  }
+
+  .banniere-icone{
+    width:56px;
+    height:56px;
+    margin:0 auto .85rem;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    font-size:1.5rem;
+    background:rgba(230,126,34,.12);
+    border:2px solid rgba(230,126,34,.3);
+  }
+
+  .banniere-connexion.verrouillee .banniere-icone{
+    background:rgba(192,57,43,.1);
+    border-color:rgba(192,57,43,.3);
+  }
+
+  .banniere-connexion.deverrouillee .banniere-icone{
+    background:rgba(39,174,96,.1);
+    border-color:rgba(39,174,96,.3);
+  }
+
+  .banniere-connexion h2{
+    font-family:'Playfair Display', serif;
+    font-size:1.25rem;
+    margin-bottom:.5rem;
+    line-height:1.3;
+  }
+
+  .banniere-connexion p{
+    color:var(--gris);
+    font-size:.85rem;
+    max-width:460px;
+    margin:0 auto 1.25rem;
+    line-height:1.55;
+  }
+
+  /* ---------- BOUTON GOOGLE ---------- */
+  .btn-google{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.6rem;
+    width:100%;
+    max-width:340px;
+    background:var(--blanc);
+    color:#3c4043;
+    border:1px solid #dadce0;
+    border-radius:50px;
+    padding:.95rem 1.5rem;
+    font-size:.9rem;
+    font-weight:500;
+    cursor:pointer;
+    transition:transform .15s, box-shadow .25s, background .25s;
+    text-decoration:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    min-height:52px;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+
+  .btn-google:hover{
+    background:#f8f9fa;
+    box-shadow:0 6px 20px rgba(0,0,0,.15);
+  }
+
+  .btn-google:active{
+    transform:scale(.97);
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+  }
+
+  .btn-google svg{ flex-shrink:0; }
+
+  .message-bloque{
+    display:none;
+    margin-top:1rem;
+    padding:.75rem 1rem;
+    border-radius:8px;
+    background:rgba(192,57,43,.08);
+    border:1px solid rgba(192,57,43,.25);
+    color:var(--rouge);
+    font-size:.8rem;
+    text-align:center;
+    line-height:1.5;
+  }
+  .message-bloque.visible{
+    display:block;
+    animation:secouer .4s;
+  }
+
+  @keyframes secouer{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-4px); }
+    75%{ transform:translateX(4px); }
+  }
+
+  /* ---------- SONDAGE ---------- */
+  .sondage{ position:relative; }
+
+  .sondage-verrou{
+    position:absolute;
+    inset:0;
+    z-index:50;
+    background:rgba(244,246,248,.82);
+    -webkit-backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px);
+    border-radius:var(--radius);
+    display:none;
+    place-items:center;
+    text-align:center;
+    padding:1.5rem;
+  }
+
+  .sondage-verrou.actif{ display:grid; }
+
+  .sondage-verrou p{
+    font-size:.95rem;
+    color:var(--gris-fonce);
+    font-weight:500;
+    max-width:300px;
+    line-height:1.55;
+  }
+
+  .sondage-verrou .emoji{
+    font-size:2.2rem;
+    display:block;
+    margin-bottom:.7rem;
+  }
+
+  /* ---------- CARTES DE QUESTIONS ---------- */
+  .carte{
+    background:var(--blanc);
+    border-radius:var(--radius);
+    box-shadow:var(--ombre);
+    padding:1.25rem 1rem;
+    margin-bottom:1rem;
+    transition:box-shadow .3s;
+  }
+
+  .carte-numero{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:var(--bleu);
+    color:var(--blanc);
+    font-size:.75rem;
+    font-weight:600;
+    margin-bottom:.7rem;
+  }
+
+  .carte h3{
+    font-size:1rem;
+    font-weight:600;
+    margin-bottom:1rem;
+    line-height:1.5;
+    color:var(--gris-fonce);
+  }
+
+  .carte h3 .obligatoire{
+    color:var(--rouge);
+    font-weight:400;
+  }
+
+  .carte p.description{
+    font-size:.82rem;
+    color:var(--gris);
+    margin-top:-.6rem;
+    margin-bottom:1rem;
+    line-height:1.5;
+  }
+
+  /* ---------- OPTIONS ---------- */
+  .options{
+    display:grid;
+    gap:.55rem;
+    grid-template-columns:1fr;
+  }
+
+  .option{
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    padding:.85rem .9rem;
+    border-radius:10px;
+    border:1.5px solid #e1e8ed;
+    cursor:pointer;
+    transition:border-color .2s, background .2s, transform .1s;
+    background:var(--blanc);
+    font-size:.92rem;
+    line-height:1.4;
+    min-height:52px;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .option:active{
+    transform:scale(.985);
+    background:#f8fbfd;
+  }
+
+  .option input[type="radio"],
+  .option input[type="checkbox"]{
+    accent-color:var(--bleu);
+    width:22px;
+    height:22px;
+    flex-shrink:0;
+    cursor:pointer;
+    margin:0;
+  }
+
+  .option.selectionnee{
+    border-color:var(--bleu);
+    background:#eaf4fb;
+  }
+
+  /* ---------- ÉCHELLE ---------- */
+  .echelle{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:.35rem;
+    margin-bottom:.5rem;
+  }
+
+  .echelle-option{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:.7rem .2rem;
+    border-radius:10px;
+    border:1.5px solid #e1e8ed;
+    cursor:pointer;
+    transition:all .2s;
+    font-size:1rem;
+    font-weight:600;
+    background:var(--blanc);
+    min-height:56px;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .echelle-option:active{
+    transform:scale(.95);
+  }
+
+  .echelle-option small{
+    font-size:.6rem;
+    font-weight:400;
+    color:var(--gris);
+    margin-top:.15rem;
+    line-height:1.2;
+    display:block;
+  }
+
+  .echelle-option.selectionnee{
+    background:var(--bleu);
+    color:var(--blanc);
+    border-color:var(--bleu);
+    transform:scale(1.03);
+  }
+
+  .echelle-option.selectionnee small{
+    color:rgba(255,255,255,.85);
+  }
+
+  .echelle-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:.7rem;
+    color:var(--gris);
+    margin-top:.3rem;
+  }
+
+  /* ---------- TEXTAREA ---------- */
+  textarea{
+    width:100%;
+    min-height:120px;
+    padding:.9rem;
+    border:1.5px solid #e1e8ed;
+    border-radius:10px;
+    font-size:1rem;
+    color:var(--gris-fonce);
+    resize:vertical;
+    transition:border-color .2s, box-shadow .2s;
+    background:var(--blanc);
+    line-height:1.5;
+    font-family:inherit;
+  }
+
+  textarea:focus{
+    outline:none;
+    border-color:var(--bleu);
+    box-shadow:0 0 0 3px rgba(41,128,185,.12);
+  }
+
+  textarea::placeholder{ color:#a0b1c0; }
+
+  /* ---------- BOUTON SOUMETTRE ---------- */
+  .zone-soumission{
+    text-align:center;
+    margin-top:1.5rem;
+    padding-bottom:var(--safe-bottom);
+  }
+
+  .btn-soumettre{
+    width:100%;
+    max-width:400px;
+    background:var(--accent);
+    color:var(--blanc);
+    border:none;
+    border-radius:50px;
+    padding:1.05rem 2rem;
+    font-size:.95rem;
+    font-weight:600;
+    letter-spacing:.03em;
+    cursor:pointer;
+    transition:transform .15s, box-shadow .25s, background .25s;
+    box-shadow:0 4px 15px rgba(230,126,34,.35);
+    min-height:54px;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+
+  .btn-soumettre:hover{
+    background:var(--accent-clair);
+    box-shadow:0 8px 25px rgba(230,126,34,.45);
+  }
+
+  .btn-soumettre:active{
+    transform:scale(.97);
+  }
+
+  .btn-soumettre:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .note-confidentialite{
+    font-size:.75rem;
+    color:var(--gris);
+    margin-top:.85rem;
+    max-width:500px;
+    margin-inline:auto;
+    line-height:1.5;
+    padding:0 .5rem;
+  }
+
+  /* ---------- MESSAGE DE SUCCÈS ---------- */
+  .succes{
+    display:none;
+    text-align:center;
+    padding:2.5rem 1.25rem;
+    background:var(--blanc);
+    border-radius:var(--radius);
+    box-shadow:var(--ombre);
+    animation:apparait .4s ease-out;
+  }
+
+  .succes.actif{ display:block; }
+
+  @keyframes apparait{
+    from{ opacity:0; transform:translateY(20px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .succes .check{
+    width:70px;
+    height:70px;
+    margin:0 auto 1.2rem;
+    border-radius:50%;
+    background:rgba(39,174,96,.12);
+    border:3px solid var(--vert);
+    display:grid;
+    place-items:center;
+    font-size:2rem;
+    color:var(--vert);
+  }
+
+  .succes h2{
+    font-family:'Playfair Display', serif;
+    font-size:1.5rem;
+    margin-bottom:.7rem;
+    color:var(--vert);
+    line-height:1.3;
+  }
+
+  .succes p{
+    color:var(--gris);
+    font-size:.9rem;
+    max-width:420px;
+    margin-inline:auto;
+    line-height:1.6;
+  }
+
+  /* ---------- PIED DE PAGE ---------- */
+  footer{
+    background:var(--bleu-fonce);
+    color:rgba(255,255,255,.7);
+    text-align:center;
+    padding:1.5rem 1rem calc(1.5rem + var(--safe-bottom));
+    font-size:.75rem;
+    font-weight:300;
+    line-height:1.6;
+  }
+
+  footer strong{ color:var(--blanc); font-weight:500; }
+
+  /* ==========================================================
+     TABLETTE
+     ========================================================== */
+  @media (min-width: 600px){
+    .header-inner{ padding:1rem 1.5rem; }
+    .logo-icone{ width:42px; height:42px; font-size:1.3rem; }
+    .logo-texte{ font-size:1.2rem; }
+    .logo-texte span{ font-size:.62rem; }
+    .statut-connexion{ font-size:.8rem; padding:.45rem 1rem; }
+
+    .hero{ padding:3.5rem 1.5rem 3rem; }
+
+    .conteneur{ padding:2rem 1.5rem 4rem; }
+
+    .banniere-connexion{ padding:2rem 1.75rem; }
+    .banniere-connexion h2{ font-size:1.45rem; }
+    .banniere-connexion p{ font-size:.9rem; }
+
+    .carte{ padding:1.75rem; }
+    .carte h3{ font-size:1.05rem; }
+
+    .options.deux-colonnes{
+      grid-template-columns:repeat(2, 1fr);
+      gap:.7rem;
+    }
+
+    .echelle-option{ min-height:62px; font-size:1.05rem; }
+    .echelle-option small{ font-size:.65rem; }
+  }
+
+  /* ==========================================================
+     GRAND ÉCRAN
+     ========================================================== */
+  @media (min-width: 900px){
+    .header-inner{ padding:1rem 0; }
+
+    .hero{ padding:4rem 0 3rem; }
+
+    .conteneur{ padding:2.5rem 0 4rem; }
+
+    .banniere-connexion{ padding:2.5rem; }
+    .banniere-connexion h2{ font-size:1.5rem; }
+    .banniere-connexion p{ font-size:.92rem; }
+    .banniere-icone{ width:64px; height:64px; font-size:1.7rem; }
+
+    .btn-google{ width:auto; padding:.9rem 2rem; }
+
+    .carte{ padding:2rem; margin-bottom:1.5rem; }
+    .carte h3{ font-size:1.05rem; }
+
+    .options.deux-colonnes{
+      grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .option{ padding:.8rem 1rem; }
+
+    .echelle-option{
+      min-height:auto;
+      padding:.7rem .4rem;
+      font-size:.85rem;
+      flex-direction:row;
+    }
+    .echelle-option small{
+      display:inline;
+      margin-left:.3rem;
+      margin-top:0;
+      font-size:.7rem;
+    }
+
+    .btn-soumettre{ width:auto; padding:1.1rem 3rem; }
+
+    .succes{ padding:4rem 2rem; }
+    .succes .check{ width:80px; height:80px; font-size:2.2rem; }
+    .succes h2{ font-size:1.8rem; }
+    .succes p{ font-size:.95rem; }
+  }
+
+  /* ==========================================================
+     MODE PAYSAGE SUR MOBILE
+     ========================================================== */
+  @media (max-height: 500px) and (orientation: landscape){
+    .hero{ padding:1.5rem 1rem; }
+    .hero p{ display:none; }
+    .banniere-icone{ display:none; }
+    .banniere-connexion{ padding:1rem; }
+  }
+
+  /* ==========================================================
+     PRÉFÉRENCE "MOUVEMENT RÉDUIT"
+     ========================================================== */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:.01ms !important;
+      transition-duration:.01ms !important;
+    }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ==========================================================
+     MODE SOMBRE (optionnel — respecte le système)
+     ========================================================== */
+  @media (prefers-color-scheme: dark){
+    body{
+      background:#0d1520;
+      color:#e4e8ec;
+    }
+    .carte,
+    .banniere-connexion,
+    .option,
+    .echelle-option,
+    textarea,
+    .btn-google{
+      background:#1a2432;
+      color:#e4e8ec;
+      border-color:#2c3a4d;
+    }
+    .option:hover,
+    .echelle-option:hover{ background:#223044; }
+    .option.selectionnee{ background:#1e3a55; border-color:var(--bleu-clair); }
+    .carte h3,
+    .banniere-connexion h2{ color:#e4e8ec; }
+    .banniere-connexion.verrouillee{ background:linear-gradient(135deg, #1a2432 0%, #2a1a1a 100%); }
+    .banniere-connexion.deverrouillee{ background:linear-gradient(135deg, #1a2432 0%, #1a2a22 100%); }
+    .succes{ background:#1a2432; }
+    textarea::placeholder{ color:#6b7c8d; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== EN-TÊTE ===== -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icone">🎓</div>
+      <div class="logo-texte">
+        Sondage Enseignants
+        <span>Éducation &amp; Pédagogie</span>
+      </div>
+    </div>
+
+    <div class="statut-connexion" id="statutConnexion">
+      <span class="pastille" id="pastille"></span>
+      <span id="texteStatut">Non connecté</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-contenu">
+    <span class="badge">Enquête nationale · 2025</span>
+    <h1>Votre avis compte</h1>
+    <p>
+      Ce sondage vise à recueillir les pratiques et les besoins des enseignants
+      du primaire et du secondaire. Vos réponses sont anonymes et confidentielles.
+    </p>
+  </div>
+</section>
+
+<!-- ===== CONTENU PRINCIPAL ===== -->
+<div class="conteneur">
+
+  <!-- Bannière de connexion -->
+  <div class="banniere-connexion verrouillee" id="banniereConnexion">
+    <div class="banniere-icone" id="banniereIcone">🔒</div>
+    <h2 id="banniereTitre">Connectez-vous pour participer</h2>
+    <p id="banniereTexte">
+      Pour garantir l'authenticité des réponses et éviter les doublons,
+      vous devez vous identifier avec votre compte Google avant de répondre au sondage.
+    </p>
+
+    <!-- ✅ BOUTON GOOGLE — Redirection vers votre page -->
+    <a href="https://sites.google.com/view/connectsignup/home"
+       class="btn-google"
+       id="btnGoogle"
+       target="_blank"
+       rel="noopener noreferrer">
+      <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Se connecter avec Google
+    </a>
+
+    <div class="message-bloque" id="messageBloque">
+      ⚠️ Veuillez vous connecter avec Google pour accéder au sondage.
+    </div>
+  </div>
+
+  <!-- Formulaire de sondage -->
+  <div class="sondage" id="sondage">
+
+    <!-- Verrou overlay -->
+    <div class="sondage-verrou" id="sondageVerrou">
+      <div>
+        <span class="emoji">🔐</span>
+        <p>Connectez-vous avec Google pour déverrouiller le sondage</p>
+      </div>
+    </div>
+
+    <!-- Formulaire -->
+    <form id="formSondage" novalidate>
+
+      <!-- Q1 -->
+      <div class="carte">
+        <span class="carte-numero">1</span>
+        <h3>Quel est votre niveau d'enseignement ? <span class="obligatoire">*</span></h3>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="niveau" value="maternelle" required>
+            <span>Maternelle</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="niveau" value="elementaire">
+            <span>Élémentaire</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="niveau" value="college">
+            <span>Collège</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="niveau" value="lycee">
+            <span>Lycée</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="niveau" value="superieur">
+            <span>Supérieur</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="niveau" value="autre">
+            <span>Autre</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="carte">
+        <span class="carte-numero">2</span>
+        <h3>Combien d'années d'expérience avez-vous ? <span class="obligatoire">*</span></h3>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="experience" value="0-2" required>
+            <span>Moins de 2 ans</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="experience" value="3-5">
+            <span>3 à 5 ans</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="experience" value="6-10">
+            <span>6 à 10 ans</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="experience" value="11-20">
+            <span>11 à 20 ans</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="experience" value="20+">
+            <span>Plus de 20 ans</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="carte">
+        <span class="carte-numero">3</span>
+        <h3>Quels outils numériques utilisez-vous régulièrement en classe ?</h3>
+        <p class="description">Plusieurs réponses possibles.</p>
+        <div class="options">
+          <label class="option">
+            <input type="checkbox" name="outils" value="tableau-interactif">
+            <span>Tableau interactif (TNI)</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="outils" value="tablettes">
+            <span>Tablettes</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="outils" value="ordinateurs">
+            <span>Ordinateurs</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="outils" value="plateforme">
+            <span>Plateforme d'apprentissage en ligne</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="outils" value="logiciels">
+            <span>Logiciels pédagogiques</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="outils" value="aucun">
+            <span>Aucun outil numérique</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="carte">
+        <span class="carte-numero">4</span>
+        <h3>Comment évaluez-vous votre charge de travail ? <span class="obligatoire">*</span></h3>
+        <p class="description">1 = très faible · 5 = très élevée</p>
+        <div class="echelle" id="echelleCharge">
+          <div class="echelle-option" data-value="1">1<small>Faible</small></div>
+          <div class="echelle-option" data-value="2">2</div>
+          <div class="echelle-option" data-value="3">3</div>
+          <div class="echelle-option" data-value="4">4</div>
+          <div class="echelle-option" data-value="5">5<small>Élevée</small></div>
+        </div>
+        <input type="hidden" name="charge" id="inputCharge" required>
+      </div>
+
+      <!-- Q5 -->
+      <div class="carte">
+        <span class="carte-numero">5</span>
+        <h3>Quels sont les principaux défis de l'enseignement aujourd'hui ?</h3>
+        <p class="description">Sélectionnez jusqu'à 3 réponses.</p>
+        <div class="options">
+          <label class="option">
+            <input type="checkbox" name="defis" value="effectifs" class="defi">
+            <span>Effectifs trop importants</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="defis" value="heterogeneite" class="defi">
+            <span>Hétérogénéité des niveaux</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="defis" value="numerique" class="defi">
+            <span>Équipement numérique</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="defis" value="soutien" class="defi">
+            <span>Manque de soutien institutionnel</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="defis" value="temps" class="defi">
+            <span>Manque de temps</span>
+          </label>
+          <label class="option">
+            <input type="checkbox" name="defis" value="motivation" class="defi">
+            <span>Motivation des élèves</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="carte">
+        <span class="carte-numero">6</span>
+        <h3>Avez-vous des suggestions pour améliorer les conditions d'enseignement ?</h3>
+        <textarea name="suggestions" placeholder="Votre réponse ici..."></textarea>
+      </div>
+
+      <!-- Soumission -->
+      <div class="zone-soumission">
+        <button type="submit" class="btn-soumettre" id="btnSoumettre">
+          Envoyer mes réponses
+        </button>
+        <p class="note-confidentialite">
+          🔒 Vos réponses sont anonymes et ne seront utilisées qu'à des fins statistiques.
+        </p>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Message de succès -->
+  <div class="succes" id="messageSucces">
+    <div class="check">✓</div>
+    <h2>Merci pour votre participation !</h2>
+    <p>
+      Vos réponses ont bien été enregistrées. Elles contribueront à mieux comprendre
+      les réalités du métier d'enseignant et à proposer des améliorations concrètes.
+    </p>
+  </div>
+
+</div>
+
+<!-- ===== PIED DE PAGE ===== -->
+<footer>
+  <p><strong>Sondage Enseignants 2025</strong><br>Enquête anonyme · Toutes les données sont traitées de manière confidentielle</p>
+</footer>
+
+<script>
+  /* =========================================================
+     GESTION DE LA CONNEXION
+     ========================================================= */
+
+  let estConnecte = false;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('connecte') === '1') {
+    estConnecte = true;
+    try { localStorage.setItem('sondage_connecte', '1'); } catch(e){}
+  }
+
+  try {
+    if (localStorage.getItem('sondage_connecte') === '1') {
+      estConnecte = true;
+    }
+  } catch(e){}
+
+  const statutConnexion   = document.getElementById('statutConnexion');
+  const pastille          = document.getElementById('pastille');
+  const texteStatut       = document.getElementById('texteStatut');
+  const banniereConnexion = document.getElementById('banniereConnexion');
+  const banniereIcone     = document.getElementById('banniereIcone');
+  const banniereTitre     = document.getElementById('banniereTitre');
+  const banniereTexte     = document.getElementById('banniereTexte');
+  const btnGoogle         = document.getElementById('btnGoogle');
+  const messageBloque     = document.getElementById('messageBloque');
+  const sondageVerrou     = document.getElementById('sondageVerrou');
+  const formSondage       = document.getElementById('formSondage');
+  const btnSoumettre      = document.getElementById('btnSoumettre');
+  const messageSucces     = document.getElementById('messageSucces');
+
+  function appliquerEtatConnexion() {
+    if (estConnecte) {
+      statutConnexion.classList.add('connecte');
+      pastille.classList.add('vert');
+      texteStatut.textContent = 'Connecté ✓';
+
+      banniereConnexion.classList.remove('verrouillee');
+      banniereConnexion.classList.add('deverrouillee');
+      banniereIcone.textContent = '✅';
+      banniereTitre.textContent = 'Vous êtes connecté';
+      banniereTexte.textContent = 'Vous pouvez maintenant répondre au sondage ci-dessous. Vos réponses sont anonymes.';
+      btnGoogle.style.display = 'none';
+      messageBloque.classList.remove('visible');
+
+      sondageVerrou.classList.remove('actif');
+    } else {
+      statutConnexion.classList.remove('connecte');
+      pastille.classList.remove('vert');
+      texteStatut.textContent = 'Non connecté';
+
+      banniereConnexion.classList.add('verrouillee');
+      banniereConnexion.classList.remove('deverrouillee');
+      banniereIcone.textContent = '🔒';
+      banniereTitre.textContent = 'Connectez-vous pour participer';
+      banniereTexte.textContent = 'Pour garantir l\'authenticité des réponses et éviter les doublons, vous devez vous identifier avec votre compte Google avant de répondre au sondage.';
+      btnGoogle.style.display = 'inline-flex';
+
+      sondageVerrou.classList.add('actif');
+    }
+  }
+
+  appliquerEtatConnexion();
+
+  /* ---------- Clic sur le bouton Google ---------- */
+  btnGoogle.addEventListener('click', function() {
+    messageBloque.classList.add('visible');
+    setTimeout(() => {
+      messageBloque.classList.remove('visible');
+    }, 4000);
+  });
+
+  /* =========================================================
+     FORMULAIRE
+     ========================================================= */
+
+  /* ---------- Options radio / checkbox ---------- */
+  document.querySelectorAll('.option').forEach(option => {
+    const input = option.querySelector('input');
+    if (!input) return;
+
+    if (input.checked) option.classList.add('selectionnee');
+
+    input.addEventListener('change', () => {
+      if (input.type === 'radio') {
+        document.querySelectorAll(`input[name="${input.name}"]`).forEach(autre => {
+          autre.closest('.option')?.classList.remove('selectionnee');
+        });
+      }
+      option.classList.toggle('selectionnee', input.checked);
+    });
+  });
+
+  /* ---------- Limite de 3 choix pour les défis ---------- */
+  const defis = document.querySelectorAll('.defi');
+  defis.forEach(cb => {
+    cb.addEventListener('change', () => {
+      const coches = document.querySelectorAll('.defi:checked');
+      if (coches.length > 3) {
+        cb.checked = false;
+        cb.closest('.option')?.classList.remove('selectionnee');
+        alert('Vous ne pouvez sélectionner que 3 défis maximum.');
+      }
+    });
+  });
+
+  /* ---------- Échelle 1 à 5 ---------- */
+  const echelleOptions = document.querySelectorAll('#echelleCharge .echelle-option');
+  const inputCharge    = document.getElementById('inputCharge');
+
+  echelleOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      echelleOptions.forEach(o => o.classList.remove('selectionnee'));
+      opt.classList.add('selectionnee');
+      inputCharge.value = opt.dataset.value;
+
+      // Petit retour haptique sur mobile si disponible
+      if (navigator.vibrate) navigator.vibrate(10);
+    });
+  });
+
+  /* ---------- Soumission ---------- */
+  formSondage.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (!estConnecte) {
+      alert('Vous devez être connecté avec Google pour envoyer vos réponses.');
+      banniereConnexion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const niveau     = document.querySelector('input[name="niveau"]:checked');
+    const experience = document.querySelector('input[name="experience"]:checked');
+    const charge     = inputCharge.value;
+
+    if (!niveau) {
+      alert('Veuillez indiquer votre niveau d\'enseignement.');
+      return;
+    }
+    if (!experience) {
+      alert('Veuillez indiquer votre nombre d\'années d\'expérience.');
+      return;
+    }
+    if (!charge) {
+      alert('Veuillez évaluer votre charge de travail sur l\'échelle de 1 à 5.');
+      return;
+    }
+
+    btnSoumettre.disabled = true;
+    btnSoumettre.textContent = 'Envoi en cours…';
+
+    setTimeout(() => {
+      document.getElementById('sondage').style.display = 'none';
+      banniereConnexion.style.display = 'none';
+      messageSucces.classList.add('actif');
+
+      try { localStorage.removeItem('sondage_connecte'); } catch(e){}
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 1500);
+  });
+
+  /* ---------- Réinitialisation ---------- */
+  formSondage.addEventListener('reset', function() {
+    document.querySelectorAll('.option.selectionnee').forEach(o => o.classList.remove('selectionnee'));
+    echelleOptions.forEach(o => o.classList.remove('selectionnee'));
+    inputCharge.value = '';
+  });
+
+  /* ---------- Empêcher le double-tap zoom sur iOS ---------- */
+  let dernierTouch = 0;
+  document.addEventListener('touchend', function(e) {
+    const maintenant = new Date().getTime();
+    if (maintenant - dernierTouch <= 300) {
+      e.preventDefault();
+    }
+    dernierTouch = maintenant;
+  }, { passive: false });
+</script>
+
+</body>
+</html>
