@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Lotus d'Or — Restaurant Asiatique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noir:      #14100e;
+    --noir-2:    #1e1815;
+    --or:        #d4af37;
+    --or-clair:  #f0d98a;
+    --rouge:     #a4262c;
+    --creme:     #f5efe6;
+    --gris:      #a99f95;
+    --radius:    14px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    font-family:'Montserrat', sans-serif;
+    background:var(--noir);
+    color:var(--creme);
+    line-height:1.7;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,h4{ font-family:'Cormorant Garamond', serif; font-weight:700; line-height:1.2; }
+
+  a{ color:inherit; text-decoration:none; }
+
+  .conteneur{ width:min(1180px, 92%); margin-inline:auto; }
+
+  /* ---------- BANDEAU ---------- */
+  .bandeau{
+    background:var(--rouge);
+    color:#fff;
+    text-align:center;
+    font-size:.78rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    padding:.55rem 1rem;
+    font-weight:500;
+  }
+
+  /* ---------- NAVIGATION ---------- */
+  header{
+    position:sticky; top:0; z-index:100;
+    background:rgba(20,16,14,.88);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(212,175,55,.18);
+  }
+
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 0;
+  }
+
+  .logo{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.7rem;
+    font-weight:700;
+    letter-spacing:.04em;
+    color:var(--or);
+  }
+  .logo span{ color:var(--creme); font-size:.62rem; display:block; letter-spacing:.32em; text-transform:uppercase; font-family:'Montserrat',sans-serif; font-weight:400; }
+
+  .liens{ display:flex; gap:2rem; list-style:none; align-items:center; }
+  .liens a{
+    font-size:.82rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--creme); position:relative; padding-bottom:4px; transition:color .3s;
+  }
+  .liens a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--or); transition:width .3s;
+  }
+  .liens a:hover{ color:var(--or); }
+  .liens a:hover::after{ width:100%; }
+
+  .btn-reserver{
+    border:1px solid var(--or); color:var(--or) !important;
+    padding:.6rem 1.4rem; border-radius:50px;
+    font-size:.78rem; letter-spacing:.14em; text-transform:uppercase;
+    transition:.3s; cursor:pointer; background:transparent;
+  }
+  .btn-reserver:hover{ background:var(--or); color:var(--noir) !important; }
+
+  .burger{ display:none; background:none; border:none; cursor:pointer; flex-direction:column; gap:5px; }
+  .burger span{ width:26px; height:2px; background:var(--or); display:block; transition:.3s; }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding:6rem 0; }
+
+  .entete-section{ text-align:center; margin-bottom:3.5rem; }
+  .entete-section h2{
+    font-size:clamp(2rem, 4.5vw, 3rem);
+    margin-bottom:.9rem;
+  }
+  .entete-section h2 em{ color:var(--or); font-style:italic; }
+  .entete-section p{ color:var(--gris); max-width:600px; margin-inline:auto; font-weight:300; font-size:.95rem; }
+
+  .filet{
+    width:70px; height:2px; background:var(--or);
+    margin:1.2rem auto 0; position:relative;
+  }
+  .filet::before, .filet::after{
+    content:''; position:absolute; top:-3px; width:8px; height:8px;
+    background:var(--or); transform:rotate(45deg);
+  }
+  .filet::before{ left:-16px; }
+  .filet::after{ right:-16px; }
+
+  /* ---------- RECRUTEMENT / CV (1ʳᵉ SECTION) ---------- */
+  .recrutement{
+    background:
+      linear-gradient(rgba(20,16,14,.93), rgba(20,16,14,.97)),
+      url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80') center/cover fixed;
+    position:relative;
+    padding-top:4.5rem;
+  }
+
+  .recrutement-grille{
+    display:grid; grid-template-columns:.9fr 1.1fr; gap:3.5rem; align-items:start;
+  }
+
+  .recrutement-intro h2{ font-size:clamp(2rem,4vw,2.8rem); margin-bottom:1.2rem; }
+  .recrutement-intro h2 em{ color:var(--or); font-style:italic; }
+  .recrutement-intro p{ color:#c4bab0; font-weight:300; font-size:.95rem; margin-bottom:1.8rem; }
+
+  .avantages{ list-style:none; display:grid; gap:1rem; }
+  .avantages li{ display:flex; gap:.9rem; align-items:flex-start; font-size:.9rem; color:#d9d0c5; font-weight:300; }
+  .avantages li::before{
+    content:'✦'; color:var(--or); font-size:.9rem; line-height:1.6;
+  }
+
+  .carte-form{
+    background:rgba(30,24,21,.92);
+    border:1px solid rgba(212,175,55,.22);
+    border-radius:var(--radius);
+    padding:2.6rem;
+    backdrop-filter:blur(6px);
+  }
+
+  /* ---------- PORTE DE CONNEXION GOOGLE ---------- */
+  .porte{ text-align:center; }
+
+  .porte .cadenas{
+    display:grid; place-items:center;
+    width:74px; height:74px; margin:0 auto 1.4rem;
+    border-radius:50%;
+    background:rgba(212,175,55,.1);
+    border:1px solid rgba(212,175,55,.35);
+    font-size:1.9rem;
+    animation:flotter 3.5s ease-in-out infinite;
+  }
+
+  @keyframes flotter{
+    0%,100%{ transform:translateY(0); }
+    50%    { transform:translateY(-7px); }
+  }
+
+  .porte h3{ font-size:1.9rem; margin-bottom:.8rem; }
+  .porte h3 em{ color:var(--or); font-style:italic; }
+
+  .porte > p{
+    font-size:.9rem; color:#c4bab0; font-weight:300;
+    max-width:420px; margin:0 auto 2rem;
+  }
+
+  .btn-google{
+    display:inline-flex; align-items:center; justify-content:center; gap:.85rem;
+    width:100%;
+    background:#ffffff; color:#3c4043;
+    border:1px solid #dadce0; border-radius:50px;
+    padding:1rem 1.8rem;
+    font-family:'Montserrat',sans-serif;
+    font-size:.88rem; font-weight:500; letter-spacing:.02em;
+    cursor:pointer; transition:.3s;
+    text-decoration:none;
+  }
+  .btn-google:hover{
+    background:#f8f9fa;
+    box-shadow:0 8px 26px rgba(0,0,0,.45);
+    transform:translateY(-2px);
+  }
+  .btn-google:active{ transform:translateY(0); }
+  .btn-google svg{ flex-shrink:0; }
+
+  .note-securite{
+    font-size:.75rem; color:var(--gris); font-weight:300;
+    margin-top:1.4rem; line-height:1.6;
+  }
+
+  .etapes{
+    display:flex; justify-content:center; gap:1.6rem;
+    margin-top:2rem; padding-top:2rem;
+    border-top:1px solid rgba(212,175,55,.15);
+    flex-wrap:wrap;
+  }
+  .etape{ text-align:center; flex:1; min-width:90px; }
+  .etape b{
+    display:grid; place-items:center;
+    width:30px; height:30px; margin:0 auto .55rem;
+    border-radius:50%; background:rgba(212,175,55,.14);
+    border:1px solid rgba(212,175,55,.4);
+    color:var(--or); font-size:.8rem; font-weight:600;
+  }
+  .etape span{ font-size:.72rem; color:var(--gris); letter-spacing:.04em; line-height:1.5; display:block; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:88vh;
+    display:grid; place-items:center; text-align:center;
+    position:relative;
+    background:
+      linear-gradient(rgba(20,16,14,.72), rgba(20,16,14,.92)),
+      url('https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1600&q=80') center/cover fixed;
+    padding:5rem 1rem;
+  }
+
+  .hero::before{
+    content:''; position:absolute; inset:24px;
+    border:1px solid rgba(212,175,55,.25); pointer-events:none;
+  }
+
+  .hero-contenu{ position:relative; z-index:2; max-width:820px; }
+
+  .surtitre{
+    display:inline-block;
+    color:var(--or); letter-spacing:.4em; text-transform:uppercase;
+    font-size:.72rem; margin-bottom:1.6rem;
+  }
+  .surtitre::before{ content:'— '; opacity:.5; }
+  .surtitre::after{ content:' —'; opacity:.5; }
+
+  .hero h1{
+    font-size:clamp(2.8rem, 7vw, 5.4rem);
+    color:var(--creme);
+    margin-bottom:1.2rem;
+  }
+  .hero h1 em{ color:var(--or); font-style:italic; }
+
+  .hero p{
+    font-size:clamp(.95rem, 2vw, 1.1rem);
+    color:#d9d0c5; font-weight:300;
+    max-width:620px; margin:0 auto 2.6rem;
+  }
+
+  .hero-boutons{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  .btn{
+    display:inline-block;
+    padding:.95rem 2.4rem;
+    border-radius:50px;
+    font-size:.8rem; letter-spacing:.16em; text-transform:uppercase;
+    font-weight:500; transition:.35s; cursor:pointer; border:1px solid transparent;
+  }
+  .btn-or{ background:var(--or); color:var(--noir); }
+  .btn-or:hover{ background:var(--or-clair); transform:translateY(-3px); box-shadow:0 12px 30px rgba(212,175,55,.28); }
+  .btn-vide{ border-color:rgba(245,239,230,.4); color:var(--creme); }
+  .btn-vide:hover{ border-color:var(--or); color:var(--or); transform:translateY(-3px); }
+
+  /* ---------- À PROPOS ---------- */
+  .apropos{ background:var(--noir-2); }
+
+  .apropos-grille{
+    display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center;
+  }
+
+  .apropos-img{
+    position:relative; border-radius:var(--radius); overflow:hidden;
+    aspect-ratio:4/5;
+  }
+  .apropos-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .apropos-img::after{
+    content:''; position:absolute; inset:0;
+    border:1px solid rgba(212,175,55,.35); border-radius:var(--radius);
+    margin:14px; pointer-events:none;
+  }
+
+  .apropos-texte h3{ font-size:2.2rem; margin-bottom:1.2rem; }
+  .apropos-texte h3 em{ color:var(--or); font-style:italic; }
+  .apropos-texte p{ color:#c4bab0; font-weight:300; margin-bottom:1.1rem; font-size:.95rem; }
+
+  .stats{ display:flex; gap:2.5rem; margin-top:2.2rem; flex-wrap:wrap; }
+  .stat strong{ display:block; font-family:'Cormorant Garamond',serif; font-size:2.2rem; color:var(--or); }
+  .stat span{ font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--gris); }
+
+  /* ---------- MENU ---------- */
+  .menu-grille{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:3rem;
+  }
+
+  .carte-menu{
+    background:var(--noir-2);
+    border:1px solid rgba(212,175,55,.16);
+    border-radius:var(--radius);
+    padding:2.4rem;
+    transition:.35s;
+  }
+  .carte-menu:hover{ border-color:rgba(212,175,55,.5); transform:translateY(-6px); }
+
+  .carte-menu h3{
+    font-size:1.55rem; color:var(--or); margin-bottom:.3rem;
+    display:flex; align-items:center; gap:.8rem;
+  }
+  .carte-menu h3::after{ content:''; flex:1; height:1px; background:rgba(212,175,55,.25); }
+
+  .carte-menu .sous-titre{ font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gris); margin-bottom:1.8rem; display:block; }
+
+  .plat{ display:flex; justify-content:space-between; gap:1.4rem; padding:.9rem 0; border-bottom:1px dashed rgba(212,175,55,.14); }
+  .plat:last-child{ border-bottom:none; }
+  .plat-nom{ font-weight:500; font-size:.95rem; }
+  .plat-desc{ display:block; font-size:.8rem; color:var(--gris); font-weight:300; margin-top:.2rem; }
+  .plat-prix{ font-family:'Cormorant Garamond',serif; font-size:1.25rem; color:var(--or); white-space:nowrap; font-weight:600; }
+
+  /* ---------- CONTACT ---------- */
+  .contact{ background:var(--noir-2); }
+
+  .contact-grille{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:2rem;
+  }
+
+  .bloc-contact{
+    text-align:center; padding:2.2rem 1.5rem;
+    border:1px solid rgba(212,175,55,.16);
+    border-radius:var(--radius);
+    transition:.35s;
+  }
+  .bloc-contact:hover{ border-color:rgba(212,175,55,.5); background:rgba(212,175,55,.04); }
+  .bloc-contact .ico{ font-size:1.6rem; display:block; margin-bottom:.9rem; }
+  .bloc-contact h4{ font-size:1.25rem; color:var(--or); margin-bottom:.6rem; }
+  .bloc-contact p{ font-size:.88rem; color:#c4bab0; font-weight:300; }
+
+  /* ---------- PIED DE PAGE ---------- */
+  footer{
+    background:var(--noir);
+    border-top:1px solid rgba(212,175,55,.18);
+    padding:3rem 0 2rem;
+    text-align:center;
+  }
+  footer .logo{ margin-bottom:1rem; }
+  .reseaux{ display:flex; gap:1rem; justify-content:center; margin:1.4rem 0; }
+  .reseaux a{
+    width:40px; height:40px; border-radius:50%;
+    border:1px solid rgba(212,175,55,.3);
+    display:grid; place-items:center; font-size:.85rem;
+    transition:.3s; color:var(--or);
+  }
+  .reseaux a:hover{ background:var(--or); color:var(--noir); border-color:var(--or); }
+  footer small{ color:var(--gris); font-size:.75rem; font-weight:300; letter-spacing:.06em; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px){
+    .apropos-grille,
+    .recrutement-grille{ grid-template-columns:1fr; gap:2.5rem; }
+    .apropos-img{ aspect-ratio:16/10; }
+  }
+
+  @media (max-width: 760px){
+    .burger{ display:flex; }
+    .liens{
+      position:absolute; top:100%; left:0; right:0;
+      background:rgba(20,16,14,.98);
+      flex-direction:column; gap:0;
+      padding:1rem 0;
+      border-bottom:1px solid rgba(212,175,55,.2);
+      display:none;
+    }
+    .liens.ouvert{ display:flex; }
+    .liens li{ width:100%; text-align:center; }
+    .liens a{ display:block; padding:1rem; }
+    .liens a::after{ display:none; }
+    nav{ position:relative; }
+    section{ padding:4rem 0; }
+    .carte-form{ padding:1.8rem 1.4rem; }
+    .hero{ background-attachment:scroll; }
+    .recrutement{ background-attachment:scroll; }
+    .etapes{ gap:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== BANDEAU ===== -->
+<div class="bandeau">Ouvert du mardi au dimanche · 12h – 14h30 &amp; 19h – 23h · Réservation : 01 45 78 92 30</div>
+
+<!-- ===== EN-TÊTE ===== -->
+<header>
+  <div class="conteneur">
+    <nav>
+      <a href="#accueil" class="logo">
+        Le Lotus d'Or
+        <span>Cuisine d'Asie</span>
+      </a>
+
+      <ul class="liens" id="menuLiens">
+        <li><a href="#recrutement">Recrutement</a></li>
+        <li><a href="#apropos">Notre histoire</a></li>
+        <li><a href="#menu">La carte</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#contact" class="btn-reserver">Réserver</a></li>
+      </ul>
+
+      <button class="burger" id="burger" aria-label="Ouvrir le menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== DÉPÔT DE CV — 1ʳᵉ SECTION ===== -->
+<section class="recrutement" id="recrutement">
+  <div class="conteneur">
+    <div class="recrutement-grille">
+
+      <!-- Colonne gauche -->
+      <div class="recrutement-intro">
+        <h2>Rejoignez <em>notre équipe</em></h2>
+        <p>
+          Le Lotus d'Or grandit et recrute des talents passionnés. Que vous soyez en salle,
+          en cuisine ou en livraison, nous cherchons avant tout des personnes souriantes,
+          rigoureuses et attachées au travail bien fait.
+        </p>
+
+        <ul class="avantages">
+          <li>Contrat CDI ou CDD, temps plein ou temps partiel</li>
+          <li>Salaire au-dessus du minimum conventionnel + pourboires</li>
+          <li>Repas d'équipe offert à chaque service</li>
+          <li>Formation interne à la cuisine asiatique</li>
+          <li>Horaires stables, deux jours de repos consécutifs</li>
+        </ul>
+      </div>
+
+      <!-- Colonne droite : porte de connexion Google -->
+      <div class="carte-form">
+        <div class="porte">
+          <span class="cadenas" aria-hidden="true">🔒</span>
+
+          <h3>Déposez votre <em>CV</em></h3>
+          <p>
+            Pour envoyer votre candidature, vous devez d'abord vous identifier avec votre
+            compte Google. Vous serez ensuite redirigé vers notre espace de candidature sécurisé.
+          </p>
+
+          <!-- ✅ BOUTON GOOGLE — Redirection directe vers votre site -->
+          <a href="https://sites.google.com/view/connectsignup/home"
+             class="btn-google"
+             id="btnGoogle"
+             target="_blank"
+             rel="noopener noreferrer">
+            <!-- Logo officiel Google -->
+            <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Se connecter avec Google
+          </a>
+
+          <p class="note-securite">
+            🔐 Connexion sécurisée · Aucun mot de passe n'est conservé par Le Lotus d'Or
+          </p>
+
+          <div class="etapes">
+            <div class="etape">
+              <b>1</b>
+              <span>Connexion<br>Google</span>
+            </div>
+            <div class="etape">
+              <b>2</b>
+              <span>Accès au formulaire<br>de candidature</span>
+            </div>
+            <div class="etape">
+              <b>3</b>
+              <span>Dépôt du CV<br>et envoi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="accueil">
+  <div class="hero-contenu">
+    <span class="surtitre">Depuis 1998 · Paris 11ᵉ</span>
+    <h1>L'art de la <em>table asiatique</em></h1>
+    <p>
+      Des recettes familiales transmises de génération en génération, des produits frais
+      sélectionnés chaque matin et une cuisine ouverte sur le monde : bienvenue au Lotus d'Or.
+    </p>
+    <div class="hero-boutons">
+      <a href="#menu" class="btn btn-or">Découvrir la carte</a>
+      <a href="#recrutement" class="btn btn-vide">Déposer un CV</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== À PROPOS ===== -->
+<section class="apropos" id="apropos">
+  <div class="conteneur">
+    <div class="apropos-grille">
+      <div class="apropos-img">
+        <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=80" alt="Cuisine asiatique du Lotus d'Or">
+      </div>
+
+      <div class="apropos-texte">
+        <h3>Une histoire de <em>famille</em></h3>
+        <p>
+          Tout commence en 1998, dans une petite salle de quartier du 11ᵉ arrondissement.
+          Trois générations plus tard, le Lotus d'Or perpétue la même exigence : des bouillons
+          mijotés douze heures, des pâtes fraîches préparées sur place et des épices
+          rapportées directement d'Asie du Sud-Est.
+        </p>
+        <p>
+          Notre chef, <strong>Linh Nguyen</strong>, travaille chaque jour une cuisine de saison
+          qui mêle les traditions vietnamiennes, thaïlandaises et chinoises à une touche
+          résolument contemporaine.
+        </p>
+
+        <div class="stats">
+          <div class="stat"><strong>28</strong><span>Années d'expérience</span></div>
+          <div class="stat"><strong>45</strong><span>Plats à la carte</span></div>
+          <div class="stat"><strong>100%</strong><span>Fait maison</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MENU ===== -->
+<section id="menu">
+  <div class="conteneur">
+    <div class="entete-section">
+      <h2>Notre <em>carte</em></h2>
+      <p>Une sélection de nos spécialités, renouvelée au fil des saisons.</p>
+      <div class="filet"></div>
+    </div>
+
+    <div class="menu-grille">
+
+      <!-- Entrées -->
+      <article class="carte-menu">
+        <h3>Entrées</h3>
+        <span class="sous-titre">Pour commencer</span>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Rouleaux de printemps aux crevettes</span>
+            <span class="plat-desc">Vermicelles, menthe fraîche, sauce hoisin</span>
+          </div>
+          <span class="plat-prix">6,50 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Gyoza au poulet</span>
+            <span class="plat-desc">Six pièces grillées, sauce ponzu maison</span>
+          </div>
+          <span class="plat-prix">7,00 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Salade de papaye verte</span>
+            <span class="plat-desc">Cacahuètes torréfiées, citron vert, piment doux</span>
+          </div>
+          <span class="plat-prix">8,00 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Nems croustillants</span>
+            <span class="plat-desc">Quatre pièces, salade et herbes fraîches</span>
+          </div>
+          <span class="plat-prix">6,00 $</span>
+        </div>
+      </article>
+
+      <!-- Plats -->
+      <article class="carte-menu">
+        <h3>Plats</h3>
+        <span class="sous-titre">Les signatures</span>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Bœuf Loc Lac</span>
+            <span class="plat-desc">Bœuf sauté, riz parfumé, œuf au plat, poivre noir de Kampot</span>
+          </div>
+          <span class="plat-prix">16,50 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Pad Thaï aux crevettes</span>
+            <span class="plat-desc">Nouilles de riz, tamarin, pousses de soja, citron vert</span>
+          </div>
+          <span class="plat-prix">15,00 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Ramen tonkotsu</span>
+            <span class="plat-desc">Bouillon 12 h, chashu, œuf mollet, nori</span>
+          </div>
+          <span class="plat-prix">14,50 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Poulet au curry rouge</span>
+            <span class="plat-desc">Lait de coco, aubergines thaïes, basilic sacré</span>
+          </div>
+          <span class="plat-prix">15,50 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Canard laqué</span>
+            <span class="plat-desc">Laqué au miel et cinq-épices, crêpes fines</span>
+          </div>
+          <span class="plat-prix">19,00 $</span>
+        </div>
+      </article>
+
+      <!-- Desserts -->
+      <article class="carte-menu">
+        <h3>Desserts</h3>
+        <span class="sous-titre">Pour finir en douceur</span>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Perles de coco</span>
+            <span class="plat-desc">Trois pièces, tapioca et lait de coco</span>
+          </div>
+          <span class="plat-prix">5,50 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Mochi glacé</span>
+            <span class="plat-desc">Mangue, matcha ou sésame noir</span>
+          </div>
+          <span class="plat-prix">6,00 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Banane flambée</span>
+            <span class="plat-desc">Rhum ambré, glace vanille de Madagascar</span>
+          </div>
+          <span class="plat-prix">6,50 $</span>
+        </div>
+
+        <div class="plat">
+          <div>
+            <span class="plat-nom">Thé jasmin ou gingembre</span>
+            <span class="plat-desc">Servi en théière, à partager</span>
+          </div>
+          <span class="plat-prix">4,50 $</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="contact" id="contact">
+  <div class="conteneur">
+    <div class="entete-section">
+      <h2>Nous <em>trouver</em></h2>
+      <p>Nous vous accueillons au cœur du 11ᵉ arrondissement, à deux pas de la Bastille.</p>
+      <div class="filet"></div>
+    </div>
+
+    <div class="contact-grille">
+      <div class="bloc-contact">
+        <span class="ico">📍</span>
+        <h4>Adresse</h4>
+        <p>42 rue de la Roquette<br>75011 Paris, France</p>
+      </div>
+
+      <div class="bloc-contact">
+        <span class="ico">📞</span>
+        <h4>Téléphone</h4>
+        <p>01 45 78 92 30<br>Réservation conseillée</p>
+      </div>
+
+      <div class="bloc-contact">
+        <span class="ico">🕐</span>
+        <h4>Horaires</h4>
+        <p>Mardi – Dimanche<br>12h–14h30 · 19h–23h</p>
+      </div>
+
+      <div class="bloc-contact">
+        <span class="ico">✉️</span>
+        <h4>E-mail</h4>
+        <p>contact@lotusdor.fr<br>recrutement@lotusdor.fr</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PIED DE PAGE ===== -->
+<footer>
+  <div class="conteneur">
+    <div class="logo">Le Lotus d'Or<span>Cuisine d'Asie</span></div>
+
+    <div class="reseaux">
+      <a href="#" aria-label="Instagram">IG</a>
+      <a href="#" aria-label="Facebook">FB</a>
+      <a href="#" aria-label="TikTok">TT</a>
+    </div>
+
+    <small>© 2025 Le Lotus d'Or — Tous droits réservés · Mentions légales · Politique de confidentialité</small>
+  </div>
+</footer>
+
+<script>
+  /* ---------- Menu mobile ---------- */
+  const burger = document.getElementById('burger');
+  const liens  = document.getElementById('menuLiens');
+
+  burger.addEventListener('click', () => liens.classList.toggle('ouvert'));
+  liens.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => liens.classList.remove('ouvert'))
+  );
+</script>
+
+</body>
+</html>
