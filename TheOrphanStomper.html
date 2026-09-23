@@ -1,467 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Script Unlock — The0rphanStomper</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#07090f;
-    --panel:#11151f;
-    --panel2:#161b28;
-    --line:#242c3e;
-    --txt:#e7ecf5;
-    --muted:#8b95ad;
-    --red:#ff2d55;
-    --green:#2bd576;
-    --accent:#7c5cff;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  }
-  body{
-    min-height:100vh;
-    background:
-      radial-gradient(900px 500px at 50% -10%, rgba(124,92,255,.20), transparent 60%),
-      radial-gradient(700px 420px at 95% 110%, rgba(255,45,85,.14), transparent 60%),
-      var(--bg);
-    color:var(--txt);
-    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    display:flex;justify-content:center;
-    padding:44px 18px 70px;
-    -webkit-font-smoothing:antialiased;
-  }
-  .wrap{width:100%;max-width:780px}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Script Updated — Latest Version Available</title>
+<meta name="description" content="The newest and best version of the script is now available. Download the latest release." />
 
-  /* ---------- header ---------- */
-  header{text-align:center;margin-bottom:30px}
+<style>
+  :root{
+    --bg:#0b0f14;
+    --card:#121822;
+    --card-2:#161e2a;
+    --text:#e8eef7;
+    --muted:#94a3b8;
+    --accent:#22d3ee;
+    --accent-2:#3b82f6;
+    --green:#34d399;
+    --border:rgba(255,255,255,.08);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html,body{height:100%;}
+
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(59,130,246,.20), transparent 60%),
+      radial-gradient(800px 500px at 90% 10%, rgba(34,211,238,.15), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 20px;
+    min-height:100%;
+    line-height:1.6;
+  }
+
+  .card{
+    width:100%;
+    max-width:720px;
+    background:linear-gradient(180deg,var(--card-2),var(--card));
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:44px 38px;
+    text-align:center;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+    animation:rise .6s ease both;
+  }
+
+  @keyframes rise{
+    from{opacity:0;transform:translateY(18px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
   .badge{
-    display:inline-block;
-    font-size:11px;letter-spacing:.16em;font-weight:700;
-    padding:6px 12px;border-radius:999px;
-    color:#c9b8ff;background:rgba(124,92,255,.12);
-    border:1px solid rgba(124,92,255,.35);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:.78rem;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--green);
+    background:rgba(52,211,153,.10);
+    border:1px solid rgba(52,211,153,.30);
+    padding:7px 15px;
+    border-radius:999px;
+    margin-bottom:22px;
+  }
+
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 0 rgba(52,211,153,.7);
+    animation:pulse 1.8s infinite;
+  }
+
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(52,211,153,.7);}
+    70%{box-shadow:0 0 0 10px rgba(52,211,153,0);}
+    100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+  }
+
+  h1{
+    font-size:clamp(1.75rem,4.6vw,2.6rem);
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:-.02em;
+    background:linear-gradient(90deg,#ffffff,#9fd8ff 55%,var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
     margin-bottom:16px;
   }
-  h1{
-    font-size:clamp(28px,6vw,42px);
-    line-height:1.1;letter-spacing:-.02em;font-weight:800;
-  }
-  h1 span{
-    background:linear-gradient(92deg,var(--accent),var(--red));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .sub{color:var(--muted);margin-top:12px;font-size:15px;line-height:1.6}
 
-  /* ---------- steps ---------- */
-  .card{
-    background:linear-gradient(180deg,var(--panel),var(--panel2));
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:8px;
-    box-shadow:0 24px 60px -30px rgba(0,0,0,.9);
+  .sub{
+    color:var(--muted);
+    font-size:1.03rem;
+    max-width:540px;
+    margin:0 auto 30px;
   }
-  .step{
-    display:flex;gap:16px;
-    padding:18px;
-    border-radius:12px;
-    transition:opacity .35s ease, filter .35s ease;
-  }
-  .step + .step{border-top:1px solid var(--line)}
-  .step.dim{opacity:.45;filter:grayscale(.5)}
-  .num{
-    flex:0 0 34px;height:34px;width:34px;
-    display:grid;place-items:center;
-    border-radius:50%;
-    font-weight:800;font-size:14px;
-    background:rgba(124,92,255,.14);
-    border:1px solid rgba(124,92,255,.4);
-    color:#c9b8ff;
-  }
-  .step.done .num{
-    background:rgba(43,213,118,.14);
-    border-color:rgba(43,213,118,.45);
-    color:var(--green);
-  }
-  .body{flex:1;min-width:0}
-  .body h2{font-size:16px;font-weight:700;margin-bottom:6px}
-  .body p{color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:14px}
 
-  /* ---------- buttons ---------- */
+  .sub strong{color:var(--text);font-weight:600;}
+
+  .features{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:34px;
+  }
+
+  .feature{
+    font-size:.85rem;
+    color:#cbd5e1;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:999px;
+  }
+
   .btn{
-    display:inline-flex;align-items:center;gap:9px;
-    font:inherit;font-size:14px;font-weight:700;
-    padding:11px 20px;border-radius:10px;
-    border:1px solid transparent;cursor:pointer;
-    text-decoration:none;line-height:1;
-    transition:transform .12s ease, box-shadow .2s ease, opacity .2s ease, background .2s ease;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    max-width:420px;
+    padding:17px 28px;
+    font-size:1.05rem;
+    font-weight:700;
+    color:#04121a;
+    text-decoration:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    box-shadow:0 12px 34px rgba(34,211,238,.28);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
   }
-  .btn:active{transform:translateY(1px)}
-  .btn-yt{background:var(--red);color:#fff;box-shadow:0 10px 26px -12px rgba(255,45,85,.9)}
-  .btn-yt:hover{background:#ff4568}
-  .btn-unlock{background:var(--accent);color:#fff;box-shadow:0 10px 26px -12px rgba(124,92,255,.95)}
-  .btn-unlock:hover:not(:disabled){background:#8f73ff}
-  .btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
-  .btn.unlocked{background:var(--green);box-shadow:0 10px 26px -12px rgba(43,213,118,.9)}
-  .btn-ghost{
-    background:transparent;color:var(--muted);
-    border-color:var(--line);padding:9px 16px;font-size:13px;
-  }
-  .btn-ghost:hover{color:var(--txt);border-color:#3a4560}
-  .btn.small{padding:8px 14px;font-size:12.5px;border-radius:8px}
 
-  /* ---------- script box ---------- */
-  .script{
-    position:relative;margin-top:26px;
-    background:#0a0d14;
-    border:1px solid var(--line);
-    border-radius:16px;overflow:hidden;
+  .btn:hover{
+    transform:translateY(-3px);
+    filter:brightness(1.07);
+    box-shadow:0 18px 44px rgba(34,211,238,.40);
   }
-  .script-head{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:11px 14px;
-    background:#0e121b;border-bottom:1px solid var(--line);
-  }
-  .dots{display:flex;gap:6px}
-  .dots i{width:10px;height:10px;border-radius:50%;background:#2a3244;display:block}
-  .dots i:nth-child(1){background:#ff5f57}
-  .dots i:nth-child(2){background:#febc2e}
-  .dots i:nth-child(3){background:#28c840}
-  .filename{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:4px}
-  .script-actions{display:flex;gap:8px}
-  pre{
-    margin:0;padding:18px;
-    max-height:420px;overflow:auto;
-    font-family:var(--mono);font-size:12.8px;line-height:1.65;
-    color:#b9c6de;white-space:pre;
-  }
-  pre::-webkit-scrollbar{width:10px;height:10px}
-  pre::-webkit-scrollbar-thumb{background:#242c3e;border-radius:10px}
 
-  /* lock overlay */
-  .overlay{
-    position:absolute;inset:0;
-    display:grid;place-items:center;gap:10px;
-    background:rgba(7,9,15,.82);
-    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
-    text-align:center;padding:24px;
-    transition:opacity .45s ease, visibility .45s ease;
-  }
-  .overlay.hide{opacity:0;visibility:hidden}
-  .overlay .lock{font-size:30px;display:block;margin-bottom:10px}
-  .overlay strong{display:block;font-size:15px;margin-bottom:4px}
-  .overlay small{color:var(--muted);font-size:12.5px}
+  .btn:active{transform:translateY(-1px);}
 
-  /* ---------- footer ---------- */
+  .btn svg{width:20px;height:20px;}
+
+  .note{
+    margin-top:18px;
+    font-size:.82rem;
+    color:var(--muted);
+    word-break:break-all;
+  }
+
+  .note a{
+    color:#7dd3fc;
+    text-decoration:none;
+  }
+
+  .note a:hover{text-decoration:underline;}
+
   footer{
-    margin-top:30px;text-align:center;
-    color:var(--muted);font-size:12.5px;line-height:1.9;
+    margin-top:30px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    font-size:.8rem;
+    color:#64748b;
   }
-  footer a{color:#a99bff;text-decoration:none}
-  footer a:hover{text-decoration:underline}
 
-  /* ---------- toast ---------- */
-  #toast{
-    position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);
-    background:#1b2130;border:1px solid var(--line);
-    color:var(--txt);font-size:13.5px;font-weight:600;
-    padding:12px 20px;border-radius:10px;
-    box-shadow:0 20px 45px -20px #000;
-    opacity:0;pointer-events:none;
-    transition:transform .3s ease, opacity .3s ease;
-    z-index:99;
-  }
-  #toast.show{transform:translate(-50%,0);opacity:1}
-
-  .spinner{
-    width:13px;height:13px;border-radius:50%;
-    border:2px solid rgba(255,255,255,.3);
-    border-top-color:#fff;
-    animation:spin .7s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  @media(max-width:520px){
-    .step{padding:16px 14px;gap:12px}
-    .num{flex-basis:28px;height:28px;width:28px;font-size:12px}
-    .btn{width:100%;justify-content:center}
-    .script-actions .btn{width:auto}
+  @media (max-width:480px){
+    .card{padding:34px 22px;border-radius:16px;}
+    .btn{font-size:.98rem;padding:15px 20px;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <header>
-    <div class="badge">NEW RELEASE</div>
-    <h1>Orphan&nbsp;Stomper <span>Script</span></h1>
-    <p class="sub">
-      The full script is locked. Subscribe to the channel below to unlock it —<br>
-      it takes about 5 seconds.
-    </p>
-  </header>
 
   <main class="card">
+    <div class="badge"><span class="dot"></span> Update Available</div>
 
-    <!-- STEP 1 -->
-    <section class="step" id="step1">
-      <div class="num" id="num1">1</div>
-      <div class="body">
-        <h2>Subscribe on YouTube</h2>
-        <p>Open the channel and hit <strong>Subscribe</strong>, then come back to this tab.</p>
-        <a class="btn btn-yt" id="subBtn"
-           href="https://www.youtube.com/@The0rphanStomper"
-           target="_blank" rel="noopener noreferrer">
-          ▶ Subscribe to @The0rphanStomper
-        </a>
-      </div>
-    </section>
+    <h1>Script Updated — Latest Version Available</h1>
 
-    <!-- STEP 2 -->
-    <section class="step dim" id="step2">
-      <div class="num" id="num2">2</div>
-      <div class="body">
-        <h2>Unlock the script</h2>
-        <p id="unlockHint">Locked — complete step 1 first.</p>
-        <button class="btn btn-unlock" id="unlockBtn" disabled>🔒 Locked</button>
-      </div>
-    </section>
+    <p class="sub">
+      The <strong>newest and best version</strong> of the script is out right now.
+      Rebuilt, cleaned up, and tuned for maximum performance — this is the most
+      stable release yet and the one everyone should be running.
+    </p>
 
+    <div class="features">
+      <span class="feature">⚡ Latest Build</span>
+      <span class="feature">🛠️ Bug Fixes</span>
+      <span class="feature">🚀 Faster Performance</span>
+      <span class="feature">✅ Most Stable Release</span>
+    </div>
+
+    <a class="btn"
+       href="https://github.com/2cup2323/2cup2323.github.io/blob/main/wwewe.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Get the Latest Script
+    </a>
+
+    <p class="note">
+      Direct link:
+      <a href="https://github.com/2cup2323/2cup2323.github.io/blob/main/wwewe.html"
+         target="_blank" rel="noopener noreferrer">
+        github.com/2cup2323/2cup2323.github.io/blob/main/wwewe.html
+      </a>
+    </p>
+
+    <footer>Always make sure you're running the newest version.</footer>
   </main>
 
-  <!-- SCRIPT -->
-  <section class="script">
-    <div class="script-head">
-      <div style="display:flex;align-items:center">
-        <div class="dots"><i></i><i></i><i></i></div>
-        <span class="filename">orphan_stomper.lua</span>
-      </div>
-      <div class="script-actions">
-        <button class="btn btn-ghost small" id="copyBtn" disabled>Copy</button>
-        <button class="btn btn-ghost small" id="dlBtn" disabled>Download</button>
-      </div>
-    </div>
-
-    <pre><code id="code">--[[
-  Orphan Stomper Script
-  ----------------------
-  Replace everything inside this block with your real script.
-  The unlock logic does NOT touch this content.
-]]
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local CONFIG = {
-    Enabled   = true,
-    Keybind   = Enum.KeyCode.RightShift,
-    Speed     = 32,
-    JumpPower = 60,
-    Theme     = "OrphanStomper",
-}
-
-local function notify(text)
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title    = "Orphan Stomper",
-        Text     = text,
-        Duration = 4,
-    })
-end
-
-local function applyCharacter(char)
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-    humanoid.WalkSpeed = CONFIG.Speed
-    humanoid.JumpPower = CONFIG.JumpPower
-    humanoid.UseJumpPower = true
-end
-
-if LocalPlayer.Character then
-    applyCharacter(LocalPlayer.Character)
-end
-
-LocalPlayer.CharacterAdded:Connect(applyCharacter)
-
-notify("Loaded — press RightShift to toggle.")
-print("[OrphanStomper] script loaded.")
-</code></pre>
-
-    <div class="overlay" id="overlay">
-      <div>
-        <span class="lock">🔒</span>
-        <strong>Script locked</strong>
-        <small>Subscribe to @The0rphanStomper to reveal the code.</small>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <p>
-      Can't see the channel?
-      <a href="https://www.youtube.com/@The0rphanStomper" target="_blank" rel="noopener noreferrer">Open it directly →</a>
-    </p>
-    <p>
-      Source &amp; updates:
-      <a href="https://github.com/2cup2323/2cup2323.github.io" target="_blank" rel="noopener noreferrer">github.com/2cup2323</a>
-    </p>
-  </footer>
-
-</div>
-
-<div id="toast">Copied!</div>
-
-<script>
-(function () {
-  "use strict";
-
-  /* ------------------------------------------------------------------
-     CONFIG
-  ------------------------------------------------------------------ */
-  const VERIFY_SECONDS = 5;          // fake "verification" delay after subscribing
-  const STORAGE_KEY    = "os_unlocked_v1";
-
-  /* ------------------------------------------------------------------
-     ELEMENTS
-  ------------------------------------------------------------------ */
-  const subBtn     = document.getElementById("subBtn");
-  const unlockBtn  = document.getElementById("unlockBtn");
-  const unlockHint = document.getElementById("unlockHint");
-  const step1      = document.getElementById("step1");
-  const step2      = document.getElementById("step2");
-  const num1       = document.getElementById("num1");
-  const num2       = document.getElementById("num2");
-  const overlay    = document.getElementById("overlay");
-  const copyBtn    = document.getElementById("copyBtn");
-  const dlBtn      = document.getElementById("dlBtn");
-  const codeEl     = document.getElementById("code");
-  const toast      = document.getElementById("toast");
-
-  let unlocked = false;
-  let verifying = false;
-  let countdownTimer = null;
-
-  /* ------------------------------------------------------------------
-     HELPERS
-  ------------------------------------------------------------------ */
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => toast.classList.remove("show"), 1900);
-  }
-
-  function setUnlocked(persist) {
-    unlocked = true;
-    clearInterval(countdownTimer);
-
-    step1.classList.add("done");
-    step2.classList.remove("dim");
-    num1.textContent = "✓";
-    num2.textContent = "✓";
-
-    unlockBtn.disabled = false;
-    unlockBtn.classList.add("unlocked");
-    unlockBtn.textContent = "✓ Unlocked";
-
-    unlockHint.textContent = "Script unlocked. Copy or download it below.";
-
-    overlay.classList.add("hide");
-    copyBtn.disabled = false;
-    dlBtn.disabled = false;
-
-    if (persist) {
-      try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) {}
-    }
-  }
-
-  function startVerification() {
-    if (unlocked || verifying) return;
-    verifying = true;
-
-    step1.classList.add("done");
-    num1.textContent = "✓";
-    subBtn.textContent = "✓ Subscribed";
-    subBtn.style.pointerEvents = "none";
-
-    step2.classList.remove("dim");
-    unlockHint.textContent = "Checking subscription…";
-
-    let left = VERIFY_SECONDS;
-    unlockBtn.disabled = true;
-    unlockBtn.innerHTML = '<span class="spinner"></span> Verifying… ' + left + "s";
-
-    countdownTimer = setInterval(function () {
-      left--;
-      if (left <= 0) {
-        clearInterval(countdownTimer);
-        setUnlocked(true);
-        showToast("Script unlocked — enjoy!");
-        return;
-      }
-      unlockBtn.innerHTML = '<span class="spinner"></span> Verifying… ' + left + "s";
-    }, 1000);
-  }
-
-  /* ------------------------------------------------------------------
-     EVENTS
-  ------------------------------------------------------------------ */
-
-  // Step 1 — opening the channel starts the "verification" countdown.
-  subBtn.addEventListener("click", function () {
-    // The <a target="_blank"> opens the channel natively.
-    startVerification();
-  });
-
-  // Step 2 — manual unlock (enabled once verified).
-  unlockBtn.addEventListener("click", function () {
-    if (unlocked) {
-      document.querySelector(".script").scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-  });
-
-  // Copy
-  copyBtn.addEventListener("click", async function () {
-    const text = codeEl.textContent;
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast("Script copied to clipboard!");
-    } catch (e) {
-      // Fallback for older browsers / non-HTTPS
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      showToast("Script copied!");
-    }
-  });
-
-  // Download
-  dlBtn.addEventListener("click", function () {
-    const blob = new Blob([codeEl.textContent], { type: "text/plain;charset=utf-8" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url;
-    a.download = "orphan_stomper.lua";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast("Downloading script…");
-  });
-
-  /* ------------------------------------------------------------------
-     RESTORE SESSION
-  ------------------------------------------------------------------ */
-  try {
-    if (localStorage.getItem(STORAGE_KEY) === "1") {
-      setUnlocked(false);
-    }
-  } catch (e) {}
-})();
-</script>
 </body>
 </html>
