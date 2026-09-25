@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Café Lézard — Restaurant, buvette, café</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --black: #111111;
+      --white: #f7f5ef;
+      --red: #b52d27;
+      --gray: #d9d5ca;
+      --dark-gray: #55524d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      font-family: "DM Sans", sans-serif;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4, nav, .price, .wine-price {
+      font-family: "Barlow Condensed", sans-serif;
+    }
+
+    header {
+      background: var(--black);
+      color: var(--white);
+      min-height: 90px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 6%;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      color: var(--white);
+      text-decoration: none;
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 700;
+      font-size: 42px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      color: var(--red);
+    }
+
+    nav {
+      display: flex;
+      gap: 30px;
+      font-size: 21px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--red);
+    }
+
+    .menu-button {
+      display: none;
+      background: none;
+      color: white;
+      border: 0;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    main {
+      min-height: 80vh;
+    }
+
+    .page {
+      display: none;
+      animation: fade .3s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      min-height: 650px;
+      background:
+        linear-gradient(rgba(0,0,0,.56), rgba(0,0,0,.56)),
+        url("https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1800&q=85")
+        center/cover;
+      display: flex;
+      align-items: center;
+      padding: 80px 8%;
+      color: white;
+    }
+
+    .hero-content {
+      max-width: 850px;
+    }
+
+    .hero h1 {
+      font-size: clamp(70px, 13vw, 175px);
+      line-height: .78;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 35px;
+    }
+
+    .hero h1 span {
+      color: var(--red);
+    }
+
+    .hero p {
+      max-width: 650px;
+      font-size: clamp(19px, 2.5vw, 29px);
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 35px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-block;
+      color: white;
+      background: var(--red);
+      text-decoration: none;
+      padding: 13px 25px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 21px;
+      text-transform: uppercase;
+      border: 2px solid var(--red);
+      transition: .2s ease;
+    }
+
+    .button:hover {
+      background: transparent;
+      color: white;
+    }
+
+    .button.secondary {
+      background: transparent;
+      border-color: white;
+    }
+
+    .button.secondary:hover {
+      background: white;
+      color: var(--black);
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      padding: 90px 8%;
+      align-items: center;
+    }
+
+    .intro h2,
+    .page-title {
+      font-size: clamp(50px, 7vw, 95px);
+      line-height: .9;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+
+    .intro h2 span,
+    .page-title span {
+      color: var(--red);
+    }
+
+    .intro p {
+      font-size: 20px;
+      max-width: 650px;
+    }
+
+    .info-box {
+      background: var(--black);
+      color: white;
+      padding: 35px;
+    }
+
+    .info-box h3 {
+      color: var(--red);
+      text-transform: uppercase;
+      font-size: 34px;
+      margin-bottom: 18px;
+    }
+
+    .info-box p {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .page-header {
+      background: var(--black);
+      color: white;
+      padding: 80px 8%;
+    }
+
+    .page-header .page-title {
+      margin: 0;
+    }
+
+    .content {
+      padding: 70px 8%;
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    .category {
+      margin-bottom: 65px;
+    }
+
+    .category h2 {
+      border-bottom: 3px solid var(--red);
+      color: var(--red);
+      font-size: 48px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0 50px;
+    }
+
+    .menu-item {
+      border-bottom: 1px solid var(--gray);
+      padding: 16px 0;
+      min-height: 95px;
+    }
+
+    .item-top,
+    .wine-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 20px;
+    }
+
+    .item-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 27px;
+      font-weight: 600;
+    }
+
+    .price,
+    .wine-price {
+      white-space: nowrap;
+      color: var(--red);
+      font-size: 27px;
+      font-weight: 600;
+    }
+
+    .description {
+      color: var(--dark-gray);
+      font-size: 15px;
+      margin-top: 4px;
+    }
+
+    .notice {
+      background: #e7e2d7;
+      padding: 18px 22px;
+      margin-bottom: 45px;
+      font-weight: 500;
+    }
+
+    .wine-section {
+      margin-bottom: 65px;
+    }
+
+    .wine-section h2 {
+      font-family: "Barlow Condensed", sans-serif;
+      color: var(--red);
+      text-transform: uppercase;
+      font-size: 58px;
+      line-height: 1;
+      border-bottom: 3px solid var(--red);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+    }
+
+    .wine-list {
+      width: 100%;
+    }
+
+    .wine-line {
+      border-bottom: 1px solid var(--gray);
+      padding: 9px 0;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .wine-name {
+      padding-right: 20px;
+    }
+
+    footer {
+      background: var(--black);
+      color: white;
+      padding: 50px 8%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 35px;
+    }
+
+    footer h3 {
+      color: var(--red);
+      text-transform: uppercase;
+      font-size: 30px;
+      margin-bottom: 15px;
+    }
+
+    footer p,
+    footer a {
+      color: #ddd;
+      text-decoration: none;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .copyright {
+      background: #000;
+      color: #aaa;
+      text-align: center;
+      padding: 18px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 800px) {
+      header {
+        padding: 15px 5%;
+      }
+
+      .logo {
+        font-size: 34px;
+      }
+
+      .menu-button {
+        display: block;
+      }
+
+      nav {
+        position: absolute;
+        display: none;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        padding: 25px 5%;
+        background: var(--black);
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav.open {
+        display: flex;
+      }
+
+      .intro,
+      .menu-grid,
+      footer {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: 560px;
+        padding: 60px 7%;
+      }
+
+      .content,
+      .intro {
+        padding: 55px 6%;
+      }
+
+      .wine-line {
+        font-size: 18px;
+      }
+
+      .wine-price {
+        font-size: 21px;
+      }
+
+      .item-name,
+      .price {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <a href="#accueil" class="logo">Café <span>Lézard</span></a>
+
+  <button class="menu-button" onclick="toggleMenu()">☰</button>
+
+  <nav id="navigation">
+    <a href="#accueil">Accueil</a>
+    <a href="#menu">Menu</a>
+    <a href="#vins">Carte des vins</a>
+  </nav>
+</header>
+
+<main>
+
+  
+  <section id="accueil" class="page active">
+    <div class="hero">
+      <div class="hero-content">
+        <h1>Café<br><span>Lézard</span></h1>
+        <p>
+          Restaurant, buvette, café. Un endroit convivial où l’on boit des vins vrais,
+          libres, dans une institution de Rosemont depuis plus de 20 ans.
+        </p>
+
+        <div class="hero-buttons">
+          <a class="button" href="#menu">Voir le menu</a>
+          <a class="button secondary" href="#vins">Carte des vins</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="intro">
+      <div>
+        <h2>Qui<br><span>sommes-nous?</span></h2>
+        <p>
+          Le Lézard est un restaurant, une buvette et un café de quartier.
+          On y vient pour manger simplement, boire de bons vins et passer un
+          moment chaleureux autour d'une table.
+        </p>
+        <br>
+        <p>
+          Notre carte propose des plats réconfortants, des produits locaux,
+          des options végétariennes et une sélection de vins vivants et accessibles.
+        </p>
+      </div>
+
+      <div class="info-box">
+        <h3>Nous trouver</h3>
+        <p>3119 Rue Masson</p>
+        <p>Montréal, Québec H1Y, Canada</p>
+        <p>(514) 729-3777</p>
+        <br>
+        <h3>Heures d'ouverture</h3>
+        <p>Ouvert aujourd'hui</p>
+        <p>11 h 00 — 23 h 00</p>
+        <br>
+        <a class="button" target="_blank"
+           href="https://www.google.com/maps/search/?api=1&query=3119+Rue+Masson+Montreal">
+          Itinéraire
+        </a>
+      </div>
+    </div>
+  </section>
+
+  
+  <section id="menu" class="page">
+    <div class="page-header">
+      <h1 class="page-title">Notre <span>menu</span></h1>
+    </div>
+
+    <div class="content">
+      <div class="notice">
+        Cuisine maison, produits locaux et plats réconfortants.
+      </div>
+
+      <div id="menu-content"></div>
+    </div>
+  </section>
+
+  
+  <section id="vins" class="page">
+    <div class="page-header">
+      <h1 class="page-title">Carte des <span>vins</span></h1>
+    </div>
+
+    <div class="content">
+      <div class="notice">
+        Vins vivants, libres et choisis avec soin. Prix en dollars.
+      </div>
+
+      <div id="wine-content"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <h3>Café Lézard</h3>
+    <p>Restaurant, buvette, café</p>
+    <p>Une institution conviviale dans Rosemont.</p>
+  </div>
+
+  <div>
+    <h3>Adresse</h3>
+    <p>3119 Rue Masson</p>
+    <p>Montréal, Québec H1Y</p>
+    <p>(514) 729-3777</p>
+  </div>
+
+  <div>
+    <h3>Navigation</h3>
+    <a href="#accueil">Accueil</a>
+    <a href="#menu">Menu</a>
+    <a href="#vins">Carte des vins</a>
+  </div>
+</footer>
+
+<div class="copyright">
+  Copyright © 2026 Café Lézard — Tous droits réservés.
+</div>
+
+<script>
+  const menuData = [
+    {
+      category: "À partager",
+      items: [
+        ["Soupe du moment", "6 / 10", ""],
+        ["Soupe à l'oignon gratinée", "14", ""],
+        ["Salade du marché", "8", ""],
+        ["Petit tartare de saumon", "14", ""],
+        ["Fondue au cheddar et à la bière", "17", ""],
+        ["Accras de saumon, mayo à l'ail noir", "15", ""],
+        ["Trempette chaude d'artichauts et fromage", "16", ""],
+        ["Crudités et croustilles", "", ""],
+        ["Tartare de saumon", "25", "Servi avec salade et croûtons"],
+        ["Tartare de bœuf", "29", "Servi avec salade, croûtons et œuf mollet"],
+        ["Buffarella et tomates de la Grive", "22", "Tomates ancestrales de la Ferme de la Grive, huile de basilic, basilic"],
+        ["Tartiflette", "16", "Pommes de terre, oignons, lardons, fromage Sauvagine"],
+        ["Tartine boudin et champignons", "20", "Oignons caramélisés, purée de panais, chutney de canneberges"],
+        ["Grecque de la Grive", "17", "Tomates de la Ferme de la Grive, concombre, olives, feta, oignons marinés et menthe"],
+        ["Spanakopita", "17", "Feuilletés au feta, ricotta et épinards. Servis sur coulis de tomate."],
+        ["Planche de charcuteries et fromages", "32", "Saucissons de chez Fou du Cochon, jambon à l'os maison, rillette de canard, fromages, moutarde maison, œuf noir et marinades"],
+        ["Nachos tout garnis", "16", "Croustilles de maïs, fromage, fèves noires, oignons, piments, salsa et crème sûre"],
+        ["Chili con ou sin carne", "16", "Servi gratiné, crème sûre et chips"],
+        ["Chili vegan", "14", "Servi gratiné, crème sûre et chips"]
+      ]
+    },
+    {
+      category: "Salades",
+      items: [
+        ["César au poulet", "20", "Romaine, bacon, câpres, parmesan, avec ou sans anchois"],
+        ["Gravlax de saumon", "20", "Gravlax de saumon, crémeux au fromage et aneth, vinaigrette citronnée, oignons marinés"],
+        ["Chèvre chaud", "20", "Chèvre sur croûtons au pesto de tomates, balsamique, vinaigrette miel et basilic, graines de citrouille grillées"],
+        ["Cuisse de canard confite", "23", "Cuisse complète sur salade, vinaigrette balsamique"],
+        ["Poulet miel et gingembre", "20", "Poulet aigre-doux, vinaigrette wafu, poivrons, sésame"]
+      ]
+    },
+    {
+      category: "Sandwiches",
+      items: [
+        ["Sandwich déjeuner", "9", "Œuf au plat, bacon, fromage, laitue, tomate et mayo. Servi sans accompagnement"],
+        ["Bagel et gravlax", "19", ""],
+        ["Burger végé", "18", "Galette d'haricots et de riz sur pain brioché, veganaise, ketchup et cornichons"],
+        ["Guédilles de champignons", "20", "Crinière de lion, champignons de Paris, mayonnaise à l'ail noir, chou rouge sur pain brioché"],
+        ["Burritos", "18", "Poulet ou tofu, purée de fèves noires, fromage, salsa et crème sûre"],
+        ["Panini jambon à l'os", "17", "Brie, mayo et moutarde maison"],
+        ["Panini poulet tandoori", "17", "Mayo au cari et coriandre"]
+      ]
+    },
+    {
+      category: "Desserts",
+      items: [
+        ["Gâteau aux carottes", "6", ""],
+        ["Crème brûlée", "6", ""],
+        ["Brownies", "6", ""],
+        ["Gâteau au fromage", "6", ""],
+        ["Galette à l'avoine", "4", ""],
+        ["Gâteau banane et chocolat", "6", ""]
+      ]
+    },
+    {
+      category: "Bières",
+      items: [
+        ["Azur, blonde tchèque — 16 oz", "8,50", "En fût"],
+        ["Mosaïc, Indian Pale Ale — 16 oz", "8,50", "En fût"],
+        ["Rousse — 16 oz", "8,50", "En fût"],
+        ["Super Pause, Les Grands Bois", "9", "En canette"],
+        ["IPA Louvains, Myrique, Menaud", "9", "En canette"],
+        ["Blanche Boréale", "9", "En canette"],
+        ["Poivre, Menaud — IPA américaine", "9", "En canette"],
+        ["Azote, Menaud — Stout", "9", "En canette"],
+        ["Camerise, Menaud — sûre fruitée", "9", "En canette"],
+        ["Petite Pause, Les Grands Bois — IPA sans alcool", "9", "En canette"],
+        ["B.S.A Blonde — sans alcool", "9", "En canette"]
+      ]
+    },
+    {
+      category: "Cocktails",
+      items: [
+        ["Negroni Sbagliato", "13", "Vermouth, Campari, Amer, Cava"],
+        ["Cucurbitter", "12", "Gin, concombre, lime, amer céleri, soda, romarin"],
+        ["Rosa Philips", "13", "Téquila, Campari, Chambord, amer à la rhubarbe, limonade"],
+        ["Mojito Mate", "12", "Rhum, lime, maté à la menthe"],
+        ["César", "12", "Vodka, Clamato, Tabasco, Worcestershire, citron, cornichons, sel maison"],
+        ["Spritz", "12", "Amermelade ou Campari"]
+      ]
+    },
+    {
+      category: "Breuvages froids",
+      items: [
+        ["Zamalek — jus d'hibiscus", "5", ""],
+        ["Maté Libre", "5", ""],
+        ["Eau pétillante", "4,50 / 8", ""],
+        ["Soda Marco", "4,50", ""],
+        ["Kombucha Gutsy", "5", ""],
+        ["Limonade", "5", "Menthe ou fraise et romarin"],
+        ["Café glacé", "6", ""]
+      ]
+    },
+    {
+      category: "Boissons chaudes",
+      items: [
+        ["Espresso court, allongé ou americano", "3", ""],
+        ["Espresso double", "3,50", ""],
+        ["Cortado ou macchiato", "4,25", ""],
+        ["Cappuccino", "5", ""],
+        ["Latte, mocaccino ou chocolat", "4,25 / 5,25", ""],
+        ["Extra déca ou lait de soya", "0,40 / 0,75", ""],
+        ["Extra lait d'avoine", "0,50 / 1,00", ""],
+        ["Chaï ou matcha latte", "4,25 / 5,25", ""],
+        ["London Fog", "5", ""],
+        ["Thés et tisanes de Camélia Sinensis", "3", ""]
+      ]
+    }
+  ];
+
+  const wines = [
+    {
+      title: "Blancs",
+      items: [
+        ["El Truc, Masia de la Roqua, Catalogne, Espagne", "46"],
+        ["Gavèl Sauvignon Blanc, Cros des Calades, VdF, 2023", "52"],
+        ["La Brèche Blanc, Domaine Polisson, Oka, Québec, 2023", "13 / 62"],
+        ["Rise, Lowlife Barrel House, Manitoba, Canada, 2023", "65"],
+        ["Grès, Anima Mundi, Catalogne, Espagne, 2023", "65"],
+        ["Gavroche, Ludovic Chanson, VdF, 2023", "13 / 65"],
+        ["Velue Weiss, Johannes Zillinger, Weinviertel, Autriche, 2023", "14 / 68"],
+        ["Cerreto, Gismondi, Campanie, Italie, 2023", "67"],
+        ["Homok, Alex & Maria Koppitsch, Burgenland, Autriche, 2024", "67"],
+        ["Chardonnay, Le Monde est Petit, Anjou, France, 2023", "68"],
+        ["Flux Lumen, Noita, Uusimaa, Finlande, 2021", "68"],
+        ["Cuvée du Cimetière, Domaine de l'Espiègle, Dunham, Québec, 2022", "68"],
+        ["Kontakt blanc, Philip Lardot, Mosel, Allemagne, 2023", "68"],
+        ["Rigodon, Ludovic Chanson, Montlouis-sur-Loire, France, 2023", "70"],
+        ["Riesling, Joe Swick, Columbia Valley, États-Unis, 2021", "72"],
+        ["Claude Seigneuret, Mâcon-Bussières, Domaine de la Sarazinière, France, 2023", "75"],
+        ["Lau Weiss, Hannes Bergdoll, Palatinat, Allemagne, 2023 — Litrón", "80"],
+        ["Solitaire, Clos des Grives, Côtes du Jura, France, 2020", "100"]
+      ]
+    },
+    {
+      title: "Rouges",
+      items: [
+        ["Beaux Jus Rouge, Domaine de la Bauge, Brigham, Québec, 2022", "45"],
+        ["Barbarossa, Menti & Marco Baba, Vino Rosso, Italie, 2022", "50"],
+        ["Shape Shifter Red, Good Intentions Wine, Limestone Coast, Australie du Sud, 2021", "65"],
+        ["Lo Vin Roi, Compair Igor, VdF, 2021", "13 / 65"],
+        ["Zore, Naboso, Malé Karpaty, Slovaquie, 2023", "67"],
+        ["È Grino, Poderi Cellario, Piémont, Italie", "13 / 68"],
+        ["Space Echo, Noita, Finlande, 2021", "68"],
+        ["Large Soif! Terra Vita Vinum, VdF, 2020", "68"],
+        ["Querschnitt Rot, Kolfok, Burgenland, Autriche, 2022", "14 / 68"],
+        ["Onbria, Calalita, Vénétie, Italie, 2023", "68"],
+        ["Kontakt rouge, Philip Lardot, Moselle, Allemagne, 2023", "68"],
+        ["Parellatxa Tinto, Artesano Vinters, Catalogne, Espagne, 2023", "70"],
+        ["Les Entêtés, Domaine du Nival, Saint-Louis, Québec, 2023", "72"],
+        ["Les Bancèls, Domaine des Cébène, Faugères, France, 2020", "72"],
+        ["Frankovka, Martin Vajcner, Moravie, République Tchèque, 2021/2022", "78"],
+        ["Chiassobuio, Domaine Tunia, Vino Rosso, Italie, 2014", "80"],
+        ["Milan, Marie et Vincent Tricot, VdF", "85"]
+      ]
+    },
+    {
+      title: "Bulles",
+      items: [
+        ["Paco Molina, Pax Vinum, Brut Cava, Catalogne", "11 / 47"],
+        ["Pelican, Masson-Villages, Berthierville, Québec, 2024", "48"],
+        ["Smarazen, Mirco Mariotti, Bianco dell'Emilia, Italie", "54"],
+        ["Lambrusco Grasparossa di Castelvetro, Azienda Agricola Cavaliera, Italie, 2020", "58"],
+        ["Ces Petits Imprévus, Domaine du Nival, Saint-Louis, Québec, 2024", "60"],
+        ["NV Rosé, Benjamin Bridge, Nouvelle-Écosse, Canada", "62"],
+        ["Minuit, 1000 Chai Urbain, VdF, 2021", "65"],
+        ["Opera, Naboso, Petites Carpates, Slovaquie, 2023", "68"],
+        ["Saldalama, Podere Sottolionoce, Lambrusco, Italie, 2020", "70"]
+      ]
+    },
+    {
+      title: "Macérations pelliculaires",
+      items: [
+        ["Oniric Brisat Xarel-lo Vermell, Azul y Garanza, Penedès, Espagne, 2023", "52"],
+        ["Macération, En Roue Libre, Hemmingford, Québec, 2024", "12 / 60"],
+        ["Jazz it Up, Carl Koch, Rheinhessen, Allemagne, 2023", "60"],
+        ["Stara Skola, Vina Herzanovi, Moravie, République Tchèque, 2020", "68"],
+        ["À Tue Tête, Manoir de la Tête Rouge, VdF, 2022", "68"],
+        ["Orange Pinot Gris, Pépin, Alsace, France", "70"],
+        ["Artesian Lava, Good Intentions Wine, Limestone Coast, Australie, 2021", "70"],
+        ["Skin Contact Sémillon, Ignacio Pino Roman, Itata, Chili, 2022", "70"],
+        ["Skin, VineVenom, Swartland, Afrique du Sud", "70"],
+        ["Phoenix Skin Contact, Mersel, Bekaa Valley, Liban, 2022", "72"]
+      ]
+    },
+    {
+      title: "Rosés",
+      items: [
+        ["Rosé by Lambert, Béatrice et Pascal Lambert, Chinon, France, 2023", "11 / 30 Carafon"],
+        ["La Ligne Rose, Masson-Villages, Québec, 2024", "45"],
+        ["Rives, Lieux Communs, Lanoraie, Québec, 2021", "60"],
+        ["Chair à Canon, Domaine de l'Espiègle, Dunham, Québec, 2022", "60"],
+        ["Chiaro, Gismondi, Campanie, Italie, 2022", "65"],
+        ["Chômeur #1, Très Précieux Sang, Bécancour, Québec, 2022", "65"],
+        ["For The Bees, Testalonga, Swartland, Afrique du Sud", "65"],
+        ["Kontakt Rosé, Philip Lardot, Mosel, Allemagne, 2023", "65"],
+        ["Cherry On Tuff, United Cells of Tekov, Brhlovce, Slovaquie, 2023", "67"],
+        ["Karambolage, Austrian Wine Mafia, Kamptal, Autriche", "70"],
+        ["Pond Rosé, Smallfry, Barossa Valley, Australie, 2022", "70"],
+        ["Pink, Pepin, VdF", "70"],
+        ["Gerbera, Kunoh Wines, Nelson, Australie, 2021", "70"],
+        ["Querschnitt Rosé, Kolfok, Burgenland, Autriche, 2023", "70"]
+      ]
+    }
+  ];
+
+  function renderMenu() {
+    const container = document.getElementById("menu-content");
+
+    container.innerHTML = menuData.map(section => `
+      <section class="category">
+        <h2>${section.category}</h2>
+        <div class="menu-grid">
+          ${section.items.map(item => `
+            <article class="menu-item">
+              <div class="item-top">
+                <div class="item-name">${item[0]}</div>
+                ${item[1] ? `<div class="price">${item[1]} $</div>` : ""}
+              </div>
+              ${item[2] ? `<div class="description">${item[2]}</div>` : ""}
+            </article>
+          `).join("")}
+        </div>
+      </section>
+    `).join("");
+  }
+
+  function renderWines() {
+    const container = document.getElementById("wine-content");
+
+    container.innerHTML = wines.map(section => `
+      <section class="wine-section">
+        <h2>${section.title}</h2>
+        <div class="wine-list">
+          ${section.items.map(wine => `
+            <div class="wine-line">
+              <div class="wine-name">${wine[0]}</div>
+              <div class="wine-price">${wine[1]}</div>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `).join("");
+  }
+
+  function showPage() {
+    let page = location.hash.substring(1) || "accueil";
+
+    if (!["accueil", "menu", "vins"].includes(page)) {
+      page = "accueil";
+    }
+
+    document.querySelectorAll(".page").forEach(section => {
+      section.classList.remove("active");
+    });
+
+    document.getElementById(page).classList.add("active");
+
+    document.querySelectorAll("nav a").forEach(link => {
+      link.classList.toggle(
+        "active",
+        link.getAttribute("href") === "#" + page
+      );
+    });
+
+    document.getElementById("navigation").classList.remove("open");
+    window.scrollTo(0, 0);
+  }
+
+  function toggleMenu() {
+    document.getElementById("navigation").classList.toggle("open");
+  }
+
+  renderMenu();
+  renderWines();
+
+  window.addEventListener("hashchange", showPage);
+  showPage();
+</script>
+
+</body>
+</html>
