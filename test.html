@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description"
+        content="26-56 Saloon — Restaurant, bar, bières, cocktails, vins et cuisine à Montréal.">
+
+  <title>26-56 Saloon | Montréal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+  <style>
+    :root {
+      --black: #101010;
+      --dark: #181818;
+      --gold: #d6ad65;
+      --gold-light: #eed8aa;
+      --white: #faf9f6;
+      --gray: #a7a7a7;
+      --line: rgba(255, 255, 255, .14);
+      --red: #b52d27;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: "DM Sans", sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    nav,
+    .logo,
+    .price,
+    .beer-abv {
+      font-family: "Barlow Condensed", sans-serif;
+    }
+
+    .container {
+      width: min(1180px, 90%);
+      margin-inline: auto;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 20px;
+      z-index: 9999;
+      padding: 12px 20px;
+      background: var(--gold);
+      color: var(--black);
+      font-weight: 700;
+    }
+
+    .skip-link:focus {
+      top: 20px;
+    }
+
+    /* En-tête */
+
+    header {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 1000;
+      height: 82px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(16, 16, 16, .94);
+      backdrop-filter: blur(14px);
+    }
+
+    .header-inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--white);
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .logo-mark {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+    }
+
+    nav a {
+      position: relative;
+      padding: 28px 0 24px;
+      color: #c7c7c7;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      transition: color .2s ease;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 18px;
+      left: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transition: transform .2s ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--white);
+    }
+
+    nav a:hover::after,
+    nav a.active::after {
+      transform: scaleX(1);
+    }
+
+    .nav-order {
+      padding: 11px 19px;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      transition: .2s ease;
+    }
+
+    .nav-order:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 45px;
+      height: 45px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--white);
+      cursor: pointer;
+    }
+
+    .menu-toggle span,
+    .menu-toggle::before,
+    .menu-toggle::after {
+      content: "";
+      display: block;
+      width: 21px;
+      height: 2px;
+      margin: 4px auto;
+      background: var(--white);
+      transition: .2s ease;
+    }
+
+    /* Pages */
+
+    .page {
+      display: none;
+      min-height: 100vh;
+      animation: page-in .35s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes page-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Accueil */
+
+    .home-hero {
+      position: relative;
+      min-height: 820px;
+      display: flex;
+      align-items: center;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.67) 48%, rgba(0,0,0,.25) 100%),
+        linear-gradient(0deg, rgba(0,0,0,.78), transparent 55%),
+        url("https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=2000&q=88")
+        center/cover;
+    }
+
+    .home-hero-content {
+      padding: 150px 0 100px;
+      max-width: 760px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      color: var(--gold);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 52px;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    .home-hero h1 {
+      margin-bottom: 25px;
+      font-size: clamp(72px, 12vw, 150px);
+      font-weight: 900;
+      line-height: .78;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+    }
+
+    .home-hero h1 span {
+      display: block;
+      color: var(--gold);
+    }
+
+    .hero-description {
+      max-width: 610px;
+      margin-bottom: 33px;
+      color: #d4d4d4;
+      font-size: clamp(17px, 2vw, 21px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 25px;
+      border: 1px solid var(--gold);
+      background: var(--gold);
+      color: var(--black);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .button:hover {
+      background: transparent;
+      color: var(--gold);
+    }
+
+    .button-outline {
+      background: transparent;
+      color: var(--white);
+    }
+
+    .button-outline:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .hero-hours {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      padding: 20px 35px;
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .hero-hours strong {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+
+    .hero-hours span {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .section {
+      padding: 90px 0;
+    }
+
+    .section-dark {
+      background: var(--dark);
+    }
+
+    .section-header {
+      margin-bottom: 45px;
+    }
+
+    .section-kicker {
+      margin-bottom: 8px;
+      color: var(--gold);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: clamp(43px, 6vw, 70px);
+      font-weight: 800;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .section-title span {
+      color: var(--gold);
+    }
+
+    .experience-grid,
+    .news-grid,
+    .contact-grid {
+      display: grid;
+      gap: 25px;
+    }
+
+    .experience-card,
+    .news-card,
+    .contact-card {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      padding: 35px;
+    }
+
+    .experience-card {
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .experience-card h3,
+    .news-card h3,
+    .contact-card h2,
+    .contact-card h3 {
+      font-size: 32px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .experience-card p,
+    .news-card p {
+      color: var(--gray);
+    }
+
+    .news-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .news-card {
+      min-height: 250px;
+    }
+
+    .news-date {
+      margin-bottom: 35px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .home-contact {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.95), rgba(0,0,0,.68)),
+        url("https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=1800&q=85")
+        center/cover;
+    }
+
+    .home-contact-grid {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      align-items: center;
+      gap: 70px;
+    }
+
+    .home-contact h2 {
+      max-width: 750px;
+      margin-bottom: 24px;
+      font-size: clamp(45px, 7vw, 86px);
+      line-height: .95;
+      text-transform: uppercase;
+    }
+
+    .home-contact h2 span {
+      color: var(--gold);
+    }
+
+    .contact-facts {
+      display: grid;
+      gap: 22px;
+    }
+
+    .contact-fact {
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .contact-fact small {
+      display: block;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .contact-fact a,
+    .contact-fact p {
+      display: block;
+      margin-top: 3px;
+      font-size: 18px;
+    }
+
+    /* En-tête des pages */
+
+    .page-hero {
+      position: relative;
+      min-height: 440px;
+      display: flex;
+      align-items: flex-end;
+      padding: 150px 0 65px;
+      background:
+        linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,.42)),
+        url("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=2000&q=86")
+        center/cover;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(70px, 12vw, 130px);
+      line-height: .85;
+      text-transform: uppercase;
+    }
+
+    .page-hero h1 span {
+      color: var(--gold);
+    }
+
+    /* Menu */
+
+    .menu-intro {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 30px;
+      margin-bottom: 35px;
+    }
+
+    .menu-intro p {
+      max-width: 650px;
+      color: var(--gray);
+    }
+
+    .menu-alert {
+      padding: 12px 18px;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .menu-layout {
+      display: grid;
+      grid-template-columns: 245px 1fr;
+      align-items: start;
+      gap: 55px;
+    }
+
+    .menu-nav {
+      position: sticky;
+      top: 110px;
+      padding: 22px;
+      border: 1px solid var(--line);
+    }
+
+    .menu-nav h2 {
+      margin-bottom: 15px;
+      color: var(--gold);
+      font-size: 24px;
+      text-transform: uppercase;
+    }
+
+    .menu-nav a {
+      display: block;
+      padding: 7px 0;
+      color: #bdbdbd;
+      font-size: 15px;
+      transition: color .2s;
+    }
+
+    .menu-nav a:hover {
+      color: var(--gold);
+    }
+
+    .menu-category {
+      margin-bottom: 75px;
+      scroll-margin-top: 110px;
+    }
+
+    .menu-category:last-child {
+      margin-bottom: 0;
+    }
+
+    .menu-category-title {
+      margin-bottom: 24px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 42px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .menu-items {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 45px;
+    }
+
+    .menu-item {
+      min-height: 83px;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .item-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .item-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .price {
+      flex-shrink: 0;
+      color: var(--gold);
+      font-size: 21px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .item-description {
+      margin-top: 6px;
+      color: #929292;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .beer-abv {
+      display: inline-block;
+      margin-left: 7px;
+      color: #8e8e8e;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .format-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 12px;
+      margin-top: 5px;
+      color: #a7a7a7;
+      font-size: 13px;
+    }
+
+    .format-list span:not(:last-child)::after {
+      content: "•";
+      margin-left: 12px;
+      color: var(--gold);
+    }
+
+    /* Contact */
+
+    .contact-page-grid {
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 55px;
+    }
+
+    .contact-information {
+      display: grid;
+      gap: 22px;
+    }
+
+    .contact-card h3 {
+      margin-bottom: 15px;
+      color: var(--gold);
+      font-size: 28px;
+    }
+
+    .contact-card p,
+    .contact-card a {
+      display: block;
+      color: #bdbdbd;
+    }
+
+    .contact-card a:hover {
+      color: var(--gold);
+    }
+
+    .hours-list {
+      margin-top: 15px;
+    }
+
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hours-row strong {
+      color: var(--gold);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .social-links a {
+      min-width: 45px;
+      height: 45px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 800;
+      transition: .2s;
+    }
+
+    .social-links a:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .contact-form-wrap {
+      padding: 40px;
+      background: #f1eee7;
+      color: var(--black);
+    }
+
+    .contact-form-wrap h2 {
+      margin-bottom: 9px;
+      font-size: 45px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .form-intro {
+      margin-bottom: 30px;
+      color: #666;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-group {
+      display: grid;
+      gap: 7px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      color: #333;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      border: 1px solid #c8c3b9;
+      border-radius: 0;
+      outline: none;
+      background: #fff;
+      color: var(--black);
+      padding: 13px 14px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(214, 173, 101, .22);
+    }
+
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .form-submit {
+      width: 100%;
+      margin-top: 22px;
+    }
+
+    .form-status {
+      margin-top: 15px;
+      color: #246b31;
+      font-weight: 600;
+    }
+
+    .map-link {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: var(--gold) !important;
+      font-weight: 700;
+    }
+
+    /* Pied de page */
+
+    footer {
+      padding: 65px 0 25px;
+      border-top: 1px solid var(--line);
+      background: #090909;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.3fr .8fr .8fr;
+      gap: 60px;
+      margin-bottom: 50px;
+    }
+
+    .footer-brand p {
+      max-width: 390px;
+      margin-top: 15px;
+      color: #888;
+    }
+
+    footer h2,
+    footer h3 {
+      margin-bottom: 18px;
+      font-size: 23px;
+      text-transform: uppercase;
+    }
+
+    footer h3 {
+      color: var(--gold);
+    }
+
+    .footer-links {
+      display: grid;
+      gap: 7px;
+    }
+
+    .footer-links a,
+    .footer-info {
+      color: #999;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding-top: 23px;
+      border-top: 1px solid var(--line);
+      color: #666;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 980px) {
+      nav {
+        gap: 20px;
+      }
+
+      .nav-order {
+        display: none;
+      }
+
+      .menu-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-nav {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 18px;
+      }
+
+      .menu-nav h2 {
+        width: 100%;
+      }
+
+      .home-contact-grid,
+      .contact-page-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .news-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      header {
+        height: 72px;
+      }
+
+      .logo {
+        font-size: 23px;
+      }
+
+      .logo-mark {
+        width: 35px;
+        height: 35px;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      nav {
+        position: fixed;
+        top: 72px;
+        right: 0;
+        bottom: 0;
+        width: min(390px, 90%);
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 40px 30px;
+        background: #101010;
+        transform: translateX(105%);
+        transition: transform .25s ease;
+      }
+
+      nav.open {
+        transform: translateX(0);
+      }
+
+      nav a {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 26px;
+      }
+
+      nav a::after {
+        display: none;
+      }
+
+      .home-hero {
+        min-height: 750px;
+      }
+
+      .home-hero-content {
+        padding-top: 130px;
+      }
+
+      .home-hero h1 {
+        font-size: 78px;
+      }
+
+      .hero-hours {
+        position: static;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .section {
+        padding: 65px 0;
+      }
+
+      .news-grid,
+      .menu-items,
+      .form-grid,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-intro {
+        grid-template-columns: 1fr;
+      }
+
+      .page-hero {
+        min-height: 360px;
+      }
+
+      .form-group.full {
+        grid-column: auto;
+      }
+
+      .contact-form-wrap {
+        padding: 28px 20px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .home-hero h1 {
+        font-size: 64px;
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .hero-hours {
+        flex-direction: column;
+        gap: 0;
+        text-align: center;
+      }
+
+      .experience-card,
+      .news-card,
+      .contact-card {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Passer au contenu principal</a>
+
+  <header>
+    <div class="container header-inner">
+      <a href="#accueil" class="logo" aria-label="26-56 Saloon — Accueil">
+        <span class="logo-mark">26</span>
+        26-56 Saloon
+      </a>
+
+      <button
+        class="menu-toggle"
+        id="menuToggle"
+        type="button"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="mainNavigation"
+      >
+        <span></span>
+      </button>
+
+      <nav id="mainNavigation" aria-label="Navigation principale">
+        <a href="#accueil" data-page="accueil">Accueil</a>
+        <a href="#menu" data-page="menu">Menu</a>
+        <a href="#contact" data-page="contact">Contact</a>
+        <a class="nav-order" href="tel:+15147218300">(514) 721-8300</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+
+    
+    <section id="accueil" class="page active">
+      <div class="home-hero">
+        <div class="container home-hero-content">
+          <div class="eyebrow">Bar · Restaurant · Rosemont</div>
+
+          <h1>
+            26-56
+            <span>Saloon</span>
+          </h1>
+
+          <p class="hero-description">
+            Bières, cocktails, vins et petites bouchées dans un bar convivial
+            au cœur de Rosemont.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#menu" class="button" data-page-link>Voir le menu</a>
+            <a href="#contact" class="button button-outline" data-page-link>Nous joindre</a>
+          </div>
+        </div>
+
+        <div class="hero-hours">
+          <strong>17 h — 3 h</strong>
+          <span>Lundi au dimanche</span>
+        </div>
+      </div>
+
+      <section class="section section-dark">
+        <div class="container">
+          <div class="section-header">
+            <p class="section-kicker">À venir</p>
+            <h2 class="section-title">Expériences</h2>
+          </div>
+
+          <div class="experience-grid">
+            <article class="experience-card">
+              <div>
+                <h3>Expériences au 26-56</h3>
+                <p>Événements spéciaux, soirées et rencontres à venir.</p>
+              </div>
+
+              <p>
+                Nous n'offrons aucune expérience pour le moment.
+                Revenez bientôt!
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-header">
+            <p class="section-kicker">Dans le quartier</p>
+            <h2 class="section-title">
+              Dernières <span>nouvelles</span>
+            </h2>
+          </div>
+
+          <div class="news-grid">
+            <article class="news-card">
+              <div class="news-date">Information</div>
+              <h3>Bienvenue au 26-56</h3>
+              <p>
+                Un nouveau lieu de rencontre dans Rosemont pour partager
+                une bière, un cocktail ou quelques bouchées.
+              </p>
+            </article>
+
+            <article class="news-card">
+              <div class="news-date">Tous les jours</div>
+              <h3>Ouvert tard</h3>
+              <p>
+                Le bar est ouvert tous les jours de 17 h à 3 h.
+               _ON vous attend!
+              </p>
+            </article>
+
+            <article class="news-card">
+              <div class="news-date">Cocktails</div>
+              <h3>Une carte variée</h3>
+              <p>
+                Découvrez nos cocktails classiques et signature,
+                ainsi qu'une sélection de vins et de bières.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section home-contact">
+        <div class="container home-contact-grid">
+          <div>
+            <p class="section-kicker">Nous trouver</p>
+            <h2>
+              À votre
+              <span>prochaine tournée</span>
+            </h2>
+
+            <a
+              class="button"
+              href="https://www.google.com/maps/search/?api=1&query=2656+Rue+Masson+Montreal"
+              target="_blank"
+              rel="noopener"
+            >
+              Obtenir l'itinéraire
+            </a>
+          </div>
+
+          <div class="contact-facts">
+            <div class="contact-fact">
+              <small>Adresse</small>
+              <p>2656, rue Masson, Montréal, QC, H1Y 1W2</p>
+            </div>
+
+            <div class="contact-fact">
+              <small>Heures d'ouverture</small>
+              <p>Lundi au dimanche : 17 h — 3 h</p>
+            </div>
+
+            <div class="contact-fact">
+              <small>Courriel</small>
+              <a href="mailto:2656goat@gmail.com">2656goat@gmail.com</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    
+    <section id="menu" class="page">
+      <div class="page-hero">
+        <div class="container">
+          <p class="eyebrow">Au 26-56</p>
+          <h1>Le <span>menu</span></h1>
+        </div>
+      </div>
+
+      <div class="container section">
+        <div class="menu-intro">
+          <p>
+            Une sélection de bières, cocktails, vins, boissons sans alcool
+            et petites bouchées.
+          </p>
+
+          <div class="menu-alert">Prix en dollars canadiens</div>
+        </div>
+
+        <div class="menu-layout">
+          <aside class="menu-nav" aria-label="Catégories du menu">
+            <h2>Navigation</h2>
+            <a href="#bieres-fut">Bières en fût</a>
+            <a href="#bieres-bouteille">Bières en bouteille</a>
+            <a href="#cocktails">Cocktails</a>
+            <a href="#signatures">Cocktails signature</a>
+            <a href="#coolers">Coolers</a>
+            <a href="#vins">Vins / Champagne</a>
+            <a href="#sans-alcool">Sans alcool</a>
+            <a href="#nourriture">Nourriture</a>
+          </aside>
+
+          <div id="menuContent"></div>
+        </div>
+      </div>
+    </section>
+
+    
+    <section id="contact" class="page">
+      <div class="page-hero">
+        <div class="container">
+          <p class="eyebrow">Nous joindre</p>
+          <h1>
+           拿下 <span>Contact</span>
+          </h1>
+        </div>
+      </div>
+
+      <div class="container section">
+        <div class="contact-page-grid">
+          <div class="contact-information">
+            <article class="contact-card">
+              <h3>Adresse</h3>
+              <p>2656, rue Masson</p>
+              <p>Montréal, Québec</p>
+              <p>H1Y 1W2</p>
+
+              <a
+                class="map-link"
+                href="https://www.google.com/maps/search/?api=1&query=2656+Rue+Masson+Montreal"
+                target="_blank"
+                rel="noopener"
+              >
+                Voir sur Google Maps →
+              </a>
+            </article>
+
+            <article class="contact-card">
+              <h3>Heures d'ouverture</h3>
+
+              <div class="hours-list">
+                <div class="hours-row">
+                  <span>Lundi</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+                <div class="hours-row">
+                  <span>Mardi</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+                <div class="hours-row">
+                  <span>Mercredi</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+                <div class="hours-row">
+                  <span>Jeudi</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+                <div class="hours-row">
+                  <span>Vendredi</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+                <div class="hours-row">
+                  <span>Samedi</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+                <div class="hours-row">
+                  <span>Dimanche</span>
+                  <strong>17 h — 3 h</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="contact-card">
+              <h3>Courriel</h3>
+              <a href="mailto:2656goat@gmail.com">2656goat@gmail.com</a>
+
+              <h3 style="margin-top: 25px;">Réseaux sociaux</h3>
+
+              <div class="social-links">
+                <a href="#" aria-label="Facebook">f</a>
+                <a href="#" aria-label="Instagram">ig</a>
+              </div>
+            </article>
+          </div>
+
+          <div class="contact-form-wrap">
+            <h2>Écrivez-nous</h2>
+
+            <p class="form-intro">
+              Pour toute question, remplissez le formulaire avec le sujet
+              principal de votre demande.
+            </p>
+
+            <form id="contactForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="firstName">Prénom</label>
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    autocomplete="given-name"
+                    required
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="lastName">Nom</label>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    autocomplete="family-name"
+                    required
+                  >
+                </div>
+
+                <div class="form-group full">
+                  <label for="email">Courriel</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                  >
+                </div>
+
+                <div class="form-group full">
+                  <label for="message">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <button class="button form-submit" type="submit">
+                Envoyer
+              </button>
+
+              <p class="form-status" id="formStatus" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#accueil" class="logo">
+            <span class="logo-mark">26</span>
+            26-56 Saloon
+          </a>
+
+          <p>
+            Bar convivial à Rosemont. Bières, cocktails, vins et petites
+            bouchées, tous les jours de 17 h à 3 h.
+          </p>
+        </div>
+
+        <div>
+          <h3>Navigation</h3>
+
+          <div class="footer-links">
+            <a href="#accueil">Accueil</a>
+            <a href="#menu">Menu</a>
+            <a href="#contact">Contact</a>
+          </div>
+        </div>
+
+        <div>
+          <h3>Nous joindre</h3>
+
+          <div class="footer-info">
+            <p>2656, rue Masson</p>
+            <p>Montréal, H1Y 1W2</p>
+            <p>Lun. au Dim. : 17 h — 3 h</p>
+            <a href="mailto:2656goat@gmail.com">2656goat@gmail.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 — 26-56 Saloon. Tous droits réservés.</span>
+        <span> Montréal, Québec</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menuData = [
+      {
+        id: "bieres-fut",
+        title: "Bières en fût",
+        type: "beer",
+        items: [
+          {
+            name: "La 2656",
+            type: "Lager",
+            abv: "4,5%",
+            formats: ["Verre 6,50 $", "Pinte 8,50 $", "Litre 18,90 $"]
+          },
+          {
+            name: "Boréale Blonde",
+            type: "Blonde",
+            abv: "4,5%",
+            formats: ["Verre 7,50 $", "Pinte 9,50 $"]
+          },
+          {
+            name: "IPA du Nord-Est",
+            type: "IPA",
+            abv: "6,0%",
+            formats: ["Verre 8,00 $", "Pinte 10,00 $"]
+          },
+          {
+            name: "Boréale Rousse",
+            type: "Rousse",
+            abv: "5,0%",
+            formats: ["Verre 7,50 $", "Pinte 9,50 $"]
+          },
+          {
+            name: "Cidre McKeown",
+            type: "Cidre",
+            abv: "5,7%",
+            formats: ["Verre 8,00 $", "Pinte 10,00 $"]
+          },
+          {
+            name: "Sûre aux fruits rouges",
+            description: "Framboises, mûres et cerises",
+            abv: "4,5%",
+            formats: ["Verre 7,75 $", "Pinte 9,75 $"]
+          },
+          {
+            name: "Guinness",
+            type: "Stout brune",
+            abv: "4,2%",
+            formats: ["Verre 8,50 $", "Pinte 10,50 $"]
+          },
+          {
+            name: "1664 Rosée",
+            type: "Blanche aux fruits rouges",
+            abv: "4,6%",
+            formats: ["Verre 7,75 $", "Pinte 9,75 $"]
+          },
+          {
+            name: "Blanche de Chambly",
+            type: "Belge",
+            abv: "5,0%",
+            formats: ["Verre 7,75 $", "Pinte 9,75 $"]
+          },
+          {
+            name: "Pabst",
+            type: "Lager",
+            abv: "4,7%",
+            formats: ["Verre 7,00 $", "Pinte 9,00 $", "Litre 18,90 $"]
+          },
+          {
+            name: "Girafe de bière",
+            type: "88 oz / 2,6 L",
+            price: "45,00 $"
+          }
+        ]
+      },
+      {
+        id: "bieres-bouteille",
+        title: "Bières en bouteille",
+        items: [
+          { name: "Land Shark", price: "8,50 $" },
+          { name: "Carlsberg", price: "8,50 $" },
+          { name: "Sapporo", price: "8,50 $" },
+          { name: "Steam Whistle", price: "9,00 $" },
+          { name: "1664 Blanche", price: "9,50 $" },
+          { name: "Blanche de Chambly", price: "9,25 $" },
+          { name: "Kilkenny", price: "9,50 $" },
+          { name: "Cidre Rabaska", price: "9,00 $" },
+          { name: "Guinness", price: "10,00 $" },
+          { name: "Fin du Monde", price: "9,75 $" },
+          { name: "Sel & Citron", price: "9,00 $" },
+          { name: "NEIPA Unibroue", price: "9,50 $" },
+          {
+            name: "Microbrasserie à la fût",
+            description: "Demande ta sorte au bar!",
+            price: "9,50 $"
+          }
+        ]
+      },
+      {
+        id: "cocktails",
+        title: "Cocktails",
+        items: [
+          { name: "Negroni", price: "16,00 $" },
+          { name: "Long Island", price: "15,50 $" },
+          { name: "Old Fashioned", price: "16,00 $" },
+          { name: "Amaretto Sour", price: "13,50 $" },
+          { name: "Whisky Sour", price: "13,50 $" },
+          { name: "Moscow Mule", price: "13,50 $" },
+          { name: "Cosmopolitan", price: "14,00 $" },
+          { name: "Bloody Caesar", price: "13,00 $" },
+          { name: "Martini", price: "15,50 $" },
+          { name: "Mojito", price: "13,00 $" },
+          { name: "Margarita", price: "15,50 $" },
+          { name: "Apérol Spritz", price: "13,50 $" },
+          { name: "Hugo Spritz", price: "14,50 $" },
+          { name: "Piña Colada", price: "13,00 $" },
+          { name: "Sex on the Beach", price: "13,00 $" },
+          { name: "Tequila Sunrise", price: "13,00 $" },
+          { name: "Manhattan", price: "15,00 $" },
+          { name: "Espresso Martini", price: "14,50 $" },
+          { name: "Pas fiable", price: "14,00 $" }
+        ]
+      },
+      {
+        id: "signatures",
+        title: "Cocktails signature",
+        items: [
+          {
+            name: "Scarlett",
+            description: "Gin, Apérol, sirop fruit de la passion, jus de citron et sirop simple.",
+            price: "16,00 $"
+          },
+          {
+            name: "Christophe",
+            description: "Butter scotch, jus de citron et jus d'ananas.",
+            price: "15,00 $"
+          },
+          {
+            name: "Lalou",
+            description: "Vodka, liqueur de cassis, liqueur d'orange, jus de citron, sirop simple et jus de canneberge.",
+            price: "15,00 $"
+          },
+          {
+            name: "Rosemary",
+            description: "Rhum spiced, Apérol, jus de citron, jus de goyave, sirop de fruit de la passion, sirop de framboise et menthe.",
+            price: "15,00 $"
+          },
+          {
+            name: "Milla",
+            description: "Vodka, litchi, jus de citron, jus de limonade, jus de canneberge, Sprite et menthe.",
+            price: "14,00 $"
+          }
+        ]
+      },
+      {
+        id: "coolers",
+        title: "Coolers",
+        items: [
+          { name: "Pabst Ice Tea", price: "8,50 $" },
+          { name: "Smirnoff Ice", price: "8,50 $" },
+          { name: "Rev", price: "10,00 $" }
+        ]
+      },
+      {
+        id: "vins",
+        title: "Vins / Champagne",
+        items: [
+          { name: "Rouge", description: "Bouteille 37,5 cl", price: "21,00 $" },
+          { name: "Rosé", description: "Bouteille 37,5 cl", price: "18,00 $" },
+          { name: "Blanc", description: "Bouteille 37,5 cl", price: "18,00 $" },
+          { name: "Bernard-Massard", description: "Mousseux 75 cl", price: "40,00 $" },
+          { name: "Prosecco", description: "Bouteille 20 cl", price: "10,00 $" }
+        ]
+      },
+      {
+        id: "sans-alcool",
+        title: "Sans alcool",
+        items: [
+          {
+            name: "Mocktails",
+            description: "Demande-nous!",
+            price: "8,50 $"
+          },
+          { name: "1664 Blanche 0%", price: "8,00 $" },
+          { name: "Carlsberg 0%", price: "8,00 $" },
+          { name: "Guinness 0%", price: "8,50 $" },
+          { name: "Corona 0%", price: "8,00 $" },
+          { name: "Boréale 0% Blonde", price: "8,50 $" },
+          { name: "San Pellegrino", price: "5,00 $" },
+          {
+            name: "Liqueur",
+            description: "Coca, ginger ale, Sprite ou tonic",
+            price: "3,50 $"
+          },
+          {
+            name: "Jus",
+            description: "Orange, goyave, canneberge, ananas ou pamplemousse",
+            price: "3,50 $"
+          },
+          { name: "Red Bull", price: "5,00 $" }
+        ]
+      },
+      {
+        id: "nourriture",
+        title: "Nourriture",
+        items: [
+          { name: "Chips", price: "3,00 $" },
+          { name: "Pop-Corn", price: "3,50 $" },
+          { name: "Olives", price: "4,00 $" }
+        ]
+      }
+    ];
+
+    function renderMenu() {
+      const menuContainer = document.getElementById("menuContent");
+
+      menuContainer.innerHTML = menuData.map(category => {
+        const items = category.items.map(item => {
+          const secondary = item.type || item.description || "";
+          const abv = item.abv
+            ? `<span class="beer-abv">${item.abv}</span>`
+            : "";
+
+          const formats = item.formats
+            ? `
+              <div class="format-list">
+                ${item.formats.map(format => `<span>${format}</span>`).join("")}
+              </div>
+            `
+            : "";
+
+          return `
+            <article class="menu-item">
+              <div class="item-heading">
+                <h3 class="item-name">${item.name}${abv}</h3>
+                ${item.price ? `<div class="price">${item.price}</div>` : ""}
+              </div>
+
+              ${secondary ? `<p class="item-description">${secondary}</p>` : ""}
+              ${formats}
+            </article>
+          `;
+        }).join("");
+
+        return `
+          <section class="menu-category" id="${category.id}">
+            <h2 class="menu-category-title">${category.title}</h2>
+            <div class="menu-items">
+              ${items}
+            </div>
+          </section>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".menu-nav a").forEach(link => {
+        link.addEventListener("click", event => {
+          event.preventDefault();
+
+          const target = document.querySelector(link.getAttribute("href"));
+
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+          }
+        });
+      });
+    }
+
+    function showPage() {
+      const validPages = ["accueil", "menu", "contact"];
+      let requestedPage = window.location.hash.replace("#", "") || "accueil";
+
+      if (!validPages.includes(requestedPage)) {
+        requestedPage = "accueil";
+      }
+
+      document.querySelectorAll(".page").forEach(page => {
+        page.classList.toggle("active", page.id === requestedPage);
+      });
+
+      document.querySelectorAll("nav [data-page]").forEach(link => {
+        link.classList.toggle("active", link.dataset.page === requestedPage);
+      });
+
+      document.title = requestedPage === "accueil"
+        ? "26-56 Saloon | Montréal"
+        : `${requestedPage.charAt(0).toUpperCase() + requestedPage.slice(1)} | 26-56 Saloon`;
+
+      closeNavigation();
+      window.scrollTo(0, 0);
+    }
+
+    function openNavigation() {
+      document.getElementById("mainNavigation").classList.add("open");
+      document.getElementById("menuToggle").setAttribute("aria-expanded", "true");
+      document.getElementById("menuToggle").setAttribute("aria-label", "Fermer le menu");
+      document.body.classList.add("menu-open");
+    }
+
+    function closeNavigation() {
+      document.getElementById("mainNavigation").classList.remove("open");
+      document.getElementById("menuToggle").setAttribute("aria-expanded", "false");
+      document.getElementById("menuToggle").setAttribute("aria-label", "Ouvrir le menu");
+      document.body.classList.remove("menu-open");
+    }
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+      const navigation = document.getElementById("mainNavigation");
+      const isOpen = navigation.classList.contains("open");
+
+      if (isOpen) {
+        closeNavigation();
+      } else {
+        openNavigation();
+      }
+    });
+
+    document.querySelectorAll("nav a").forEach(link => {
+      link.addEventListener("click", closeNavigation);
+    });
+
+    document.getElementById("contactForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      const subject = encodeURIComponent(
+        `Demande de ${firstName} ${lastName}`
+      );
+
+      const body = encodeURIComponent(
+        `Prénom : ${firstName}\n` +
+        `Nom : ${lastName}\n` +
+        `Courriel : ${email}\n\n` +
+        `Message :\n${message}`
+      );
+
+      document.getElementById("formStatus").textContent =
+        "Votre logiciel de courriel va s'ouvrir avec le message préparé.";
+
+      window.location.href =
+        `mailto:2656goat@gmail.com?subject=${subject}&body=${body}`;
+    });
+
+    window.addEventListener("hashchange", showPage);
+
+    renderMenu();
+    showPage();
+  </script>
+</body>
+</html>
