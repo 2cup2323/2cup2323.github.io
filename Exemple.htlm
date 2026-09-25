@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Café Lézard — 3119 Rue Masson, Montréal</title>
+<meta name="description" content="Café Lézard — café de quartier à Rosemont, Montréal. Café de spécialité, bouchées maison et carte des vins nature. 3119 Rue Masson.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300..700&display=swap" rel="stylesheet">
+
+<style>
+/* ============ BASE ============ */
+:root{
+  --cream:#F7F1E8;
+  --cream-2:#EFE5D6;
+  --ink:#211C17;
+  --ink-soft:#5A4E43;
+  --terra:#C0522F;
+  --terra-dark:#9A3D22;
+  --olive:#4F5B3F;
+  --night:#161B11;
+  --night-2:#1F2618;
+  --gold:#B98A2E;
+  --line:rgba(33,28,23,.14);
+  --radius:18px;
+  --shadow:0 20px 50px -25px rgba(33,28,23,.45);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{
+  margin:0;
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;font-weight:500;line-height:1.1;margin:0;letter-spacing:-.015em}
+p{margin:0}
+
+.wrap{width:min(1140px,92vw);margin-inline:auto}
+.section{padding:clamp(72px,10vw,130px) 0}
+
+.eyebrow{
+  font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;
+  font-weight:600;color:var(--terra);
+  display:flex;align-items:center;gap:.9rem;justify-content:center;
+}
+.eyebrow::before,.eyebrow::after{content:"";height:1px;width:38px;background:currentColor;opacity:.45}
+.eyebrow.left{justify-content:flex-start}
+.eyebrow.left::after{display:none}
+
+.section-title{font-size:clamp(2rem,4.6vw,3.25rem);text-align:center;margin:.6rem 0 1rem}
+.section-lead{text-align:center;max-width:56ch;margin:0 auto;color:var(--ink-soft)}
+
+/* ============ REVEAL ============ */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .75s cubic-bezier(.2,.7,.3,1),transform .75s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
+/* ============ HEADER ============ */
+.site-header{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  transition:background .35s ease,box-shadow .35s ease,backdrop-filter .35s ease;
+}
+.site-header.scrolled{
+  background:rgba(247,241,232,.88);
+  backdrop-filter:blur(14px) saturate(1.4);
+  box-shadow:0 1px 0 var(--line),0 12px 30px -22px rgba(33,28,23,.5);
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:76px}
+
+.brand{display:flex;align-items:center;gap:.7rem}
+.brand-mark{width:40px;height:auto;color:var(--terra);transition:color .3s}
+.brand-text{
+  font-family:'Fraunces',serif;font-size:1.12rem;letter-spacing:.01em;
+  color:var(--cream);transition:color .35s;
+}
+.brand-text em{font-style:italic;font-weight:600}
+.site-header.scrolled .brand-text{color:var(--ink)}
+.site-header.scrolled .brand-mark{color:var(--terra)}
+
+.nav{display:flex;align-items:center;gap:.35rem}
+.nav a{
+  padding:.5rem .85rem;border-radius:999px;font-size:.9rem;font-weight:500;
+  color:rgba(247,241,232,.82);transition:color .25s,background .25s;
+}
+.nav a:hover{color:#fff;background:rgba(255,255,255,.1)}
+.site-header.scrolled .nav a{color:var(--ink-soft)}
+.site-header.scrolled .nav a:hover{color:var(--ink);background:rgba(33,28,23,.06)}
+.nav a.nav-cta{
+  background:var(--terra);color:#fff;padding-inline:1.15rem;
+}
+.nav a.nav-cta:hover{background:var(--terra-dark);color:#fff}
+.site-header.scrolled .nav a.nav-cta{color:#fff}
+
+.burger{
+  display:none;width:44px;height:44px;border:0;background:transparent;cursor:pointer;
+  padding:10px;border-radius:12px;
+}
+.burger span{display:block;height:2px;background:var(--cream);border-radius:2px;transition:.3s;margin:5px 0}
+.site-header.scrolled .burger span{background:var(--ink)}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+@media(max-width:880px){
+  .burger{display:block}
+  .nav{
+    position:fixed;top:76px;left:0;right:0;
+    flex-direction:column;align-items:stretch;gap:.15rem;
+    background:rgba(247,241,232,.98);backdrop-filter:blur(14px);
+    padding:1rem 6vw 1.6rem;
+    box-shadow:0 24px 40px -30px rgba(33,28,23,.7);
+    transform:translateY(-12px);opacity:0;pointer-events:none;transition:.3s ease;
+    border-bottom:1px solid var(--line);
+  }
+  .nav.open{transform:none;opacity:1;pointer-events:auto}
+  .nav a{color:var(--ink)!important;padding:.85rem 1rem;border-radius:12px;font-size:1rem}
+  .nav a:hover{background:rgba(33,28,23,.06)}
+  .nav a.nav-cta{text-align:center;margin-top:.5rem;color:#fff!important}
+}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;min-height:100svh;display:grid;place-items:center;
+  padding:130px 0 90px;text-align:center;overflow:hidden;
+  background:
+    radial-gradient(130% 90% at 50% -10%,#333D26 0%,#1D2416 45%,#0E120A 100%);
+  color:#F4EEE4;
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+.hero-watermark{
+  position:absolute;right:-6%;bottom:-8%;width:min(620px,72vw);color:#F4EEE4;opacity:.055;
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.6rem}
+
+.hero-eyebrow{
+  font-size:.74rem;letter-spacing:.42em;text-transform:uppercase;color:#D9C9A8;
+  display:flex;align-items:center;gap:1rem;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{content:"";width:46px;height:1px;background:currentColor;opacity:.5}
+
+.hero h1{
+  font-size:clamp(3.2rem,13vw,8.5rem);
+  font-weight:400;letter-spacing:-.035em;margin:0;
+  background:linear-gradient(180deg,#FFF9EE 0%,#E7D9BF 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero h1 em{font-style:italic;font-weight:600}
+
+.hero-sub{
+  max-width:48ch;color:rgba(244,238,228,.72);font-size:1.03rem;font-weight:300;
+}
+
+.status{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.5rem 1.1rem;border-radius:999px;
+  border:1px solid rgba(244,238,228,.22);background:rgba(244,238,228,.06);
+  font-size:.85rem;letter-spacing:.02em;color:rgba(244,238,228,.9);
+}
+.status .dot{width:8px;height:8px;border-radius:50%;background:#7FBF6A;box-shadow:0 0 0 0 rgba(127,191,106,.7);animation:pulse 2.4s infinite}
+.status.closed .dot{background:#D97A5C;animation:none;box-shadow:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(127,191,106,.6)}70%{box-shadow:0 0 0 9px rgba(127,191,106,0)}100%{box-shadow:0 0 0 0 rgba(127,191,106,0)}}
+
+.hero-actions{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;margin-top:.4rem}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.85rem 1.7rem;border-radius:999px;font-size:.9rem;font-weight:600;
+  letter-spacing:.02em;transition:transform .25s,background .25s,color .25s,border-color .25s;
+  border:1px solid transparent;cursor:pointer;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--terra);color:#fff}
+.btn-primary:hover{background:var(--terra-dark)}
+.btn-ghost{border-color:rgba(244,238,228,.35);color:#F4EEE4}
+.btn-ghost:hover{background:rgba(244,238,228,.1);border-color:rgba(244,238,228,.6)}
+.btn-dark{background:var(--ink);color:var(--cream)}
+.btn-dark:hover{background:#000}
+
+.scroll-hint{
+  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(244,238,228,.4);display:flex;flex-direction:column;align-items:center;gap:.6rem;
+  z-index:2;
+}
+.scroll-hint::after{content:"";width:1px;height:38px;background:linear-gradient(rgba(244,238,228,.5),transparent)}
+
+/* ============ À PROPOS ============ */
+.about-grid{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(2rem,6vw,5rem);align-items:center;
+}
+.about-text h2{font-size:clamp(2rem,4.6vw,3.2rem);margin:.7rem 0 1.3rem}
+.about-text p{color:var(--ink-soft);margin-bottom:1.1rem;font-size:1.03rem}
+.about-text p:first-of-type{font-size:1.14rem;color:var(--ink)}
+.signature{font-family:'Fraunces',serif;font-style:italic;font-size:1.15rem;color:var(--terra);margin-top:1.6rem}
+
+.about-art{
+  position:relative;aspect-ratio:4/5;border-radius:calc(var(--radius) + 8px);
+  background:linear-gradient(155deg,#C0522F 0%,#8E3A1F 55%,#5E2716 100%);
+  box-shadow:var(--shadow);overflow:hidden;display:grid;place-items:center;
+}
+.about-art::before{
+  content:"";position:absolute;inset:0;opacity:.16;
+  background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0);
+  background-size:16px 16px;
+}
+.about-art svg{width:58%;color:#F7F1E8;opacity:.95;position:relative;z-index:2}
+.art-badge{
+  position:absolute;bottom:22px;left:22px;right:22px;z-index:3;
+  background:rgba(247,241,232,.94);border-radius:14px;padding:.9rem 1.1rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.art-badge strong{font-family:'Fraunces',serif;font-size:1rem;display:block}
+.art-badge span{font-size:.78rem;color:var(--ink-soft)}
+
+/* ============ MENU ============ */
+.menu-section{background:var(--cream-2)}
+.tabs{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin:2.6rem 0 3rem}
+.tab{
+  font:inherit;font-size:.86rem;font-weight:600;letter-spacing:.03em;
+  padding:.6rem 1.3rem;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink-soft);
+  transition:.25s;
+}
+.tab:hover{border-color:var(--ink);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+
+.menu-panel{display:none;animation:fade .45s ease}
+.menu-panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.menu-list{list-style:none;margin:0 auto;padding:0;max-width:760px;display:grid;gap:1.5rem}
+.menu-item .row{display:flex;align-items:baseline;gap:.6rem}
+.menu-item h3{font-size:1.15rem;font-weight:500;white-space:nowrap}
+.dots{flex:1;border-bottom:1px dotted rgba(33,28,23,.3);transform:translateY(-5px)}
+.price{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;color:var(--terra);white-space:nowrap}
+.menu-item p{font-size:.9rem;color:var(--ink-soft);margin-top:.15rem;max-width:60ch}
+.note{
+  text-align:center;font-size:.8rem;color:var(--ink-soft);margin-top:3rem;
+  font-style:italic;opacity:.8;
+}
+
+/* ============ VINS ============ */
+.wine-section{background:var(--night);color:#F1EADC;position:relative;overflow:hidden}
+.wine-section::before{
+  content:"";position:absolute;top:-20%;left:50%;transform:translateX(-50%);
+  width:min(900px,110vw);height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(192,82,47,.22),transparent 68%);
+  pointer-events:none;
+}
+.wine-section .eyebrow{color:#D9A65C}
+.wine-section .section-lead{color:rgba(241,234,220,.65)}
+.wine-section .section-title{color:#FFF8EC}
+
+.wine-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:clamp(2rem,5vw,4rem);margin-top:3.5rem;position:relative;z-index:2;
+}
+.wine-group h3{
+  font-size:1.35rem;color:#D9A65C;margin-bottom:1.4rem;
+  padding-bottom:.7rem;border-bottom:1px solid rgba(241,234,220,.16);
+  display:flex;align-items:center;gap:.7rem;
+}
+.wine-list{list-style:none;margin:0;padding:0;display:grid;gap:1.35rem}
+.wine-list .row{display:flex;align-items:baseline;gap:.6rem}
+.wine-list h4{font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;margin:0;white-space:nowrap}
+.wine-list .dots{border-bottom-color:rgba(241,234,220,.28)}
+.wine-list .price{color:#E7C27E}
+.wine-list p{font-size:.85rem;color:rgba(241,234,220,.55);margin-top:.15rem}
+.wine-price-note{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(241,234,220,.4);margin-top:.9rem}
+
+/* ============ SUIVI / NEWSLETTER ============ */
+.follow{
+  background:linear-gradient(120deg,#4F5B3F 0%,#3A4530 100%);
+  color:#F4EEE4;text-align:center;padding:clamp(60px,8vw,90px) 0;
+}
+.follow h2{font-size:clamp(1.8rem,3.6vw,2.6rem);color:#FFF8EC}
+.follow p{color:rgba(244,238,228,.72);max-width:46ch;margin:1rem auto 2rem}
+.follow-form{
+  display:flex;gap:.5rem;max-width:460px;margin:0 auto;flex-wrap:wrap;justify-content:center;
+}
+.follow-form input{
+  flex:1;min-width:220px;padding:.9rem 1.2rem;border-radius:999px;border:1px solid rgba(244,238,228,.28);
+  background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:.92rem;outline:none;
+  transition:.25s;
+}
+.follow-form input::placeholder{color:rgba(244,238,228,.5)}
+.follow-form input:focus{border-color:rgba(244,238,228,.7);background:rgba(255,255,255,.14)}
+.follow-form button{
+  padding:.9rem 1.7rem;border-radius:999px;border:0;background:var(--terra);color:#fff;
+  font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;transition:.25s;
+}
+.follow-form button:hover{background:var(--terra-dark)}
+.form-msg{font-size:.85rem;margin-top:1rem;min-height:1.2em;color:#E7C27E;opacity:0;transition:.3s}
+.form-msg.show{opacity:1}
+
+.socials{display:flex;gap:.7rem;justify-content:center;margin-top:2.4rem}
+.socials a{
+  width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(244,238,228,.25);color:rgba(244,238,228,.85);transition:.25s;
+}
+.socials a:hover{background:rgba(244,238,228,.14);border-color:rgba(244,238,228,.6);transform:translateY(-2px)}
+.socials svg{width:19px;height:19px}
+
+/* ============ VISITE ============ */
+.visit-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(2rem,5vw,4rem);align-items:start}
+.visit-info h2{font-size:clamp(2rem,4.4vw,3rem);margin:.7rem 0 1.6rem}
+.info-block{margin-bottom:1.9rem}
+.info-block h3{
+  font-family:'Inter',sans-serif;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--terra);font-weight:700;margin-bottom:.55rem;
+}
+.info-block p,.info-block a{font-size:1.05rem;color:var(--ink-soft);line-height:1.7}
+.info-block a:hover{color:var(--terra)}
+.info-block .big{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--ink)}
+
+.hours-table{list-style:none;margin:0;padding:0;font-size:.96rem;max-width:320px}
+.hours-table li{
+  display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;
+  border-bottom:1px solid var(--line);color:var(--ink-soft);
+}
+.hours-table li.today{color:var(--ink);font-weight:600}
+.hours-table li.today::after{content:"aujourd'hui";font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);align-self:center;font-weight:700}
+
+.map-frame{
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+  border:1px solid var(--line);aspect-ratio:4/3.4;background:var(--cream-2);
+}
+.map-frame iframe{width:100%;height:100%;border:0;display:block;filter:saturate(.85) contrast(1.03)}
+
+/* ============ FOOTER ============ */
+.site-footer{background:var(--ink);color:rgba(247,241,232,.65);padding:60px 0 34px;font-size:.9rem}
+.footer-top{display:flex;justify-content:space-between;gap:2.5rem;flex-wrap:wrap;margin-bottom:2.6rem}
+.footer-brand{max-width:300px}
+.footer-brand .brand-text{color:var(--cream);font-size:1.3rem}
+.footer-brand p{margin-top:.9rem;font-size:.88rem;line-height:1.7}
+.footer-cols{display:flex;gap:clamp(2rem,6vw,5rem);flex-wrap:wrap}
+.footer-col h4{
+  font-family:'Inter',sans-serif;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:1rem;
+}
+.footer-col ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.footer-col a:hover{color:var(--cream)}
+.footer-bottom{
+  border-top:1px solid rgba(247,241,232,.12);padding-top:1.6rem;
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:.8rem;
+  color:rgba(247,241,232,.42);
+}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:900px){
+  .about-grid,.visit-grid{grid-template-columns:1fr}
+  .about-art{aspect-ratio:16/12;order:-1}
+  .about-art svg{width:44%}
+  .map-frame{aspect-ratio:4/3}
+}
+@media(max-width:520px){
+  .hero{padding-top:110px}
+  .hero-actions .btn{width:100%;justify-content:center}
+  .hours-table li.today::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="site-header" id="header">
+  <div class="wrap header-inner">
+    <a href="#bonjour" class="brand" aria-label="Café Lézard, retour en haut">
+      <svg class="brand-mark" viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M32 50c11-11 30-13 45-7"/>
+        <circle cx="82" cy="45" r="8"/>
+        <path d="M32 50C19 50 10 42 12.5 31.5 14.2 24 21 21 26 24.5"/>
+        <path d="M47 43l-4-10M47 43l-11 2.5"/>
+        <path d="M64 41l4-10M64 41l10 1.5"/>
+        <circle cx="85" cy="43" r="1.6" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="brand-text">Café <em>Lézard</em></span>
+    </a>
+
+    <nav class="nav" id="nav">
+      <a href="#bonjour">Bonjour</a>
+      <a href="#apropos">Qui sommes-nous ?</a>
+      <a href="#menu">Menu</a>
+      <a href="#vins">Carte des vins</a>
+      <a href="#visite" class="nav-cta">Visitez-nous</a>
+    </nav>
+
+    <button class="burger" id="burger" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="nav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="bonjour">
+  <svg class="hero-watermark" viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M32 50c11-11 30-13 45-7"/>
+    <circle cx="82" cy="45" r="8"/>
+    <path d="M32 50C19 50 10 42 12.5 31.5 14.2 24 21 21 26 24.5"/>
+    <path d="M47 43l-4-10M47 43l-11 2.5"/>
+    <path d="M64 41l4-10M64 41l10 1.5"/>
+  </svg>
+
+  <div class="wrap hero-inner">
+    <p class="hero-eyebrow">Bienvenue au</p>
+    <h1>Café <em>Lézard</em></h1>
+    <p class="hero-sub">Un café de quartier sur la Rue Masson. Espresso de spécialité, bouchées maison et vins nature — du matin jusqu'à tard.</p>
+
+    <div class="status" id="status" role="status" aria-live="polite">
+      <span class="dot" aria-hidden="true"></span>
+      <span id="status-text">Heures d'ouverture…</span>
+    </div>
+
+    <div class="hero-actions">
+      <a href="#menu" class="btn btn-primary">Voir le menu</a>
+      <a href="#visite" class="btn btn-ghost">Visitez-nous
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint" aria-hidden="true">Défiler</div>
+</section>
+
+<!-- ================= QUI SOMMES-NOUS ================= -->
+<section class="section" id="apropos">
+  <div class="wrap about-grid">
+    <div class="about-text reveal">
+      <p class="eyebrow left">Qui sommes-nous ?</p>
+      <h2>Un lézard au coin de Masson</h2>
+      <p>Le Café Lézard, c'est une petite bête tranquille installée à Rosemont depuis assez longtemps pour connaître les habitudes du quartier : le voisin pressé de 7 h, l'étudiant qui s'installe avec son portable, la table de quatre qui refait le monde autour d'un verre de blanc.</p>
+      <p>On travaille avec des torréfacteurs d'ici, on goûte chaque lot avant de le servir, et on fait nos bouchées sur place chaque matin. Côté vins, on a un faible pour les petites cuvées vivantes, souvent nature, toujours choisies à la main.</p>
+      <p>Pas de chichis, pas de musique trop forte. Juste un bon café, quelque chose à grignoter, et le temps de rester un peu.</p>
+      <p class="signature">— L'équipe du Lézard</p>
+    </div>
+
+    <div class="about-art reveal" aria-hidden="true">
+      <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+        <!-- tasse -->
+        <path d="M52 96h84v30a42 42 0 0 1-42 42h0a42 42 0 0 1-42-42V96z"/>
+        <path d="M136 104h12a18 18 0 0 1 0 36h-12"/>
+        <path d="M46 96h96"/>
+        <!-- vapeur -->
+        <path d="M78 76c0-10 10-12 10-22s-10-12-10-22" opacity=".8"/>
+        <path d="M102 76c0-10 10-12 10-22s-10-12-10-22" opacity=".8"/>
+        <path d="M126 76c0-8 8-10 8-18" opacity=".6"/>
+        <!-- soucoupe -->
+        <path d="M34 172h132" opacity=".7"/>
+      </svg>
+
+      <div class="art-badge">
+        <div>
+          <strong>Fait maison</strong>
+          <span>Bouchées &amp; pâtisseries du jour</span>
+        </div>
+        <svg width="30" height="30" viewBox="0 0 120 80" fill="none" stroke="#C0522F" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M32 50c11-11 30-13 45-7"/>
+          <circle cx="82" cy="45" r="8"/>
+          <path d="M32 50C19 50 10 42 12.5 31.5 14.2 24 21 21 26 24.5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MENU ================= -->
+<section class="section menu-section" id="menu">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Menu</p>
+      <h2 class="section-title">Ce qu'on sert</h2>
+      <p class="section-lead">Tout est préparé sur place, tous les jours. La carte change un peu au fil des saisons.</p>
+    </div>
+
+    <div class="tabs reveal" role="tablist" aria-label="Sections du menu">
+      <button class="tab" role="tab" id="tab-cafe" aria-controls="panel-cafe" aria-selected="true">Café</button>
+      <button class="tab" role="tab" id="tab-boissons" aria-controls="panel-boissons" aria-selected="false">Boissons</button>
+      <button class="tab" role="tab" id="tab-bouches" aria-controls="panel-bouches" aria-selected="false">Bouchées</button>
+    </div>
+
+    <!-- CAFÉ -->
+    <div class="menu-panel active" id="panel-cafe" role="tabpanel" aria-labelledby="tab-cafe">
+      <ul class="menu-list">
+        <li class="menu-item">
+          <div class="row"><h3>Espresso</h3><span class="dots"></span><span class="price">3,25 $</span></div>
+          <p>Notre mélange maison, torréfaction mi-claire.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Espresso allongé</h3><span class="dots"></span><span class="price">3,50 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Filtre du jour</h3><span class="dots"></span><span class="price">4,25 $</span></div>
+          <p>Origine unique, extraite en V60. Demandez-nous ce qui est en vedette.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Cappuccino</h3><span class="dots"></span><span class="price">4,75 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Latte</h3><span class="dots"></span><span class="price">5,00 $</span></div>
+          <p>Avec lait entier, amande ou avoine.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Cold brew maison</h3><span class="dots"></span><span class="price">5,25 $</span></div>
+          <p>Infusé 18 heures à froid. Servi sur glace.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Chocolat chaud 70 %</h3><span class="dots"></span><span class="price">5,50 $</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- BOISSONS -->
+    <div class="menu-panel" id="panel-boissons" role="tabpanel" aria-labelledby="tab-boissons" hidden>
+      <ul class="menu-list">
+        <li class="menu-item">
+          <div class="row"><h3>Matcha latte</h3><span class="dots"></span><span class="price">5,75 $</span></div>
+          <p>Matcha cérémonial fouetté à la main.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Chai latte</h3><span class="dots"></span><span class="price">5,25 $</span></div>
+          <p>Épices entières infusées maison.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Thé en feuilles</h3><span class="dots"></span><span class="price">3,75 $</span></div>
+          <p>Sélection de thés noirs, verts et tisanes.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Limonade maison</h3><span class="dots"></span><span class="price">4,50 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Jus d'orange pressé</h3><span class="dots"></span><span class="price">5,00 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Eau pétillante</h3><span class="dots"></span><span class="price">3,00 $</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- BOUCHÉES -->
+    <div class="menu-panel" id="panel-bouches" role="tabpanel" aria-labelledby="tab-bouches" hidden>
+      <ul class="menu-list">
+        <li class="menu-item">
+          <div class="row"><h3>Croissant au beurre</h3><span class="dots"></span><span class="price">3,50 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Pain au chocolat</h3><span class="dots"></span><span class="price">4,00 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Bol du jour</h3><span class="dots"></span><span class="price">14,00 $</span></div>
+          <p>Grains, légumes de saison et sauce maison. Change chaque jour.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Grilled cheese au comté</h3><span class="dots"></span><span class="price">12,50 $</span></div>
+          <p>Pain de campagne, comté affiné, salade verte.</p>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Salade de saison</h3><span class="dots"></span><span class="price">11,00 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Tarte du jour</h3><span class="dots"></span><span class="price">6,50 $</span></div>
+        </li>
+        <li class="menu-item">
+          <div class="row"><h3>Cookie aux noix</h3><span class="dots"></span><span class="price">3,75 $</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <p class="note">Prix en dollars canadiens, taxes en sus. Apportez votre tasse : 0,50 $ de rabais.</p>
+  </div>
+</section>
+
+<!-- ================= CARTE DES VINS ================= -->
+<section class="section wine-section" id="vins">
+  <div class="wrap">
+    <div class="reveal">
+      <p class="eyebrow">Carte des vins</p>
+      <h2 class="section-title">Le coin des verres</h2>
+      <p class="section-lead">Une petite sélection vivante, surtout nature, toujours bue avec plaisir. Au verre ou à la bouteille.</p>
+    </div>
+
+    <div class="wine-grid reveal">
+      <div class="wine-group">
+        <h3>Bulles &amp; blancs</h3>
+        <ul class="wine-list">
+          <li>
+            <div class="row"><h4>Pét-nat — VdF</h4><span class="dots"></span><span class="price">9 / 42</span></div>
+            <p>Bulles fines, pomme verte, finale saline.</p>
+          </li>
+          <li>
+            <div class="row"><h4>Chardonnay — Bourgogne</h4><span class="dots"></span><span class="price">10 / 46</span></div>
+            <p>Texturé, notes de noisette et de beurre frais.</p>
+          </li>
+          <li>
+            <div class="row"><h4>Sauvignon — Touraine</h4><span class="dots"></span><span class="price">9 / 40</span></div>
+            <p>Vif, agrumes, une pointe d'herbe coupée.</p>
+          </li>
+          <li>
+            <div class="row"><h4>Riesling — Alsace</h4><span class="dots"></span><span class="price">10 / 45</span></div>
+            <p>Sec, tendu, très droit. Parfait avec le bol du jour.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="wine-group">
+        <h3>Oranges &amp; rouges</h3>
+        <ul class="wine-list">
+          <li>
+            <div class="row"><h4>Macération — Languedoc</h4><span class="dots"></span><span class="price">11 / 48</span></div>
+            <p>Orange, peau d'agrume, tanins légers. Servi frais.</p>
+          </li>
+          <li>
+            <div class="row"><h4>Pinot noir — Ontario</h4><span class="dots"></span><span class="price">11 / 50</span></div>
+            <p>Fruits rouges, sous-bois, tanins soyeux.</p>
+          </li>
+          <li>
+            <div class="row"><h4>Gamay — Beaujolais</h4><span class="dots"></span><span class="price">10 / 44</span></div>
+            <p>Gouleyant, frais, à boire sans réfléchir.</p>
+          </li>
+          <li>
+            <div class="row"><h4>Syrah — Rhône</h4><span class="dots"></span><span class="price">11 / 49</span></div>
+            <p>Poivre, violette, un peu de profondeur.</p>
+          </li>
+        </ul>
+        <p class="wine-price-note">Verre 5 oz · Bouteille · Bouchées assorties 16 $</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SUIVI ================= -->
+<section class="follow">
+  <div class="wrap reveal">
+    <h2>Suivez-nous pour avoir de nos nouvelles</h2>
+    <p>Nouveautés à la carte, soirées vins, changements d'horaires — on écrit rarement, mais on écrit bien.</p>
+
+    <form class="follow-form" id="follow-form" novalidate>
+      <label for="email" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre courriel</label>
+      <input type="email" id="email" name="email" placeholder="votre@courriel.com" required>
+      <button type="submit">S'abonner</button>
+    </form>
+    <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+
+    <div class="socials">
+      <a href="#" aria-label="Instagram du Café Lézard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="#" aria-label="Facebook du Café Lézard">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h2.6l.4-3H13v-2c0-.6.4-1 1-1z"/></svg>
+      </a>
+      <a href="tel:+15147293777" aria-label="Appeler le Café Lézard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VISITE ================= -->
+<section class="section" id="visite">
+  <div class="wrap visit-grid">
+    <div class="visit-info reveal">
+      <p class="eyebrow left">Visitez-nous</p>
+      <h2>On vous garde une place</h2>
+
+      <div class="info-block">
+        <h3>Adresse</h3>
+        <p class="big">3119 Rue Masson<br>Montréal, Québec H1Y</p>
+        <p><a href="https://www.google.com/maps/search/?api=1&query=3119+Rue+Masson,+Montréal,+QC" target="_blank" rel="noopener">Itinéraire →</a></p>
+      </div>
+
+      <div class="info-block">
+        <h3>Téléphone</h3>
+        <p class="big"><a href="tel:+15147293777">(514) 729-3777</a></p>
+      </div>
+
+      <div class="info-block">
+        <h3>Heures d'ouverture</h3>
+        <ul class="hours-table" id="hours-table">
+          <li data-day="1"><span>Lundi</span><span>11 h – 23 h</span></li>
+          <li data-day="2"><span>Mardi</span><span>11 h – 23 h</span></li>
+          <li data-day="3"><span>Mercredi</span><span>11 h – 23 h</span></li>
+          <li data-day="4"><span>Jeudi</span><span>11 h – 23 h</span></li>
+          <li data-day="5"><span>Vendredi</span><span>11 h – 23 h</span></li>
+          <li data-day="6"><span>Samedi</span><span>11 h – 23 h</span></li>
+          <li data-day="0"><span>Dimanche</span><span>11 h – 23 h</span></li>
+        </ul>
+      </div>
+
+      <a href="https://www.google.com/maps/search/?api=1&query=3119+Rue+Masson,+Montréal,+QC" target="_blank" rel="noopener" class="btn btn-dark">Visitez-nous
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+
+    <div class="map-frame reveal">
+      <iframe
+        title="Carte — Café Lézard, 3119 Rue Masson, Montréal"
+        src="https://www.google.com/maps?q=3119+Rue+Masson,+Montr%C3%A9al,+QC+H1Y&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="brand-text">Café <em>Lézard</em></span>
+        <p>Café de quartier à Rosemont. Espresso de spécialité, bouchées maison et vins nature, tous les jours de 11 h à 23 h.</p>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Naviguer</h4>
+          <ul>
+            <li><a href="#bonjour">Bonjour</a></li>
+            <li><a href="#apropos">Qui sommes-nous ?</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#vins">Carte des vins</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Nous trouver</h4>
+          <ul>
+            <li><a href="https://www.google.com/maps/search/?api=1&query=3119+Rue+Masson,+Montréal,+QC" target="_blank" rel="noopener">3119 Rue Masson<br>Montréal, QC H1Y</a></li>
+            <li><a href="tel:+15147293777">(514) 729-3777</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Heures</h4>
+          <ul>
+            <li>Lundi – Dimanche</li>
+            <li>11 h – 23 h</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Café Lézard. Tous droits réservés.</span>
+      <span>Fait avec soin à Montréal 🦎</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Horaires (0 = dimanche) ---------- */
+  var HORAIRES = {
+    0:[11,23], 1:[11,23], 2:[11,23], 3:[11,23],
+    4:[11,23], 5:[11,23], 6:[11,23]
+  };
+
+  function heureTexte(h){
+    return h + " h";
+  }
+
+  function majStatut(){
+    var now = new Date();
+    var jour = now.getDay();
+    var plage = HORAIRES[jour];
+    var h = now.getHours() + now.getMinutes()/60;
+    var ouvert = h >= plage[0] && h < plage[1];
+
+    var box = document.getElementById("status");
+    var txt = document.getElementById("status-text");
+
+    if (ouvert){
+      box.classList.remove("closed");
+      txt.textContent = "Ouvert maintenant · ferme à " + heureTexte(plage[1]);
+    } else if (h < plage[0]){
+      box.classList.add("closed");
+      txt.textContent = "Fermé · ouvre aujourd'hui à " + heureTexte(plage[0]);
+    } else {
+      var demain = HORAIRES[(jour + 1) % 7];
+      box.classList.add("closed");
+      txt.textContent = "Fermé · ouvre demain à " + heureTexte(demain[0]);
+    }
+
+    // Ligne du jour dans le tableau
+    var lignes = document.querySelectorAll("#hours-table li");
+    lignes.forEach(function(li){
+      li.classList.toggle("today", Number(li.dataset.day) === jour);
+    });
+  }
+  majStatut();
+  setInterval(majStatut, 60000);
+
+  /* ---------- Header au défilement ---------- */
+  var header = document.getElementById("header");
+  function onScroll(){
+    header.classList.toggle("scrolled", window.scrollY > 40);
+  }
+  onScroll();
+  window.addEventListener("scroll", onScroll, {passive:true});
+
+  /* ---------- Menu mobile ---------- */
+  var burger = document.getElementById("burger");
+  var nav = document.getElementById("nav");
+
+  burger.addEventListener("click", function(){
+    var ouvert = nav.classList.toggle("open");
+    burger.setAttribute("aria-expanded", ouvert ? "true" : "false");
+    burger.setAttribute("aria-label", ouvert ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation");
+  });
+
+  nav.querySelectorAll("a").forEach(function(a){
+    a.addEventListener("click", function(){
+      nav.classList.remove("open");
+      burger.setAttribute("aria-expanded","false");
+    });
+  });
+
+  /* ---------- Onglets du menu ---------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var panels = Array.prototype.slice.call(document.querySelectorAll(".menu-panel"));
+
+  function activerTab(tab){
+    tabs.forEach(function(t){
+      var actif = t === tab;
+      t.setAttribute("aria-selected", actif ? "true" : "false");
+    });
+    panels.forEach(function(p){
+      var actif = p.id === tab.getAttribute("aria-controls");
+      p.classList.toggle("active", actif);
+      if (actif) { p.removeAttribute("hidden"); } else { p.setAttribute("hidden",""); }
+    });
+  }
+
+  tabs.forEach(function(tab, i){
+    tab.addEventListener("click", function(){ activerTab(tab); });
+    tab.addEventListener("keydown", function(e){
+      var cible = null;
+      if (e.key === "ArrowRight") cible = tabs[(i + 1) % tabs.length];
+      if (e.key === "ArrowLeft")  cible = tabs[(i - 1 + tabs.length) % tabs.length];
+      if (cible){ e.preventDefault(); cible.focus(); activerTab(cible); }
+    });
+  });
+
+  /* ---------- Apparition au défilement ---------- */
+  var reveals = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting){
+          entry.target.classList.add("in");
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.12, rootMargin:"0px 0px -60px 0px"});
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add("in"); });
+  }
+
+  /* ---------- Formulaire infolettre ---------- */
+  var form = document.getElementById("follow-form");
+  var msg = document.getElementById("form-msg");
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var email = document.getElementById("email").value.trim();
+    var valide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    msg.classList.add("show");
+    if (valide){
+      msg.style.color = "#E7C27E";
+      msg.textContent = "Merci ! On vous écrira bientôt. 🦎";
+      form.reset();
+    } else {
+      msg.style.color = "#F0A98C";
+      msg.textContent = "Oups — vérifiez votre adresse courriel.";
+    }
+  });
+
+  /* ---------- Année ---------- */
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+})();
+</script>
+</body>
+</html>
