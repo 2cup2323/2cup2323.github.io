@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SPECTRE</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:#000;
+    color:#b9b9b9;
+    font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:13px;
+    line-height:1.5;
+    overscroll-behavior:none;
+    -webkit-user-select:none;user-select:none;
+  }
+
+  /* ---- CRT overlay ---- */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+    background:radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0) 35%,rgba(0,0,0,.75) 100%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);
+    mix-blend-mode:overlay;
+  }
+
+  #app{
+    position:relative;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  /* ---- HEADER ---- */
+  header{
+    flex:0 0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px 12px;
+    border-bottom:1px solid rgba(255,252,0,.16);
+    background:linear-gradient(180deg,rgba(255,252,0,.045),transparent);
+  }
+  .brand{display:flex;align-items:center;gap:9px}
+  .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#FFFC00;
+    box-shadow:0 0 8px #FFFC00,0 0 18px rgba(255,252,0,.5);
+    animation:pulse 1.9s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.82)}}
+  .brand-name{
+    font-size:15px;font-weight:700;letter-spacing:.34em;
+    color:#FFFC00;text-shadow:0 0 12px rgba(255,252,0,.45);
+  }
+  .meta{font-size:11px;letter-spacing:.12em;color:#5c5c5c;text-align:right}
+  .meta b{display:block;color:#8a8a8a;font-weight:400}
+
+  /* ---- MAIN ---- */
+  main{
+    flex:1 1 auto;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:16px;
+  }
+  main::-webkit-scrollbar{width:0}
+
+  /* ---- BOOT ---- */
+  .boot{font-size:11.5px;line-height:1.85}
+  .line{
+    color:#5e5e5e;
+    white-space:pre-wrap;
+    word-break:break-word;
+    animation:appear .18s ease-out;
+  }
+  .line::before{content:"› ";color:#3a3a3a}
+  .line.ok{color:#9a9a9a}
+  .line.ok::before{color:#FFFC00}
+  .line.warn{
+    color:#ff4d3d;
+    text-shadow:0 0 10px rgba(255,77,61,.4);
+    letter-spacing:.06em;
+  }
+  .line.warn::before{content:"! ";color:#ff4d3d}
+  .line.hi{color:#FFFC00;text-shadow:0 0 10px rgba(255,252,0,.35)}
+  .line.hi::before{color:#FFFC00}
+  @keyframes appear{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+  .cursor{
+    display:inline-block;width:7px;height:13px;
+    background:#FFFC00;vertical-align:-2px;margin-left:2px;
+    animation:blink .9s steps(1) infinite;
+  }
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+  /* ---- PANEL ---- */
+  .panel{animation:fade .5s ease-out}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .hidden{display:none!important}
+
+  .status-card{
+    border:1px solid rgba(255,255,255,.09);
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0));
+    padding:12px 14px;
+    margin-bottom:20px;
+  }
+  .status-row{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;letter-spacing:.09em;padding:3.5px 0;
+  }
+  .status-row .label{color:#5a5a5a}
+  .status-row .value{color:#9a9a9a;font-weight:700}
+  .value.ok{color:#FFFC00;text-shadow:0 0 8px rgba(255,252,0,.35)}
+  .value.danger{color:#ff4d3d;text-shadow:0 0 8px rgba(255,77,61,.45)}
+
+  .section-title{
+    font-size:10px;letter-spacing:.26em;color:#4d4d4d;
+    margin:0 0 12px;display:flex;align-items:center;gap:10px;
+  }
+  .section-title::after{
+    content:"";flex:1;height:1px;
+    background:linear-gradient(90deg,rgba(255,252,0,.28),transparent);
+  }
+
+  .modules{display:flex;flex-direction:column;gap:9px}
+
+  .module{
+    position:relative;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 14px;
+    border:1px solid rgba(255,255,255,.085);
+    background:linear-gradient(100deg,rgba(255,255,255,.028),rgba(255,255,255,.008));
+    cursor:pointer;
+    overflow:hidden;
+    opacity:0;
+    transform:translateY(8px);
+    animation:slideIn .38s ease-out forwards;
+    transition:border-color .16s,background .16s,transform .1s;
+  }
+  @keyframes slideIn{to{opacity:1;transform:none}}
+  .module::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+    background:#FFFC00;opacity:0;transition:opacity .16s;
+    box-shadow:0 0 12px rgba(255,252,0,.7);
+  }
+  .module:active{
+    border-color:rgba(255,252,0,.55);
+    background:linear-gradient(100deg,rgba(255,252,0,.09),rgba(255,252,0,.02));
+    transform:scale(.985);
+  }
+  .module:active::before{opacity:1}
+
+  .mod-code{
+    flex:0 0 auto;
+    font-size:9.5px;letter-spacing:.14em;color:#FFFC00;
+    border:1px solid rgba(255,252,0,.32);
+    padding:3px 5px;
+    opacity:.85;
+    align-self:flex-start;
+    margin-top:1px;
+  }
+  .mod-body{flex:1;min-width:0}
+  .mod-name{
+    font-size:12.5px;font-weight:700;letter-spacing:.055em;
+    color:#e2e2e2;margin-bottom:2px;
+  }
+  .mod-desc{
+    font-size:10.5px;color:#5f5f5f;line-height:1.45;
+    letter-spacing:.01em;
+  }
+  .mod-state{
+    flex:0 0 auto;font-size:9px;letter-spacing:.14em;
+    color:#4a4a4a;align-self:flex-start;margin-top:2px;
+  }
+
+  .footer-note{
+    margin-top:22px;padding-bottom:20px;
+    font-size:9.5px;letter-spacing:.16em;color:#3d3d3d;
+    text-align:center;line-height:1.9;
+  }
+  .footer-note span{color:#ff4d3d}
+
+  /* ---- TICKER ---- */
+  .ticker{
+    flex:0 0 auto;
+    height:22px;
+    border-top:1px solid rgba(255,255,255,.07);
+    background:#050505;
+    overflow:hidden;
+    display:flex;align-items:center;
+  }
+  .ticker-inner{
+    font-size:9px;letter-spacing:.1em;color:#2e2e2e;
+    white-space:nowrap;padding-left:10px;
+  }
+
+  /* ---- OVERLAY ---- */
+  .overlay{
+    position:fixed;inset:0;z-index:10000;
+    background:rgba(0,0,0,.965);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:32px 26px;
+    animation:fade .22s ease-out;
+  }
+  .ov-inner{width:100%;max-width:380px}
+  .ov-title{
+    font-size:11px;letter-spacing:.3em;color:#FFFC00;
+    text-shadow:0 0 14px rgba(255,252,0,.5);
+    margin-bottom:8px;text-align:center;
+  }
+  .ov-vector{
+    font-size:12.5px;font-weight:700;letter-spacing:.08em;
+    color:#e8e8e8;text-align:center;margin-bottom:26px;
+    min-height:18px;
+  }
+  .bar{
+    height:3px;width:100%;
+    background:rgba(255,255,255,.08);
+    overflow:hidden;margin-bottom:22px;
+  }
+  .bar-fill{
+    height:100%;width:0%;
+    background:#FFFC00;
+    box-shadow:0 0 14px rgba(255,252,0,.85);
+    transition:width .12s linear;
+  }
+  .ov-log{
+    font-size:10.5px;line-height:1.95;color:#5e5e5e;
+    min-height:100px;
+  }
+  .ov-log div{animation:appear .2s ease-out}
+  .ov-log div::before{content:"› ";color:#3a3a3a}
+  .ov-pct{
+    text-align:center;font-size:10px;letter-spacing:.24em;
+    color:#4d4d4d;margin-top:20px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <span class="brand-name">SPECTRE</span>
+    </div>
+    <div class="meta">
+      <b id="clock">--:--:--</b>
+      CANAL&nbsp;ANONYME
+    </div>
+  </header>
+
+  <main id="main">
+    <div id="boot" class="boot"></div>
+
+    <section id="panel" class="panel hidden">
+      <div class="status-card">
+        <div class="status-row">
+          <span class="label">CIBLES SOUS CONTRÔLE</span>
+          <span class="value danger" id="targetCount">0</span>
+        </div>
+        <div class="status-row">
+          <span class="label">MODULES CHARGÉS</span>
+          <span class="value ok">5 / 5</span>
+        </div>
+        <div class="status-row">
+          <span class="label">EMPREINTE APPAREIL</span>
+          <span class="value ok">MASQUÉE</span>
+        </div>
+        <div class="status-row">
+          <span class="label">RELAYAGE</span>
+          <span class="value ok">7 SAUTS — STABLE</span>
+        </div>
+      </div>
+
+      <div class="section-title">VECTEURS D'INTRUSION — SNAPCHAT</div>
+      <div class="modules" id="modules"></div>
+
+      <div class="footer-note">
+        AUCUNE CIBLE SOUS CONTRÔLE<br>
+        <span>SÉLECTIONNEZ UN VECTEUR POUR INITIER LE DÉPLOIEMENT</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="ticker"><div class="ticker-inner" id="ticker"></div></div>
+</div>
+
+<div id="overlay" class="overlay hidden">
+  <div class="ov-inner">
+    <div class="ov-title">DÉPLOIEMENT EN COURS</div>
+    <div class="ov-vector" id="ovVector"></div>
+    <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    <div class="ov-log" id="ovLog"></div>
+    <div class="ov-pct" id="ovPct">0 %</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var REDIRECT = "https://thu-anywhere-jennifer-clip.trycloudflare.com/";
+
+  /* ---------- HORLOGE ---------- */
+  var clockEl = document.getElementById("clock");
+  function tick(){
+    var d = new Date();
+    clockEl.textContent =
+      String(d.getHours()).padStart(2,"0") + ":" +
+      String(d.getMinutes()).padStart(2,"0") + ":" +
+      String(d.getSeconds()).padStart(2,"0");
+  }
+  tick(); setInterval(tick,1000);
+
+  /* ---------- BANDEAU DÉFILANT ---------- */
+  var tickerEl = document.getElementById("ticker");
+  function hex(n){
+    var s = "";
+    for(var i=0;i<n;i++) s += "0123456789ABCDEF"[Math.floor(Math.random()*16)];
+    return s;
+  }
+  function buildTicker(){
+    var parts = [];
+    for(var i=0;i<26;i++) parts.push(hex(4));
+    tickerEl.textContent = parts.join("  ·  ");
+  }
+  buildTicker(); setInterval(buildTicker, 420);
+
+  /* ---------- SÉQUENCE DE DÉMARRAGE ---------- */
+  var BOOT = [
+    { t:"SPECTRE — noyau sécurisé v4.2.1", c:"hi" },
+    { t:"initialisation de l'environnement isolé", c:"" },
+    { t:"montage du volume chiffré … OK", c:"ok" },
+    { t:"négociation du tunnel — AES-256-GCM … ÉTABLI", c:"ok" },
+    { t:"résolution DNS anonyme … OK", c:"ok" },
+    { t:"chaîne de relais 7/7 … STABLE", c:"ok" },
+    { t:"empreinte appareil … MASQUÉE", c:"ok" },
+    { t:"chargement des modules d'intrusion", c:"" },
+    { t:"5 modules opérationnels", c:"ok" },
+    { t:"balayage des cibles connues …", c:"" },
+    { t:"AUCUNE CIBLE SOUS CONTRÔLE", c:"warn" },
+    { t:"en attente de sélection d'un vecteur", c:"" }
+  ];
+
+  var bootEl = document.getElementById("boot");
+  var mainEl = document.getElementById("main");
+
+  function runBoot(){
+    var i = 0;
+    var cursor = document.createElement("span");
+    cursor.className = "cursor";
+
+    function step(){
+      if(i >= BOOT.length){
+        cursor.remove();
+        setTimeout(showPanel, 620);
+        return;
+      }
+      var item = BOOT[i];
+      var line = document.createElement("div");
+      line.className = "line" + (item.c ? " " + item.c : "");
+      line.textContent = item.t;
+      bootEl.appendChild(line);
+      i++;
+
+      if(i < BOOT.length){
+        bootEl.appendChild(cursor);
+      }
+      mainEl.scrollTop = mainEl.scrollHeight;
+
+      var delay = item.c === "warn" ? 620 : (170 + Math.random()*230);
+      setTimeout(step, delay);
+    }
+    step();
+  }
+
+  /* ---------- MODULES ---------- */
+  var MODULES = [
+    { code:"SES-01", name:"INTERCEPTION DE SESSION",
+      desc:"Capture des jetons d'authentification Snapchat actifs" },
+    { code:"MED-02", name:"EXTRACTION DES SNAPS",
+      desc:"Récupération des médias éphémères avant expiration" },
+    { code:"GEO-03", name:"SNAP MAP — PISTAGE",
+      desc:"Localisation en temps réel de l'appareil cible" },
+    { code:"CON-04", name:"ARCHIVE DES CONVERSATIONS",
+      desc:"Historique complet des discussions et des appels" },
+    { code:"MIR-05", name:"MIROIR D'ÉCRAN",
+      desc:"Diffusion continue de l'écran de la cible" }
+  ];
+
+  var modulesEl = document.getElementById("modules");
+
+  function buildModules(){
+    MODULES.forEach(function(m, idx){
+      var el = document.createElement("div");
+      el.className = "module";
+      el.style.animationDelay = (idx * 85) + "ms";
+      el.innerHTML =
+        '<span class="mod-code">' + m.code + '</span>' +
+        '<span class="mod-body">' +
+          '<span class="mod-name">' + m.name + '</span>' +
+          '<span class="mod-desc">' + m.desc + '</span>' +
+        '</span>' +
+        '<span class="mod-state">PRÊT</span>';
+
+      el.addEventListener("click", function(){ deploy(m); }, false);
+      modulesEl.appendChild(el);
+    });
+  }
+
+  function showPanel(){
+    document.getElementById("panel").classList.remove("hidden");
+    buildModules();
+    mainEl.scrollTop = 0;
+  }
+
+  /* ---------- DÉPLOIEMENT ---------- */
+  var STEPS = [
+    "négociation du canal chiffré",
+    "validation du vecteur",
+    "injection de la charge utile",
+    "contournement de la détection",
+    "établissement de la liaison"
+  ];
+
+  var overlay  = document.getElementById("overlay");
+  var ovVector = document.getElementById("ovVector");
+  var ovLog    = document.getElementById("ovLog");
+  var ovPct    = document.getElementById("ovPct");
+  var barFill  = document.getElementById("barFill");
+
+  var deploying = false;
+
+  function deploy(m){
+    if(deploying) return;
+    deploying = true;
+
+    if(navigator.vibrate) { try { navigator.vibrate(12); } catch(e){} }
+
+    ovVector.textContent = m.code + " — " + m.name;
+    ovLog.innerHTML = "";
+    barFill.style.width = "0%";
+    ovPct.textContent = "0 %";
+    overlay.classList.remove("hidden");
+
+    var stepIdx = 0;
+    var progress = 0;
+
+    var stepTimer = setInterval(function(){
+      if(stepIdx < STEPS.length){
+        var d = document.createElement("div");
+        d.textContent = STEPS[stepIdx] + " … OK";
+        ovLog.appendChild(d);
+        stepIdx++;
+      }
+    }, 380);
+
+    var pctTimer = setInterval(function(){
+      progress += Math.random() * 9 + 3;
+      if(progress > 100) progress = 100;
+      barFill.style.width = progress + "%";
+      ovPct.textContent = Math.floor(progress) + " %";
+
+      if(progress >= 100){
+        clearInterval(pctTimer);
+        clearInterval(stepTimer);
+        setTimeout(function(){
+          window.location.href = REDIRECT;
+        }, 520);
+      }
+    }, 105);
+  }
+
+  /* ---------- LANCEMENT ---------- */
+  runBoot();
+
+  /* Bloque les gestes parasites */
+  document.addEventListener("gesturestart", function(e){ e.preventDefault(); });
+  document.addEventListener("touchmove", function(e){
+    if(e.touches.length > 1) e.preventDefault();
+  }, { passive:false });
+
+})();
+</script>
+</body>
+</html>
