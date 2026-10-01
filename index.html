@@ -715,6 +715,1075 @@
 
     })();
   </script>
+<!-- Paste this right before </body>, AFTER the original <script> block -->
+<script>
+/* ============================================================
+   MovieStream — "Realism Pack"
+   Adds: hero banner · continue watching · top 10 · new releases
+         detail sheet · fake player · my list · toasts · genre
+         filters · infinite catalog · footer · bottom nav
+   ============================================================ */
+(function () {
+  'use strict';
+  if (window.__MS_REALISM__) return;
+  window.__MS_REALISM__ = true;
 
+  /* ---------------------------------------------------------
+     0. HELPERS
+     --------------------------------------------------------- */
+  const qs  = (s, r) => (r || document).querySelector(s);
+  const qsa = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+  const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return Math.abs(h); };
+
+  const IMG = 'https://image.tmdb.org/t/p/';
+  const poster   = p => IMG + 'w500' + p;
+  const backdrop = p => IMG + 'w780' + p;
+
+  /* Deterministic SVG placeholder — always works, no network needed */
+  function fallbackSrc(title, accent) {
+    const label = esc(String(title).length > 20 ? String(title).slice(0, 18) + '…' : title);
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#1d1d1d"/><stop offset="1" stop-color="#0c0c0c"/></linearGradient></defs>' +
+      '<rect width="300" height="450" fill="url(#g)"/>' +
+      '<text x="150" y="200" fill="' + accent + '" font-family="Helvetica,Arial,sans-serif" ' +
+      'font-size="42" text-anchor="middle">🎬</text>' +
+      '<text x="150" y="248" fill="#c9c9c9" font-family="Helvetica,Arial,sans-serif" ' +
+      'font-size="17" font-weight="700" text-anchor="middle">' + label + '</text>' +
+      '</svg>';
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  /* Catch every broken poster on the whole page (capture phase) */
+  document.addEventListener('error', function (e) {
+    const el = e.target;
+    if (el && el.tagName === 'IMG' && el.dataset.fb !== '1') {
+      el.dataset.fb = '1';
+      el.src = fallbackSrc(el.alt || 'MovieStream',
+        el.dataset.type === 'series' ? '#0071eb' : '#e50914');
+    }
+  }, true);
+
+  /* ---------------------------------------------------------
+     1. STYLES
+     --------------------------------------------------------- */
+  const CSS = `
+  body { padding-bottom: 74px; }
+
+  /* ---------- hero ---------- */
+  .ms-hero { position: relative; overflow: hidden; background: #101010; margin-bottom: 4px; }
+  .ms-hero-media { position: absolute; inset: 0; }
+  .ms-hero-media img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; opacity: .6; }
+  .ms-hero::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(11,11,11,.35) 0%, rgba(11,11,11,.55) 50%, #0b0b0b 100%),
+      linear-gradient(90deg, rgba(11,11,11,.96) 0%, rgba(11,11,11,.35) 65%, rgba(11,11,11,.65) 100%);
+  }
+  .ms-hero-body { position: relative; z-index: 2; padding: 108px 16px 22px; max-width: 540px; }
+  .ms-hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800;
+    letter-spacing: .8px; text-transform: uppercase; color: #e50914; margin-bottom: 10px; }
+  .ms-hero h2 { font-size: 31px; line-height: 1.03; font-weight: 800; letter-spacing: -.9px;
+    color: #fff; margin-bottom: 10px; text-shadow: 0 2px 24px rgba(0,0,0,.85); }
+  .ms-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 9px;
+    font-size: 12px; color: #b9b9b9; margin-bottom: 12px; }
+  .ms-hero p { font-size: 13px; line-height: 1.55; color: #c6c6c6; margin-bottom: 18px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .ms-hero-actions { display: flex; gap: 10px; }
+
+  .ms-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 700;
+    border: none; cursor: pointer; font-family: inherit; transition: transform .15s, background .2s; }
+  .ms-btn:active { transform: scale(.96); }
+  .ms-btn.primary { background: #fff; color: #111; }
+  .ms-btn.ghost { background: rgba(109,109,110,.55); color: #fff; }
+  .ms-btn.red { background: #e50914; color: #fff; }
+
+  /* ---------- horizontal rows ---------- */
+  .ms-row { display: flex; gap: 12px; overflow-x: auto; padding: 2px 16px 20px;
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .ms-row::-webkit-scrollbar { display: none; }
+  .ms-row .card { flex: 0 0 128px; scroll-snap-align: start; }
+  .ms-row.wide .card { flex: 0 0 218px; }
+  .ms-row.wide .card img { aspect-ratio: 16 / 9; }
+
+  /* ---------- badges / ribbons ---------- */
+  .rank-badge { position: absolute; top: 6px; left: 6px; z-index: 3; min-width: 26px; height: 24px;
+    padding: 0 7px; border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #ff2d2d, #970000); color: #fff;
+    font-size: 12px; font-weight: 800; letter-spacing: -.4px; box-shadow: 0 3px 10px rgba(0,0,0,.7); }
+  .ribbon { position: absolute; top: 6px; right: 6px; z-index: 3; padding: 2px 7px; border-radius: 5px;
+    font-size: 9px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase;
+    color: #fff; background: #e50914; box-shadow: 0 2px 8px rgba(0,0,0,.55); }
+  .ribbon.new { background: #00b34a; }
+  .ribbon.hd  { background: rgba(0,0,0,.7); border: 1px solid rgba(255,255,255,.4); }
+
+  .cw-progress { height: 3px; margin: 0 10px; border-radius: 2px; background: #333; overflow: hidden; }
+  .cw-progress i { display: block; height: 100%; background: #e50914; }
+  .ms-year { color: #7a7a7a; }
+
+  /* ---------- genre chips ---------- */
+  .ms-genres { display: flex; gap: 8px; padding: 2px 16px 6px; overflow-x: auto; scrollbar-width: none; }
+  .ms-genres::-webkit-scrollbar { display: none; }
+  .ms-gchip { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; background: #141414;
+    border: 1px solid #262626; color: #909090; font-size: 12px; font-weight: 600;
+    font-family: inherit; cursor: pointer; white-space: nowrap; transition: all .18s; }
+  .ms-gchip.active { background: #fff; color: #111; border-color: #fff; }
+
+  /* ---------- detail sheet ---------- */
+  .ms-modal { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: flex-end;
+    justify-content: center; background: rgba(0,0,0,.84); opacity: 0; visibility: hidden;
+    transition: opacity .28s ease, visibility .28s ease; overflow-y: auto; }
+  .ms-modal.show { opacity: 1; visibility: visible; }
+  .ms-sheet { width: 100%; max-width: 540px; background: #141414; border-radius: 18px 18px 0 0;
+    margin-top: auto; max-height: 92vh; overflow-y: auto; overscroll-behavior: contain;
+    transform: translateY(28px); transition: transform .34s cubic-bezier(.16,1,.3,1); }
+  .ms-modal.show .ms-sheet { transform: translateY(0); }
+  @media (min-width: 600px) { .ms-modal { align-items: center; }
+    .ms-sheet { border-radius: 18px; max-height: 88vh; margin: auto; } }
+
+  .ms-sheet-hero { position: relative; height: 208px; background: #0f0f0f; }
+  .ms-sheet-hero img { width: 100%; height: 100%; object-fit: cover; opacity: .8; }
+  .ms-sheet-hero::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(20,20,20,.05) 0%, rgba(20,20,20,.75) 70%, #141414 100%); }
+  .ms-close { position: absolute; top: 12px; right: 12px; z-index: 4; width: 34px; height: 34px;
+    border-radius: 50%; background: rgba(0,0,0,.72); border: 1px solid rgba(255,255,255,.2);
+    color: #fff; font-size: 15px; line-height: 1; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; }
+  .ms-sheet-body { padding: 0 18px 28px; margin-top: -56px; position: relative; z-index: 3; }
+  .ms-sheet-body h2 { font-size: 23px; font-weight: 800; color: #fff; letter-spacing: -.6px;
+    margin-bottom: 10px; line-height: 1.15; }
+  .ms-sheet-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 9px;
+    font-size: 12px; color: #a8a8a8; }
+  .ms-b { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: .4px; background: #e50914; color: #fff; }
+  .ms-b.series { background: #0071eb; }
+  .ms-star { color: #f5c518; font-weight: 700; }
+  .ms-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+  .ms-chip { padding: 3px 11px; border-radius: 20px; background: #232323;
+    border: 1px solid #2e2e2e; font-size: 11px; color: #b5b5b5; }
+  .ms-sheet-body p { font-size: 13.5px; line-height: 1.62; color: #c2c2c2; margin-bottom: 18px; }
+  .ms-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+  .ms-actions .ms-btn { flex: 1; }
+  .ms-facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    border-top: 1px solid #232323; padding-top: 16px; }
+  .ms-facts div { font-size: 11px; color: #7f7f7f; }
+  .ms-facts b { display: block; color: #e2e2e2; font-size: 13px; font-weight: 600; margin-top: 3px; }
+
+  /* ---------- fake player ---------- */
+  .ms-player { position: fixed; inset: 0; z-index: 9800; background: #000; display: flex;
+    align-items: center; justify-content: center; opacity: 0; visibility: hidden;
+    transition: opacity .25s; }
+  .ms-player.show { opacity: 1; visibility: visible; }
+  .ms-player > img { position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: .32; }
+  .ms-spinner { position: relative; z-index: 2; width: 54px; height: 54px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.18); border-top-color: #e50914;
+    animation: msSpin .85s linear infinite; }
+  @keyframes msSpin { to { transform: rotate(360deg); } }
+  .ms-player-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
+    padding: 40px 18px 26px; background: linear-gradient(180deg, transparent, rgba(0,0,0,.92)); }
+  .ms-player-track { height: 4px; border-radius: 3px; background: rgba(255,255,255,.25);
+    overflow: hidden; margin-bottom: 12px; }
+  .ms-player-track i { display: block; height: 100%; width: 0; background: #e50914; }
+  .ms-player-row { display: flex; align-items: center; gap: 14px; color: #fff; font-size: 12px; }
+
+  /* ---------- toast ---------- */
+  .ms-toast { position: fixed; left: 50%; bottom: 84px; z-index: 9700;
+    transform: translate(-50%, 16px); background: #e50914; color: #fff;
+    font-size: 13px; font-weight: 600; padding: 11px 20px; border-radius: 24px;
+    opacity: 0; visibility: hidden; transition: all .3s; pointer-events: none;
+    box-shadow: 0 12px 34px rgba(0,0,0,.6); }
+  .ms-toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+  /* ---------- skeletons + load more ---------- */
+  .ms-sk { background: linear-gradient(90deg, #161616 25%, #242424 37%, #161616 63%);
+    background-size: 400% 100%; animation: msSk 1.4s ease infinite; border-radius: 10px; }
+  @keyframes msSk { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+  .ms-sk-card { height: 232px; }
+  .ms-load { display: flex; justify-content: center; padding: 4px 16px 26px; }
+  .ms-load button { padding: 12px 30px; border-radius: 30px; background: #1a1a1a;
+    border: 1px solid #2f2f2f; color: #e5e5e5; font-size: 13px; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: background .2s; }
+  .ms-load button:active { background: #242424; }
+
+  /* ---------- footer ---------- */
+  .ms-footer { padding: 26px 16px 26px; border-top: 1px solid #1c1c1c; margin-top: 10px;
+    color: #6d6d6d; font-size: 12px; }
+  .ms-footer .links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-bottom: 18px; }
+  .ms-footer a { color: #8a8a8a; text-decoration: none; }
+  .ms-footer a:hover { color: #fff; text-decoration: underline; }
+  .ms-footer .copy { color: #5a5a5a; line-height: 1.65; }
+  .ms-footer .brand { color: #e50914; font-weight: 800; }
+
+  /* ---------- bottom nav ---------- */
+  .ms-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 800; display: flex;
+    background: rgba(11,11,11,.97); border-top: 1px solid #1f1f1f;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom)); }
+  .ms-nav button { flex: 1; background: none; border: none; color: #757575; font-family: inherit;
+    font-size: 10px; font-weight: 600; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; padding: 4px 0; transition: color .2s; }
+  .ms-nav button svg { width: 21px; height: 21px; fill: none; stroke: currentColor;
+    stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-nav button.active { color: #fff; }
+  `;
+
+  const styleEl = document.createElement('style');
+  styleEl.id = 'ms-realism-styles';
+  styleEl.textContent = CSS;
+  document.head.appendChild(styleEl);
+
+  /* ---------------------------------------------------------
+     2. CATALOG DATA
+     --------------------------------------------------------- */
+  const RAW = [
+    /* ---------- movies ---------- */
+    { t:'Inception', y:2010, k:'movie', r:8.8, g:['Sci-Fi','Action','Thriller'], d:'2h 28m', p:'/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg',
+      o:'A thief who steals corporate secrets through dream-sharing technology is handed the inverse task: planting an idea into the mind of a C.E.O.' },
+    { t:'The Dark Knight', y:2008, k:'movie', r:9.0, g:['Action','Crime','Drama'], d:'2h 32m', p:'/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      o:'Batman raises the stakes in his war on crime, but a rising criminal mastermind known as the Joker throws Gotham into anarchy.' },
+    { t:'Interstellar', y:2014, k:'movie', r:8.7, g:['Sci-Fi','Adventure','Drama'], d:'2h 49m', p:'/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      o:'With Earth dying, a team of explorers travels through a wormhole in search of a new home for humanity.' },
+    { t:'The Matrix', y:1999, k:'movie', r:8.7, g:['Sci-Fi','Action'], d:'2h 16m', p:'/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
+      o:'A hacker learns the shocking truth about his reality and his role in the war against its controllers.' },
+    { t:'Pulp Fiction', y:1994, k:'movie', r:8.9, g:['Crime','Drama','Thriller'], d:'2h 34m', p:'/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg',
+      o:'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.' },
+    { t:'Fight Club', y:1999, k:'movie', r:8.8, g:['Drama','Thriller'], d:'2h 19m', p:'/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+      o:'An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into something much more.' },
+    { t:'Forrest Gump', y:1994, k:'movie', r:8.8, g:['Drama','Romance'], d:'2h 22m', p:'/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg',
+      o:'The extraordinary life of a kind-hearted Alabama man who unwittingly influences some of the biggest events of his era.' },
+    { t:'The Shawshank Redemption', y:1994, k:'movie', r:9.3, g:['Drama','Crime'], d:'2h 22m', p:'/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg',
+      o:'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.' },
+    { t:'The Godfather', y:1972, k:'movie', r:9.2, g:['Crime','Drama'], d:'2h 55m', p:'/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+      o:'The ageing patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.' },
+    { t:'The Lord of the Rings', y:2001, k:'movie', r:8.9, g:['Fantasy','Adventure'], d:'2h 58m', p:'/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg',
+      o:'A meek hobbit and eight companions set out on a journey to destroy the One Ring and the dark lord Sauron.' },
+    { t:'Avengers: Endgame', y:2019, k:'movie', r:8.4, g:['Action','Sci-Fi','Adventure'], d:'3h 1m', p:'/or06FN3Dka5tukK1e9sl16pB3iy.jpg',
+      o:'After the devastating events of Infinity War, the remaining Avengers assemble once more to undo Thanos\' actions.' },
+    { t:'Spider-Man: No Way Home', y:2021, k:'movie', r:8.2, g:['Action','Adventure','Sci-Fi'], d:'2h 28m', p:'/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg',
+      o:'With his identity exposed, Peter asks Doctor Strange for help — and tears open the multiverse.' },
+    { t:'Titanic', y:1997, k:'movie', r:7.9, g:['Romance','Drama'], d:'3h 14m', p:'/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg',
+      o:'A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the ill-fated R.M.S. Titanic.' },
+    { t:'Joker', y:2019, k:'movie', r:8.4, g:['Crime','Drama','Thriller'], d:'2h 2m', p:'/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg',
+      o:'A failed comedian in Gotham City drifts into madness and becomes a symbol for a violent uprising.' },
+    { t:'Parasite', y:2019, k:'movie', r:8.5, g:['Thriller','Drama'], d:'2h 12m', p:'/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
+      o:'Greed and class discrimination threaten the newly formed symbiotic relationship between two very different families.' },
+    { t:'Whiplash', y:2014, k:'movie', r:8.5, g:['Drama'], d:'1h 47m', p:'/7fn624j5lj3xTme2SgiLCeuedmO.jpg',
+      o:'A promising young drummer enrolls at a cut-throat music conservatory where his dreams are mentored by an abusive instructor.' },
+    { t:'The Wolf of Wall Street', y:2013, k:'movie', r:8.2, g:['Comedy','Crime','Drama'], d:'3h 0m', p:'/pWHf4khOloNVfCxscXFj3jj6gP.jpg',
+      o:'The rise and fall of Jordan Belfort, a stockbroker whose corruption and excess defined an era of Wall Street greed.' },
+    { t:'Django Unchained', y:2012, k:'movie', r:8.5, g:['Western','Drama'], d:'2h 45m', p:'/7oWY8VDWW7thTzWh3OKYRkWUlD5.jpg',
+      o:'A freed slave sets out to rescue his wife from a brutal Mississippi plantation owner.' },
+    { t:'The Departed', y:2006, k:'movie', r:8.5, g:['Crime','Thriller'], d:'2h 31m', p:'/nT97ifVT2J1yMQmeq20Qblg61T.jpg',
+      o:'An undercover cop and a mole in the police attempt to identify each other while infiltrating an Irish gang in Boston.' },
+    { t:'Gladiator', y:2000, k:'movie', r:8.5, g:['Action','Drama','Adventure'], d:'2h 35m', p:'/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg',
+      o:'A former Roman general sets out to exact vengeance against the corrupt emperor who murdered his family.' },
+    { t:'The Prestige', y:2006, k:'movie', r:8.5, g:['Drama','Mystery','Thriller'], d:'2h 10m', p:'/bdN3gXuIZYaJP7ftKK2sU0nPtEA.jpg',
+      o:'Two rival stage magicians in 19th-century London engage in a bitter and increasingly dangerous battle of one-upmanship.' },
+    { t:'The Lion King', y:1994, k:'movie', r:8.5, g:['Animation','Family','Drama'], d:'1h 28m', p:'/sKCr78MXSLixwmZ8DyJLrpMsd15.jpg',
+      o:'A lion cub prince flees his kingdom after the murder of his father, only to learn the true meaning of responsibility.' },
+    { t:'Back to the Future', y:1985, k:'movie', r:8.5, g:['Sci-Fi','Adventure','Comedy'], d:'1h 56m', p:'/fNOH9f1aA7XRTzl1sAOx9iF553.jpg',
+      o:'A teenager is accidentally sent thirty years into the past in a time-travelling DeLorean.' },
+    { t:'Alien', y:1979, k:'movie', r:8.5, g:['Horror','Sci-Fi'], d:'1h 57m', p:'/vfrQk5IPloGg1v9Rzbh2Eg3VGyM.jpg',
+      o:'The crew of a commercial spacecraft encounters a deadly lifeform after investigating a distress signal.' },
+    { t:'The Terminator', y:1984, k:'movie', r:8.1, g:['Action','Sci-Fi'], d:'1h 47m', p:'/qvktm0BHcnmDpul4Hz01GIazWPr.jpg',
+      o:'A cyborg assassin is sent back in time to kill a woman whose unborn son will lead humanity against the machines.' },
+    { t:'Jurassic Park', y:1993, k:'movie', r:8.2, g:['Adventure','Sci-Fi','Thriller'], d:'2h 7m', p:'/oU7Oq2kFAAlGqbU4VoAE36g4hoI.jpg',
+      o:'A wealthy entrepreneur opens a theme park populated with cloned dinosaurs — and the fences stop working.' },
+    { t:'Star Wars: A New Hope', y:1977, k:'movie', r:8.6, g:['Sci-Fi','Adventure'], d:'2h 1m', p:'/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg',
+      o:'A young farm boy joins a band of rebels to rescue a princess and destroy the Empire\'s ultimate weapon.' },
+    { t:'The Empire Strikes Back', y:1980, k:'movie', r:8.7, g:['Sci-Fi','Adventure','Action'], d:'2h 4m', p:'/nNAeTmF4CtdSgMDplXTDPOpYzsX.jpg',
+      o:'The Rebels scatter after the Empire strikes back on Hoth, while Luke seeks out a Jedi Master.' },
+    { t:'Return of the Jedi', y:1983, k:'movie', r:8.3, g:['Sci-Fi','Adventure'], d:'2h 11m', p:'/jQYlydvHm3kUix1f8prMucrWJI.jpg',
+      o:'Luke and his allies launch a daring mission to destroy the second Death Star and save the galaxy.' },
+    { t:'The Silence of the Lambs', y:1991, k:'movie', r:8.6, g:['Crime','Thriller','Horror'], d:'1h 58m', p:'/uS9m8OBk1A8eM9I042bx8XXpqA.jpg',
+      o:'A young FBI cadet seeks the help of an imprisoned cannibal to catch another serial killer.' },
+    { t:'Se7en', y:1995, k:'movie', r:8.6, g:['Crime','Thriller','Mystery'], d:'2h 7m', p:'/6yoghtyTpznpBik8EngEmJskVUO.jpg',
+      o:'Two detectives hunt a serial killer who uses the seven deadly sins as his motives.' },
+    { t:'Goodfellas', y:1990, k:'movie', r:8.7, g:['Crime','Drama'], d:'2h 25m', p:'/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg',
+      o:'The story of Henry Hill and his life in the mob, covering his rise and inevitable fall.' },
+    { t:'Mad Max: Fury Road', y:2015, k:'movie', r:8.1, g:['Action','Adventure','Sci-Fi'], d:'2h 0m', p:'/hA2ple9q4qnwxp3hKVNhroipsir.jpg',
+      o:'In a post-apocalyptic wasteland, a drifter and a runaway warrior flee a tyrant across the desert.' },
+    { t:'Blade Runner 2049', y:2017, k:'movie', r:8.0, g:['Sci-Fi','Drama','Mystery'], d:'2h 44m', p:'/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg',
+      o:'A young blade runner unearths a long-buried secret that could plunge what\'s left of society into chaos.' },
+    { t:'Spider-Man: Across the Spider-Verse', y:2023, k:'movie', r:8.6, g:['Animation','Action','Adventure'], d:'2h 20m', p:'/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+      o:'Miles Morales is catapulted across the multiverse, where he clashes with a team of Spider-People.' },
+    { t:'Everything Everywhere All at Once', y:2022, k:'movie', r:7.8, g:['Sci-Fi','Comedy','Action'], d:'2h 19m', p:'/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg',
+      o:'An exhausted laundromat owner discovers she must connect with parallel-universe versions of herself to save existence.' },
+    { t:'Top Gun: Maverick', y:2022, k:'movie', r:8.2, g:['Action','Drama'], d:'2h 11m', p:'/62HCnUTziyWcpDaBO2i1DX17ljH.jpg',
+      o:'After thirty years of service, Maverick trains a detachment of Top Gun graduates for a near-impossible mission.' },
+    { t:'The Batman', y:2022, k:'movie', r:7.7, g:['Action','Crime','Mystery'], d:'2h 56m', p:'/74xTEgt7R36Fpooo50r9T25onhq.jpg',
+      o:'Batman follows a trail of cryptic clues left by a sadistic killer targeting Gotham\'s elite.' },
+    { t:'John Wick', y:2014, k:'movie', r:7.4, g:['Action','Thriller','Crime'], d:'1h 41m', p:'/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg',
+      o:'An ex-hitman comes out of retirement to track down the gangsters who took everything from him.' },
+    { t:'Avatar: The Way of Water', y:2022, k:'movie', r:7.6, g:['Sci-Fi','Adventure','Action'], d:'3h 12m', p:'/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg',
+      o:'The Sully family must leave their home and explore the oceans of Pandora to stay safe.' },
+    { t:'Black Panther', y:2018, k:'movie', r:7.3, g:['Action','Adventure','Sci-Fi'], d:'2h 14m', p:'/uxzzxijgPIY7slzFvMotPv8wjKA.jpg',
+      o:'T\'Challa returns home to Wakanda to take his place as king, but a powerful enemy challenges his rule.' },
+    { t:'Coco', y:2017, k:'movie', r:8.4, g:['Animation','Family','Fantasy'], d:'1h 45m', p:'/gGEsBPAijhVUFoiNpgZXqRVWJt2.jpg',
+      o:'A young boy who dreams of music is transported to the Land of the Dead, where he uncovers his family\'s history.' },
+    { t:'Up', y:2009, k:'movie', r:8.0, g:['Animation','Family','Adventure'], d:'1h 36m', p:'/vpbaStTMt8qqXaEgnOR2EE4DNJk.jpg',
+      o:'An elderly widower ties thousands of balloons to his house and flies to South America, with an unexpected stowaway.' },
+
+    /* ---------- series ---------- */
+    { t:'Breaking Bad', y:2008, k:'series', r:9.5, g:['Crime','Drama','Thriller'], d:'5 Seasons', p:'/ggFHVNu6YYI5L9pCfOacjizRGt.jpg',
+      o:'A terminally ill chemistry teacher starts manufacturing methamphetamine to secure his family\'s future.' },
+    { t:'Game of Thrones', y:2011, k:'series', r:8.4, g:['Fantasy','Drama','Adventure'], d:'8 Seasons', p:'/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg',
+      o:'Noble families vie for control of the Iron Throne while an ancient enemy returns to Westeros.' },
+    { t:'Peaky Blinders', y:2013, k:'series', r:8.8, g:['Crime','Drama'], d:'6 Seasons', p:'/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg',
+      o:'A gangster family in 1919 Birmingham, led by the fiercely ambitious Tommy Shelby, rises to power.' },
+    { t:'Better Call Saul', y:2015, k:'series', r:9.0, g:['Crime','Drama'], d:'6 Seasons', p:'/fC2HDm5t0kHl7mTm7jxMR31b7by.jpg',
+      o:'The transformation of small-time lawyer Jimmy McGill into the morally flexible Saul Goodman.' },
+    { t:'Chernobyl', y:2019, k:'series', r:9.4, g:['Drama','Thriller'], d:'1 Season', p:'/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg',
+      o:'A dramatisation of the 1986 nuclear disaster and the men and women who sacrificed everything to contain it.' },
+    { t:'The Mandalorian', y:2019, k:'series', r:8.7, g:['Sci-Fi','Action','Adventure'], d:'3 Seasons', p:'/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg',
+      o:'A lone bounty hunter travels the outer reaches of the galaxy, protecting a mysterious child.' },
+    { t:'Loki', y:2021, k:'series', r:8.2, g:['Sci-Fi','Adventure','Fantasy'], d:'2 Seasons', p:'/voHUmluYmKyleFkTu3lOXQG702u.jpg',
+      o:'The God of Mischief steps out of his brother\'s shadow and into a time-bending bureaucratic nightmare.' },
+    { t:'WandaVision', y:2021, k:'series', r:8.0, g:['Sci-Fi','Drama','Mystery'], d:'1 Season', p:'/glKDfE6btIRcVB5zrjspRIs4r52.jpg',
+      o:'Wanda and Vision live an idyllic suburban life — until it becomes clear nothing is as it seems.' },
+    { t:'The Queen\'s Gambit', y:2020, k:'series', r:8.6, g:['Drama'], d:'1 Season', p:'/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg',
+      o:'An orphaned chess prodigy rises to the top of the game while battling addiction in the Cold War era.' },
+    { t:'Dark', y:2017, k:'series', r:8.7, g:['Sci-Fi','Thriller','Mystery'], d:'3 Seasons', p:'/apbrbWs8M9lyOpJYU5WXrpFbk1Z.jpg',
+      o:'Four families search for a missing child and uncover a time-travelling conspiracy spanning generations.' },
+    { t:'Narcos', y:2015, k:'series', r:8.6, g:['Crime','Drama','Thriller'], d:'3 Seasons', p:'/rTmal9fDbwh5F0waol2hq35U4ah.jpg',
+      o:'The true story of Colombia\'s infamously violent drug cartels and the DEA agents hunting them.' },
+    { t:'The Umbrella Academy', y:2019, k:'series', r:7.9, g:['Sci-Fi','Action','Drama'], d:'4 Seasons', p:'/scZlQQYnDVlnpxFTxaIv2g0BWnL.jpg',
+      o:'A dysfunctional family of adopted super-powered siblings reunites to solve the mystery of their father\'s death.' },
+    { t:'Black Mirror', y:2011, k:'series', r:8.7, g:['Sci-Fi','Drama','Thriller'], d:'7 Seasons', p:'/7PRddO7z7mcPi21nZTCMGShAXXV.jpg',
+      o:'An anthology series exploring a twisted, high-tech near-future where humanity\'s darkest instincts prevail.' },
+    { t:'The Crown', y:2016, k:'series', r:8.6, g:['Drama'], d:'6 Seasons', p:'/1M876KPjulVwppEpldhdc8V4o68.jpg',
+      o:'A sweeping chronicle of the reign of Queen Elizabeth II and the political events that shaped her era.' },
+    { t:'Vikings', y:2013, k:'series', r:8.5, g:['Action','Drama','Adventure'], d:'6 Seasons', p:'/bQLrHIRNEkE3PdIXtZUVckrD7bA.jpg',
+      o:'The adventures of Ragnar Lothbrok, a Viking warrior and farmer who dreams of exploring distant lands.' },
+    { t:'The Walking Dead', y:2010, k:'series', r:8.1, g:['Horror','Drama','Thriller'], d:'11 Seasons', p:'/rjBwhsOzHKUw2NIOrE7aMqjfe6s.jpg',
+      o:'A group of survivors navigates a post-apocalyptic world overrun by the undead.' },
+    { t:'Sherlock', y:2010, k:'series', r:9.1, g:['Crime','Mystery','Drama'], d:'4 Seasons', p:'/7WTsnHkbA0FaG6R9twfFde0I9hl.jpg',
+      o:'A modern update finds the world\'s most famous detective solving crimes in 21st-century London.' },
+    { t:'Attack on Titan', y:2013, k:'series', r:9.1, g:['Animation','Action','Fantasy'], d:'4 Seasons', p:'/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg',
+      o:'Humanity fights for survival behind enormous walls against man-eating giants known as Titans.' },
+    { t:'Rick and Morty', y:2013, k:'series', r:9.1, g:['Animation','Comedy','Sci-Fi'], d:'7 Seasons', p:'/cvhNj9MYaUN6WRNl2MrhGXuf79j.jpg',
+      o:'A sociopathic scientist drags his good-hearted grandson on deranged adventures across the multiverse.' },
+    { t:'Demon Slayer', y:2019, k:'series', r:8.6, g:['Animation','Action','Fantasy'], d:'4 Seasons', p:'/xUfRZu2mi8jH6SzQEJGP6tjBuYj.jpg',
+      o:'A young boy becomes a demon slayer after his family is slaughtered and his sister is turned into a demon.' }
+  ];
+
+  const CATALOG = RAW.map(r => ({
+    title: r.t, year: r.y, type: r.k, rating: r.r,
+    genres: r.g, duration: r.d, poster: r.p, overview: r.o
+  }));
+
+  const BY_TITLE = {};
+  CATALOG.forEach(i => { BY_TITLE[i.title.toLowerCase()] = i; });
+
+  /* Curated details for the titles that ship with the original page */
+  const KNOWN = {
+    'stranger things': { year:2016, genres:['Sci-Fi','Horror','Drama'], duration:'4 Seasons',
+      overview:'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.' },
+    'wednesday': { year:2022, genres:['Comedy','Fantasy','Mystery'], duration:'1 Season',
+      overview:'Wednesday Addams navigates her years at Nevermore Academy, where she attempts to master her emerging psychic ability and solve a monstrous killing spree.' },
+    'the last of us': { year:2023, genres:['Drama','Thriller','Action'], duration:'1 Season',
+      overview:'Twenty years after a fungal pandemic collapses civilisation, a hardened smuggler is hired to escort a teenage girl out of a quarantine zone.' },
+    'oppenheimer': { year:2023, genres:['Drama','Thriller'], duration:'3h 0m',
+      overview:'The story of J. Robert Oppenheimer, the physicist who led the Manhattan Project and changed the world forever.' },
+    'barbie': { year:2023, genres:['Comedy','Fantasy','Adventure'], duration:'1h 54m',
+      overview:'Barbie suffers a crisis that leads her to question her world and her existence, taking her on a journey to the real world.' },
+    'the bear': { year:2022, genres:['Drama','Comedy'], duration:'3 Seasons',
+      overview:'A fine-dining chef returns home to run his family sandwich shop, wrestling with grief, debt and a kitchen crew that refuses to be tamed.' },
+    'dune: part two': { year:2024, genres:['Sci-Fi','Adventure','Action'], duration:'2h 46m',
+      overview:'Paul Atreides unites with the Fremen to wage war against House Harkonnen, torn between the love of his life and the fate of the universe.' },
+    'deadpool & wolverine': { year:2024, genres:['Action','Comedy','Sci-Fi'], duration:'2h 8m',
+      overview:'Wade Wilson is pulled from his quiet life and drafted into a mission that requires him to team up with a very reluctant Wolverine.' },
+    'inside out 2': { year:2024, genres:['Animation','Family','Comedy'], duration:'1h 36m',
+      overview:'Riley enters her teenage years and Joy must make room for a whole new set of emotions in headquarters.' },
+    'godzilla x kong': { year:2024, genres:['Action','Sci-Fi','Adventure'], duration:'1h 55m',
+      overview:'Two titans must join forces against a colossal undiscovered threat hidden within our world.' },
+    'furiosa': { year:2024, genres:['Action','Adventure','Sci-Fi'], duration:'2h 28m',
+      overview:'Young Furiosa is snatched from the Green Place and must survive the Wasteland to find her way home.' },
+    'kingdom of the planet of the apes': { year:2024, genres:['Sci-Fi','Adventure','Action'], duration:'2h 25m',
+      overview:'Generations after Caesar, a young ape questions everything he has been taught about the past.' },
+    'the boys': { year:2019, genres:['Action','Drama','Comedy'], duration:'4 Seasons',
+      overview:'A group of vigilantes sets out to take down corrupt superheroes who abuse their superpowers.' },
+    'house of the dragon': { year:2022, genres:['Fantasy','Drama','Action'], duration:'2 Seasons',
+      overview:'The Targaryen civil war, told two hundred years before the events of Game of Thrones.' },
+    'severance': { year:2022, genres:['Sci-Fi','Thriller','Drama'], duration:'2 Seasons',
+      overview:'Mark leads a team of office workers whose memories have been surgically divided between work and personal life.' },
+    'squid game': { year:2021, genres:['Thriller','Drama','Action'], duration:'2 Seasons',
+      overview:'Hundreds of cash-strapped players accept a strange invitation to compete in children\'s games with deadly stakes.' },
+    'the witcher': { year:2019, genres:['Fantasy','Action','Adventure'], duration:'3 Seasons',
+      overview:'Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.' },
+    'money heist': { year:2017, genres:['Crime','Thriller','Drama'], duration:'5 Parts',
+      overview:'A criminal mastermind recruits eight thieves for the biggest heist in Spanish history.' },
+    'arcane': { year:2021, genres:['Animation','Action','Drama'], duration:'2 Seasons',
+      overview:'Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war.' }
+  };
+
+  /* ---------------------------------------------------------
+     3. CARD RENDERING
+     --------------------------------------------------------- */
+  function cardHTML(item, opts) {
+    opts = opts || {};
+    const isSeries = item.type === 'series';
+    const typeCls = isSeries ? 'series' : 'movie';
+    const typeLabel = isSeries ? 'Series' : 'Movie';
+    const rating = (typeof item.rating === 'number' ? item.rating : 7.5).toFixed(1);
+
+    const rank = opts.rank ? '<span class="rank-badge">' + opts.rank + '</span>' : '';
+    const ribbon = opts.ribbon
+      ? '<span class="ribbon ' + (opts.ribbonClass || '') + '">' + esc(opts.ribbon) + '</span>'
+      : '';
+    const progress = (typeof opts.progress === 'number')
+      ? '<div class="cw-progress"><i style="width:' + opts.progress + '%"></i></div>'
+      : '';
+
+    return '<div class="card" data-type="' + item.type + '" data-genres="' + esc(item.genres.join('|')) + '">' +
+      '<img src="' + poster(item.poster) + '" alt="' + esc(item.title) + '" loading="lazy" data-type="' + item.type + '">' +
+      rank + ribbon + progress +
+      '<div class="card-info">' +
+        '<h3>' + esc(item.title) + '</h3>' +
+        '<div class="meta">' +
+          '<span class="badge ' + typeCls + '">' + typeLabel + '</span>' +
+          '<span class="rating">★ ' + rating + '</span>' +
+          '<span class="ms-year">' + (item.year || '') + '</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ---------------------------------------------------------
+     4. SECTION HTML
+     --------------------------------------------------------- */
+  const FEATURED = {
+    title: 'Dune: Part Two',
+    poster: '/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
+    tag: '#1 in Canada Today',
+    year: 2024, maturity: 'PG-13', duration: '2h 46m', rating: '8.5',
+    overview: 'Paul Atreides unites with the Fremen to wage war against House Harkonnen, torn between the love of his life and the fate of the universe.'
+  };
+
+  function heroHTML() {
+    return '' +
+    '<section class="ms-hero">' +
+      '<div class="ms-hero-media"><img src="' + backdrop(FEATURED.poster) + '" alt="' + esc(FEATURED.title) + '"></div>' +
+      '<div class="ms-hero-body">' +
+        '<span class="ms-hero-tag">🔥 ' + esc(FEATURED.tag) + '</span>' +
+        '<h2>' + esc(FEATURED.title) + '</h2>' +
+        '<div class="ms-hero-meta">' +
+          '<span class="ms-star">★ ' + FEATURED.rating + '</span>' +
+          '<span>' + FEATURED.year + '</span><span>' + FEATURED.maturity + '</span>' +
+          '<span>' + FEATURED.duration + '</span><span>4K HDR</span>' +
+        '</div>' +
+        '<p>' + esc(FEATURED.overview) + '</p>' +
+        '<div class="ms-hero-actions">' +
+          '<button class="ms-btn primary" data-play="' + esc(FEATURED.title) + '">▶ Play</button>' +
+          '<button class="ms-btn ghost" data-info="' + esc(FEATURED.title) + '">ⓘ More Info</button>' +
+        '</div>' +
+      '</div>' +
+    '</section>';
+  }
+
+  function chipsHTML() {
+    const genres = ['Action','Adventure','Animation','Comedy','Crime','Drama','Fantasy',
+                    'Horror','Mystery','Romance','Sci-Fi','Thriller','Western'];
+    let out = '<div class="ms-genres" id="msGenres">' +
+      '<button class="ms-gchip active" data-genre="">All</button>';
+    genres.forEach(g => {
+      out += '<button class="ms-gchip" data-genre="' + g + '">' + g + '</button>';
+    });
+    return out + '</div>';
+  }
+
+  function continueWatchingHTML() {
+    const picks = ['The Bear','House of the Dragon','Oppenheimer','Severance','Dune: Part Two','The Boys'];
+    const progress = [72, 34, 12, 88, 5, 56];
+    let cards = '';
+    picks.forEach((t, i) => {
+      const item = BY_TITLE[t.toLowerCase()];
+      if (!item) return;
+      cards += cardHTML(item, { progress: progress[i] });
+    });
+    return '<section data-ms-section>' +
+      '<h2 class="section-title">▶ Continue Watching</h2>' +
+      '<div class="ms-row wide">' + cards + '</div>' +
+    '</section>';
+  }
+
+  function top10HTML() {
+    const picks = ['Breaking Bad','Stranger Things','The Last of Us','Wednesday','Arcane',
+                   'The Boys','Chernobyl','Severance','Peaky Blinders','Squid Game'];
+    let cards = '';
+    picks.forEach((t, i) => {
+      const item = BY_TITLE[t.toLowerCase()] || KNOWN[t.toLowerCase()];
+      let cardItem = item;
+      if (!cardItem) return;
+      if (!cardItem.poster) {
+        // pull the poster straight out of the matching card already on the page
+        const existing = qsa('.card').find(c => {
+          const h = c.querySelector('h3');
+          return h && h.textContent.trim().toLowerCase() === t.toLowerCase();
+        });
+        const src = existing && existing.querySelector('img') ? existing.querySelector('img').getAttribute('src') : '';
+        cardItem = {
+          title: t,
+          type: KNOWN[t.toLowerCase()] && ['squid game','the boys','severance','arcane'].indexOf(t.toLowerCase()) > -1 ? 'series' : 'movie',
+          rating: 8.5, year: 2023, genres: ['Drama'], poster: ''
+        };
+        let html = cardHTML(cardItem, { rank: i + 1 });
+        if (src) html = html.replace('src="' + poster('') + '"', 'src="' + src + '"');
+        cards += html;
+        return;
+      }
+      cards += cardHTML(cardItem, { rank: i + 1 });
+    });
+    return '<section data-ms-section>' +
+      '<h2 class="section-title">🏆 Top 10 Today</h2>' +
+      '<div class="ms-row">' + cards + '</div>' +
+    '</section>';
+  }
+
+  function newReleasesHTML() {
+    const picks = CATALOG
+      .filter(i => i.year >= 2019)
+      .sort((a, b) => b.year - a.year)
+      .slice(0, 12);
+    let cards = '';
+    picks.forEach(i => { cards += cardHTML(i, { ribbon: 'New', ribbonClass: 'new' }); });
+    return '<section data-ms-section>' +
+      '<h2 class="section-title">✨ New on MovieStream</h2>' +
+      '<div class="ms-row">' + cards + '</div>' +
+    '</section>';
+  }
+
+  function footerHTML() {
+    return '' +
+    '<footer class="ms-footer">' +
+      '<div class="links">' +
+        '<a href="#" data-ms-link>Audio Description</a>' +
+        '<a href="#" data-ms-link>Help Centre</a>' +
+        '<a href="#" data-ms-link>Gift Cards</a>' +
+        '<a href="#" data-ms-link>Media Centre</a>' +
+        '<a href="#" data-ms-link>Investor Relations</a>' +
+        '<a href="#" data-ms-link>Jobs</a>' +
+        '<a href="#" data-ms-link>Terms of Use</a>' +
+        '<a href="#" data-ms-link>Privacy</a>' +
+        '<a href="#" data-ms-link>Cookie Preferences</a>' +
+        '<a href="#" data-ms-link>Corporate Information</a>' +
+        '<a href="#" data-ms-link>Contact Us</a>' +
+        '<a href="#" data-ms-link>Speed Test</a>' +
+      '</div>' +
+      '<div class="copy">' +
+        '<div class="brand">🎬 MovieStream</div>' +
+        '© ' + new Date().getFullYear() + ' MovieStream International B.V. All rights reserved. ' +
+        'This is a demo interface — no video is actually streamed and no payment is ever taken.' +
+      '</div>' +
+    '</footer>';
+  }
+
+  function bottomNavHTML() {
+    return '' +
+    '<nav class="ms-nav" id="msNav">' +
+      '<button class="active" data-nav="home">' +
+        '<svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>Home</button>' +
+      '<button data-nav="search">' +
+        '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>Search</button>' +
+      '<button data-nav="list">' +
+        '<svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg>My List</button>' +
+      '<button data-nav="profile">' +
+        '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>Profile</button>' +
+    '</nav>';
+  }
+
+  /* ---------------------------------------------------------
+     5. BUILD DOM
+     --------------------------------------------------------- */
+  function injectSections() {
+    const tabs = qs('.tabs');
+    if (!tabs) return;
+    tabs.insertAdjacentHTML('afterend',
+      chipsHTML() + heroHTML() + continueWatchingHTML() + top10HTML() + newReleasesHTML());
+  }
+
+  function buildLoadMore() {
+    const allGrid = qs('#allGrid');
+    if (!allGrid || qs('#msLoadMore')) return;
+    allGrid.insertAdjacentHTML('afterend',
+      '<div class="ms-load"><button id="msLoadMore">Load more titles</button></div>');
+  }
+
+  function buildModal() {
+    const el = document.createElement('div');
+    el.className = 'ms-modal';
+    el.id = 'msModal';
+    el.innerHTML = '<div class="ms-sheet" id="msSheet"></div>';
+    document.body.appendChild(el);
+  }
+
+  function buildPlayer() {
+    const el = document.createElement('div');
+    el.className = 'ms-player';
+    el.id = 'msPlayer';
+    el.innerHTML =
+      '<img id="msPlayerImg" alt="">' +
+      '<div class="ms-spinner" id="msSpinner"></div>' +
+      '<button class="ms-close" id="msPlayerClose" aria-label="Close player">✕</button>' +
+      '<div class="ms-player-bar">' +
+        '<div class="ms-player-track"><i id="msTrack"></i></div>' +
+        '<div class="ms-player-row">' +
+          '<span id="msPlayerTitle">—</span>' +
+          '<span style="margin-left:auto" id="msPlayerTime">0:00 / 1:00:00</span>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(el);
+  }
+
+  function buildFooter() {
+    if (qs('.ms-footer')) return;
+    document.body.insertAdjacentHTML('beforeend', footerHTML());
+  }
+
+  function buildBottomNav() {
+    if (qs('#msNav')) return;
+    document.body.insertAdjacentHTML('beforeend', bottomNavHTML());
+  }
+
+  function buildToast() {
+    if (qs('#msToast')) return;
+    const t = document.createElement('div');
+    t.className = 'ms-toast';
+    t.id = 'msToast';
+    document.body.appendChild(t);
+  }
+
+  /* ---------------------------------------------------------
+     6. GENRE TAGGING
+     --------------------------------------------------------- */
+  function enhanceCard(card) {
+    if (!card || card.dataset.genres) return;
+    const h = card.querySelector('h3');
+    const title = h ? h.textContent.trim() : '';
+    const key = title.toLowerCase();
+    let genres = (KNOWN[key] && KNOWN[key].genres) ||
+                 (BY_TITLE[key] && BY_TITLE[key].genres);
+    if (!genres) {
+      genres = card.dataset.type === 'series'
+        ? ['Drama', 'Thriller']
+        : ['Action', 'Drama'];
+    }
+    card.dataset.genres = genres.join('|');
+  }
+
+  function enhanceAll() {
+    qsa('.card').forEach(enhanceCard);
+  }
+
+  /* ---------------------------------------------------------
+     7. FILTER SYNC
+     --------------------------------------------------------- */
+  let activeGenre = '';
+
+  function applyGenreFilter() {
+    if (!activeGenre) return;
+    qsa('.card').forEach(card => {
+      if (card.style.display === 'none') return;
+      const list = (card.dataset.genres || '').split('|');
+      if (list.indexOf(activeGenre) === -1) card.style.display = 'none';
+    });
+  }
+
+  function updateMySections() {
+    qsa('[data-ms-section]').forEach(sec => {
+      const cards = qsa('.card', sec);
+      const anyVisible = cards.some(c => c.style.display !== 'none');
+      sec.style.display = anyVisible ? '' : 'none';
+    });
+  }
+
+  function refreshFilters() {
+    const si = qs('#searchInput');
+    if (si) si.dispatchEvent(new Event('input', { bubbles: true }));
+    applyGenreFilter();
+    updateMySections();
+  }
+
+  /* ---------------------------------------------------------
+     8. DETAIL SHEET
+     --------------------------------------------------------- */
+  function genericOverview(title, type) {
+    return title + ' follows a group of unforgettable characters as they navigate love, loss and the ' +
+      'choices that define them. A gripping ' + (type === 'series' ? 'series' : 'film') +
+      ' praised by critics and audiences alike.';
+  }
+
+  function getDetails(title, type, card) {
+    const key = String(title).toLowerCase();
+    const extra = BY_TITLE[key];
+    const known = KNOWN[key];
+    const h = hash(title);
+
+    let rating = NaN;
+    const ratingEl = card ? card.querySelector('.rating') : null;
+    if (ratingEl) rating = parseFloat(ratingEl.textContent.replace(/[^\d.]/g, ''));
+    if (extra) rating = extra.rating;
+    if (!rating || isNaN(rating)) rating = 7 + (h % 18) / 10;
+
+    const imgEl = card ? card.querySelector('img') : null;
+
+    return {
+      title: title,
+      type: type,
+      year: (extra && extra.year) || (known && known.year) || (2014 + (h % 11)),
+      rating: Math.round(rating * 10) / 10,
+      genres: (extra && extra.genres) || (known && known.genres) ||
+              (type === 'series' ? ['Drama', 'Thriller'] : ['Action', 'Drama']),
+      duration: (extra && extra.duration) || (known && known.duration) ||
+                (type === 'series'
+                  ? (1 + (h % 4)) + ' Seasons'
+                  : (1 + (h % 2)) + 'h ' + (h % 59) + 'm'),
+      poster: imgEl ? imgEl.getAttribute('src') : '',
+      overview: (extra && extra.overview) || (known && known.overview) ||
+                genericOverview(title, type),
+      match: 70 + (h % 30)
+    };
+  }
+
+  function renderSheet(d) {
+    const sheet = qs('#msSheet');
+    const isSeries = d.type === 'series';
+    const maturity = isSeries ? 'TV-MA' : 'PG-13';
+
+    sheet.innerHTML =
+      '<div class="ms-sheet-hero">' +
+        '<img src="' + esc(d.poster) + '" alt="' + esc(d.title) + '" data-type="' + d.type + '">' +
+        '<button class="ms-close" data-ms-close aria-label="Close">✕</button>' +
+      '</div>' +
+      '<div class="ms-sheet-body">' +
+        '<h2>' + esc(d.title) + '</h2>' +
+        '<div class="ms-sheet-meta">' +
+          '<span class="ms-b ' + (isSeries ? 'series' : '') + '">' + (isSeries ? 'Series' : 'Movie') + '</span>' +
+          '<span class="ms-star">★ ' + d.rating.toFixed(1) + '</span>' +
+          '<span>' + d.year + '</span>' +
+          '<span>' + esc(d.duration) + '</span>' +
+          '<span>' + maturity + '</span>' +
+        '</div>' +
+        '<div class="ms-chips">' +
+          d.genres.map(g => '<span class="ms-chip">' + esc(g) + '</span>').join('') +
+        '</div>' +
+        '<p>' + esc(d.overview) + '</p>' +
+        '<div class="ms-actions">' +
+          '<button class="ms-btn primary" data-play="' + esc(d.title) + '">▶ Play</button>' +
+          '<button class="ms-btn ghost" data-mylist="' + esc(d.title) + '">＋ My List</button>' +
+        '</div>' +
+        '<div class="ms-facts">' +
+          '<div>Match<b>' + d.match + '% Match</b></div>' +
+          '<div>Audio<b>English, Español, Français</b></div>' +
+          '<div>Subtitles<b>English, Español</b></div>' +
+          '<div>Maturity<b>' + maturity + '</b></div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function openDetails(card) {
+    const h = card.querySelector('h3');
+    const title = h ? h.textContent.trim() : 'Untitled';
+    const type = card.dataset.type === 'series' ? 'series' : 'movie';
+    renderSheet(getDetails(title, type, card));
+
+    const modal = qs('#msModal');
+    modal.classList.add('show');
+    document.body.classList.add('overlay-active');
+  }
+
+  function closeDetails() {
+    const modal = qs('#msModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    const ov = qs('#signupOverlay');
+    if (!ov || !ov.classList.contains('show')) {
+      document.body.classList.remove('overlay-active');
+    }
+  }
+
+  /* ---------------------------------------------------------
+     9. FAKE PLAYER
+     --------------------------------------------------------- */
+  let playerTimer = null;
+  let playerTimeout = null;
+
+  function fmt(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = Math.floor(sec % 60);
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s).padStart(2, '0');
+  }
+
+  function openPlayer(title) {
+    const player = qs('#msPlayer');
+    const card = qsa('.card').find(c => {
+      const h = c.querySelector('h3');
+      return h && h.textContent.trim().toLowerCase() === String(title).toLowerCase();
+    });
+    const img = card ? card.querySelector('img') : null;
+
+    qs('#msPlayerImg').src = img ? img.getAttribute('src') : '';
+    qs('#msPlayerTitle').textContent = title;
+    qs('#msTrack').style.width = '0%';
+    qs('#msPlayerTime').textContent = '0:00 / 1:52:00';
+    qs('#msSpinner').style.display = 'block';
+
+    player.classList.add('show');
+    document.body.classList.add('overlay-active');
+
+    clearTimeout(playerTimeout);
+    clearInterval(playerTimer);
+
+    const total = 112 * 60;
+    playerTimeout = setTimeout(function () {
+      qs('#msSpinner').style.display = 'none';
+      let t = 0;
+      playerTimer = setInterval(function () {
+        t += 5;
+        if (t >= total) { clearInterval(playerTimer); return; }
+        qs('#msTrack').style.width = (t / total * 100).toFixed(2) + '%';
+        qs('#msPlayerTime').textContent = fmt(t) + ' / ' + fmt(total);
+      }, 250);
+    }, 1700);
+  }
+
+  function closePlayer() {
+    clearTimeout(playerTimeout);
+    clearInterval(playerTimer);
+    qs('#msPlayer').classList.remove('show');
+    const ov = qs('#signupOverlay');
+    if (!ov || !ov.classList.contains('show')) {
+      document.body.classList.remove('overlay-active');
+    }
+  }
+
+  /* ---------------------------------------------------------
+     10. TOAST + MY LIST
+     --------------------------------------------------------- */
+  let toastTimer = null;
+  function toast(msg) {
+    const el = qs('#msToast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  const MY_LIST = (function () {
+    try {
+      return JSON.parse(localStorage.getItem('ms_my_list') || '[]');
+    } catch (e) { return []; }
+  })();
+
+  function saveList() {
+    try { localStorage.setItem('ms_my_list', JSON.stringify(MY_LIST)); } catch (e) {}
+  }
+
+  function toggleList(title) {
+    const i = MY_LIST.indexOf(title);
+    if (i === -1) { MY_LIST.push(title); toast('✓ Added to My List'); }
+    else { MY_LIST.splice(i, 1); toast('Removed from My List'); }
+    saveList();
+  }
+
+  /* ---------------------------------------------------------
+     11. LOAD MORE
+     --------------------------------------------------------- */
+  let batch = 0;
+
+  function appendBatch(n) {
+    const allGrid = qs('#allGrid');
+    if (!allGrid) return;
+
+    const skeletons = new Array(12).fill('<div class="ms-sk ms-sk-card"></div>').join('');
+    allGrid.insertAdjacentHTML('beforeend', skeletons);
+
+    const btn = qs('#msLoadMore');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+    setTimeout(function () {
+      qsa('.ms-sk', allGrid).forEach(el => el.remove());
+
+      let html = '';
+      for (let i = 0; i < n; i++) {
+        const item = CATALOG[(batch * n + i) % CATALOG.length];
+        const ribbon = (batch === 0 && i < 4) ? { ribbon: 'New', ribbonClass: 'new' } : {};
+        html += cardHTML(item, ribbon);
+      }
+      allGrid.insertAdjacentHTML('beforeend', html);
+      batch++;
+
+      enhanceAll();
+      refreshFilters();
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Load more titles';
+      }
+    }, 620);
+  }
+
+  /* ---------------------------------------------------------
+     12. EVENTS
+     --------------------------------------------------------- */
+  function wireEvents() {
+    /* --- genre chips --- */
+    const genres = qs('#msGenres');
+    if (genres) {
+      genres.addEventListener('click', function (e) {
+        const chip = e.target.closest('.ms-gchip');
+        if (!chip) return;
+        qsa('.ms-gchip', genres).forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeGenre = chip.getAttribute('data-genre') || '';
+        refreshFilters();
+      });
+    }
+
+    /* --- card / button delegation --- */
+    document.addEventListener('click', function (e) {
+      /* close buttons */
+      if (e.target.closest('[data-ms-close]')) { closeDetails(); return; }
+      if (e.target.closest('#msPlayerClose')) { closePlayer(); return; }
+
+      /* play */
+      const play = e.target.closest('[data-play]');
+      if (play) {
+        e.preventDefault();
+        closeDetails();
+        openPlayer(play.getAttribute('data-play'));
+        return;
+      }
+
+      /* my list */
+      const listBtn = e.target.closest('[data-mylist]');
+      if (listBtn) {
+        e.preventDefault();
+        toggleList(listBtn.getAttribute('data-mylist'));
+        return;
+      }
+
+      /* more info (hero) */
+      const info = e.target.closest('[data-info]');
+      if (info) {
+        e.preventDefault();
+        const title = info.getAttribute('data-info');
+        const card = qsa('.card').find(c => {
+          const h = c.querySelector('h3');
+          return h && h.textContent.trim().toLowerCase() === title.toLowerCase();
+        });
+        if (card) openDetails(card);
+        return;
+      }
+
+      /* footer placeholder links */
+      const flink = e.target.closest('[data-ms-link]');
+      if (flink) { e.preventDefault(); toast('Demo link — nothing to see here 👀'); return; }
+
+      /* bottom nav */
+      const navBtn = e.target.closest('[data-nav]');
+      if (navBtn) {
+        const action = navBtn.getAttribute('data-nav');
+        qsa('#msNav button').forEach(b => b.classList.remove('active'));
+        navBtn.classList.add('active');
+        if (action === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (action === 'search') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const si = qs('#searchInput');
+          if (si) setTimeout(() => si.focus(), 320);
+        }
+        if (action === 'list') {
+          toast(MY_LIST.length ? MY_LIST.length + ' title(s) in My List' : 'Your list is empty');
+        }
+        if (action === 'profile') toast('Signed out — demo profile');
+        return;
+      }
+
+      /* load more */
+      if (e.target.closest('#msLoadMore')) { appendBatch(24); return; }
+
+      /* modal backdrop */
+      const modal = qs('#msModal');
+      if (modal && e.target === modal) { closeDetails(); return; }
+
+      /* a card was tapped */
+      const card = e.target.closest('.card');
+      if (card && !e.target.closest('.ms-btn')) {
+        openDetails(card);
+      }
+    });
+
+    /* --- escape key --- */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (qs('#msPlayer').classList.contains('show')) closePlayer();
+      else if (qs('#msModal').classList.contains('show')) closeDetails();
+    });
+
+    /* --- keep my sections in sync with the original filters --- */
+    const si = qs('#searchInput');
+    if (si) si.addEventListener('input', function () {
+      setTimeout(function () { applyGenreFilter(); updateMySections(); }, 0);
+    });
+
+    const tabs = qs('.tabs');
+    if (tabs) tabs.addEventListener('click', function () {
+      setTimeout(function () { applyGenreFilter(); updateMySections(); }, 0);
+    });
+
+    /* --- infinite scroll near the bottom of the catalogue --- */
+    const allGrid = qs('#allGrid');
+    if (allGrid && 'IntersectionObserver' in window) {
+      const sentinel = qs('#msLoadMore');
+      if (sentinel) {
+        let busy = false;
+        const io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting && !busy && batch < 6) {
+              busy = true;
+              appendBatch(24);
+              setTimeout(function () { busy = false; }, 1400);
+            }
+          });
+        }, { rootMargin: '400px' });
+        io.observe(sentinel);
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------
+     13. BOOT
+     --------------------------------------------------------- */
+  function init() {
+    injectSections();
+    buildLoadMore();
+    buildModal();
+    buildPlayer();
+    buildFooter();
+    buildBottomNav();
+    buildToast();
+
+    enhanceAll();
+    wireEvents();
+    refreshFilters();
+
+    /* a friendly welcome toast once everything is on screen */
+    setTimeout(function () { toast('🍿 Welcome to MovieStream'); }, 1200);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 </body>
 </html>
