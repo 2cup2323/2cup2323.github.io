@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE CONTRACT</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #000;
+    color: #e0e0e0;
+    font-family: "Courier New", Courier, monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* faint red glow in the background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(120, 0, 0, 0.18), transparent 65%);
+    pointer-events: none;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 6vw, 3.5rem);
+    letter-spacing: 0.5rem;
+    text-transform: uppercase;
+    font-weight: normal;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+    animation: flicker 4s infinite;
+    margin-bottom: 1rem;
+  }
+
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 22%, 24%, 55% { opacity: 0.35; }
+  }
+
+  p {
+    font-size: 0.85rem;
+    letter-spacing: 0.25rem;
+    color: #777;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+  }
+
+  a.button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    border: 1px solid #444;
+    color: #ccc;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    background: transparent;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  a.button:hover {
+    border-color: #c00;
+    color: #fff;
+    background: rgba(180, 0, 0, 0.12);
+    box-shadow: 0 0 20px rgba(200, 0, 0, 0.4);
+    letter-spacing: 0.3rem;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 1.5rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2rem;
+    color: #333;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+  <h1>You Have Been Chosen. Sign up</h1>
+  <p>The first name is already on the list.</p>
+
+  <a class="button" href="https://sponsored-acne-oriental-mandate.trycloudflare.com">Connect and get ur first victim.</a>
+
+  <div class="footer">No one will ever know.</div>
+
+</body>
+</html>
