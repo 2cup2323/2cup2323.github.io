@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscribe to Continue – The0rphanStomper</title>
+  <style>
+    /* ---------- Global reset & fonts ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+      background: #0f0f0f;               /* YouTube dark background */
+      color: #f1f1f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    /* ---------- Card container ---------- */
+    .gate-card {
+      background: #212121;
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid #3a3a3a;
+    }
+
+    /* ---------- Channel avatar / icon ---------- */
+    .channel-avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #ff0000;               /* YouTube red fallback */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #fff;
+      user-select: none;
+    }
+
+    .channel-avatar span {
+      /* Optional: replace with an <img> if you have a logo */
+      letter-spacing: 1px;
+    }
+
+    /* ---------- Headings ---------- */
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .channel-name {
+      color: #ff0000;
+      font-weight: 700;
+    }
+
+    p.subtitle {
+      color: #aaaaaa;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ---------- Subscribe button ---------- */
+    .btn-subscribe {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #ff0000;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.9rem 2.2rem;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto 1.25rem;
+    }
+
+    .btn-subscribe:hover {
+      background: #cc0000;
+    }
+
+    .btn-subscribe:active {
+      transform: scale(0.97);
+    }
+
+    .btn-subscribe svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    /* ---------- Status / countdown area ---------- */
+    .status-area {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #3a3a3a;
+    }
+
+    .status-text {
+      font-size: 0.95rem;
+      color: #aaaaaa;
+      margin-bottom: 0.75rem;
+    }
+
+    .countdown {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ff0000;
+      margin-bottom: 1rem;
+    }
+
+    /* ---------- Continue button (hidden initially) ---------- */
+    .btn-continue {
+      display: none;                     /* shown via JS after countdown */
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #2ba640;               /* green for “go” */
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.9rem 2.2rem;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .btn-continue:hover {
+      background: #1e7e30;
+    }
+
+    .btn-continue:active {
+      transform: scale(0.97);
+    }
+
+    /* ---------- Small print / note ---------- */
+    .note {
+      font-size: 0.75rem;
+      color: #777;
+      margin-top: 1.75rem;
+      line-height: 1.4;
+    }
+
+    /* ---------- Responsive tweak ---------- */
+    @media (max-width: 400px) {
+      .gate-card {
+        padding: 1.75rem 1.25rem;
+      }
+      h1 {
+        font-size: 1.35rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gate-card">
+
+    <!-- Channel avatar – replace the letter “O” with an <img> if you have a logo -->
+    <div class="channel-avatar">
+      <span>O</span>
+    </div>
+
+    <h1>
+      Subscribe to <span class="channel-name">The0rphanStomper</span>
+    </h1>
+
+    <p class="subtitle">
+      This content is available to subscribers only.<br>
+      Hit the button below, subscribe to the channel, and the link will unlock automatically.
+    </p>
+
+    <!-- Subscribe button – opens the channel in a new tab with the subscription confirmation dialog -->
+    <a
+      id="subscribeBtn"
+      class="btn-subscribe"
+      href="https://www.youtube.com/@The0rphanStomper?sub_confirmation=1"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <!-- YouTube play icon (inline SVG) -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/>
+      </svg>
+      Subscribe Now
+    </a>
+
+    <!-- Status + countdown -->
+    <div class="status-area">
+      <div id="statusText" class="status-text">
+        Click the red button to subscribe.
+      </div>
+      <div id="countdown" class="countdown" style="display: none;">
+        <!-- countdown number will be inserted here -->
+      </div>
+
+      <!-- Continue button (hidden until countdown finishes) -->
+      <a
+        id="continueBtn"
+        class="btn-continue"
+        href="https://example.com/YOUR-DESTINATION-LINK"   <!-- 🔁 REPLACE with your real link -->
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Continue to Link →
+      </a>
+    </div>
+
+    <p class="note">
+      Subscription verification is not enforced server‑side. This page is a front‑end incentive gate.
+    </p>
+
+  </div>
+
+  <!-- ---------- JavaScript ---------- -->
+  <script>
+    (function () {
+      const subscribeBtn = document.getElementById('subscribeBtn');
+      const statusText   = document.getElementById('statusText');
+      const countdownEl  = document.getElementById('countdown');
+      const continueBtn  = document.getElementById('continueBtn');
+
+      const DELAY_SECONDS = 5;                 // how long the user must wait after clicking Subscribe
+      let timerId = null;
+      let started = false;
+
+      /**
+       * Starts the countdown after the user clicks the Subscribe button.
+       */
+      function startCountdown() {
+        if (started) return;                   // only run once
+        started = true;
+
+        // Update UI
+        statusText.textContent = 'Thanks! Waiting for you to subscribe…';
+        countdownEl.style.display = 'block';
+        continueBtn.style.display = 'none';
+
+        let remaining = DELAY_SECONDS;
+        countdownEl.textContent = `Unlocking in ${remaining}s…`;
+
+        timerId = setInterval(() => {
+          remaining -= 1;
+
+          if (remaining <= 0) {
+            clearInterval(timerId);
+            countdownEl.style.display = 'none';
+            statusText.textContent = 'Link unlocked! You can continue now.';
+            continueBtn.style.display = 'inline-flex';
+          } else {
+            countdownEl.textContent = `Unlocking in ${remaining}s…`;
+          }
+        }, 1000);
+      }
+
+      // Attach event listener to the Subscribe button.
+      // (The anchor already opens the channel in a new tab; we just start the timer.)
+      subscribeBtn.addEventListener('click', function (e) {
+        // Do not preventDefault – we want the link to open.
+        // The '?sub_confirmation=1' parameter triggers YouTube's subscription dialog.
+        startCountdown();
+      });
+
+      // Optional: if the user navigates back to this page, reset the gate.
+      // (Remove the following block if you want the unlock to persist.)
+      window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+          // Page was restored from bfcache – reset state
+          started = false;
+          clearInterval(timerId);
+          statusText.textContent = 'Click the red button to subscribe.';
+          countdownEl.style.display = 'none';
+          continueBtn.style.display = 'none';
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
