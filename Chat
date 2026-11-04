@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>❤Sofie❤</title>
+<style>
+  :root {
+    --ig-blue: #3797f0;
+    --bg: #000000;
+    --surface: #121212;
+    --bubble-in: #262626;
+    --pill: #262626;
+    --text: #f5f5f5;
+    --muted: #a8a8a8;
+    --line: rgba(255, 255, 255, 0.1);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(700px 500px at 12% 0%, rgba(214, 41, 118, 0.16) 0%, transparent 60%),
+      radial-gradient(700px 500px at 88% 100%, rgba(79, 91, 213, 0.18) 0%, transparent 60%),
+      #0a0a0a;
+  }
+
+  /* ---------- App shell ---------- */
+  .app {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: min(780px, 94vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  }
+
+  /* ---------- Header ---------- */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    z-index: 3;
+  }
+
+  .back {
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text);
+    background: none;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+  }
+
+  .avatar-ring {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    padding: 2.5px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+  }
+
+  .avatar {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #d62976, #962fbf);
+    border: 2px solid var(--bg);
+    overflow: hidden;
+  }
+
+  .who { flex: 1; min-width: 0; }
+
+  .who h2 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+  }
+
+  .who p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1cd14f;
+  }
+
+  .header-lock {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: none;
+    color: var(--text);
+    cursor: default;
+  }
+
+  .header-lock svg { width: 22px; height: 22px; }
+
+  /* ---------- Messages ---------- */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--bg);
+  }
+
+  .messages::-webkit-scrollbar { width: 5px; }
+  .messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 99px;
+  }
+
+  .system-chip {
+    align-self: center;
+    margin: 2px 0 12px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+  }
+
+  .msg {
+    max-width: 72%;
+    padding: 9px 14px;
+    font-size: 14.5px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    border-radius: 22px;
+    animation: pop 0.22s ease both;
+  }
+
+  .msg.in {
+    align-self: flex-start;
+    background: var(--bubble-in);
+    color: var(--text);
+    border-bottom-left-radius: 6px;
+  }
+
+  .msg.out {
+    align-self: flex-end;
+    background: var(--ig-blue);
+    color: #fff;
+    border-bottom-right-radius: 6px;
+  }
+
+  .msg img {
+    display: block;
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(5px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ---------- Composer ---------- */
+  .composer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px 10px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .pill {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px 0 14px;
+    background: var(--pill);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+  }
+
+  #messageInput {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 0;
+    font-size: 14.5px;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+
+  #messageInput::placeholder { color: #7a7a7a; }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .icon-btn:hover { background: rgba(255, 255, 255, 0.1); }
+  .icon-btn:active { transform: scale(0.92); }
+
+  .icon-btn svg { width: 22px; height: 22px; }
+
+  .send-btn {
+    flex: 0 0 auto;
+    padding: 8px 4px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--ig-blue);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: opacity 0.15s ease;
+  }
+
+  .send-btn.ready { opacity: 1; }
+
+  /* ---------- Emoji picker ---------- */
+  .emoji-picker {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 66px;
+    z-index: 6;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #1c1c1e;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: 0.18s ease;
+  }
+
+  .emoji-picker.open {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .emoji-picker button {
+    padding: 6px 0;
+    font-size: 19px;
+    line-height: 1;
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-radius: 8px;
+  }
+
+  .emoji-picker button:hover { background: rgba(255, 255, 255, 0.1); }
+
+  /* ---------- Lock overlay (crisp, minimal blur) ---------- */
+  .lock-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.42);
+    -webkit-backdrop-filter: blur(2px) saturate(130%);
+    backdrop-filter: blur(2px) saturate(130%);
+  }
+
+  .lock-card {
+    width: 100%;
+    max-width: 310px;
+    padding: 30px 24px 26px;
+    background: rgba(28, 28, 30, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+    animation: rise 0.45s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .lock-badge {
+    width: 78px;
+    height: 78px;
+    margin: 0 auto 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    box-shadow: 0 8px 26px rgba(214, 41, 118, 0.35);
+    animation: pulse 2.8s ease-in-out infinite;
+  }
+
+  .lock-badge.waiting {
+    animation: none;
+    box-shadow: 0 8px 26px rgba(150, 47, 191, 0.4);
+  }
+
+  .lock-badge svg {
+    width: 34px;
+    height: 34px;
+    stroke: #fff;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1);    box-shadow: 0 8px 26px rgba(214, 41, 118, 0.32); }
+    50%      { transform: scale(1.05); box-shadow: 0 12px 36px rgba(214, 41, 118, 0.5); }
+  }
+
+  /* ---------- Spinner ---------- */
+  .spinner {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    border-top-color: #fff;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Progress bar ---------- */
+  .progress {
+    height: 3px;
+    margin-bottom: 14px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+
+  .progress span {
+    display: block;
+    width: 40%;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #fa7e1e, #d62976, #962fbf);
+    animation: slide 1.4s ease-in-out infinite;
+  }
+
+  @keyframes slide {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(260%); }
+  }
+
+  .lock-card h1 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .lock-card > p {
+    margin: 0 0 22px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .unlock-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 20px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 12px;
+    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    background-size: 200% 200%;
+    box-shadow: 0 8px 22px rgba(150, 47, 191, 0.32);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .unlock-btn:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 12px 30px rgba(150, 47, 191, 0.5);
+  }
+
+  .unlock-btn:active { transform: scale(0.985); }
+
+  .hint {
+    margin: 14px 0 0 !important;
+    font-size: 11.5px !important;
+    color: #7a7a7a !important;
+  }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 480px) {
+    body { padding: 0; background: var(--bg); }
+    .app {
+      max-width: none;
+      height: 100vh;
+      height: 100dvh;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="chat-header">
+    <button class="back" type="button" aria-label="Back">&#8249;</button>
+    <div class="avatar-ring">
+      <div class="avatar">S</div>
+    </div>
+    <div class="who">
+      <h2>Chat with Sofie</h2>
+      <p><span class="dot"></span> Active now</p>
+    </div>
+    <span class="header-lock" id="headerLock" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
+        <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+      </svg>
+    </span>
+  </header>
+
+  <!-- Messages (starts empty) -->
+  <main class="messages" id="messages">
+    <div class="system-chip">End-to-end encrypted · only you two</div>
+  </main>
+
+  <!-- Emoji picker -->
+  <div class="emoji-picker" id="emojiPicker"></div>
+
+  <!-- Composer -->
+  <footer class="composer">
+    <div class="pill">
+      <input type="text" id="messageInput" placeholder="Message..." autocomplete="off" />
+      <button class="icon-btn" id="emojiBtn" type="button" title="Emoji" aria-label="Emoji">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0"/>
+          <line x1="9" y1="9.5" x2="9.01" y2="9.5"/>
+          <line x1="15" y1="9.5" x2="15.01" y2="9.5"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="photoBtn" type="button" title="Photo" aria-label="Send photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4.5" width="18" height="15" rx="3"/>
+          <circle cx="8.5" cy="10" r="1.6"/>
+          <path d="M21 15.5l-4.3-4.2a2 2 0 0 0-2.8 0L6 19.5"/>
+        </svg>
+      </button>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" hidden />
+    <button class="send-btn" id="sendBtn" type="button">Send</button>
+  </footer>
+
+  <!-- Lock overlay -->
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-card" id="lockCard">
+      <div class="lock-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
+          <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+        </svg>
+      </div>
+      <h1>Chat Locked</h1>
+      <p>This conversation is private. Complete the quick step below to unlock it.</p>
+      <button class="unlock-btn" id="unlockBtn" type="button">
+        Unlock Chat
+      </button>
+      <p class="hint">Opens a verification page in a new tab.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ---------------- Elements ---------------- */
+  const messagesEl  = document.getElementById('messages');
+  const inputEl     = document.getElementById('messageInput');
+  const sendBtn     = document.getElementById('sendBtn');
+  const emojiBtn    = document.getElementById('emojiBtn');
+  const emojiPicker = document.getElementById('emojiPicker');
+  const photoBtn    = document.getElementById('photoBtn');
+  const fileInput   = document.getElementById('fileInput');
+
+  const lockCard = document.getElementById('lockCard');
+
+  const UNLOCK_URL = 'https://rekonise.com/before-you-chat-51cjc';
+
+  /* ---------------- Lock flow (never unlocks) ---------------- */
+  let waiting = false;
+
+  function renderWaiting() {
+    // The chat can never be unlocked — this state is permanent.
+    lockCard.innerHTML = `
+      <div class="lock-badge waiting"><div class="spinner"></div></div>
+      <h1>Waiting for user to close YouTube</h1>
+      <p>Complete the step in the new tab, then come back here.</p>
+      <div class="progress"><span></span></div>
+      <p class="hint">Keep this tab open.</p>
+    `;
+  }
+
+  function handleUnlockClick() {
+    if (waiting) return;
+    waiting = true;
+
+    // Open the verification page in a new tab
+    window.open(UNLOCK_URL, '_blank', 'noopener,noreferrer');
+
+    // Show the permanent waiting state
+    renderWaiting();
+  }
+
+  document.getElementById('unlockBtn').addEventListener('click', handleUnlockClick);
+
+  /* ---------------- Emoji picker ---------------- */
+  const EMOJIS = [
+    '😀','😁','😂','🤣','😊','😍','😘','😎',
+    '🤔','😴','😭','😡','👍','👎','🙏','👏',
+    '🔥','💜','✨','🎉','💯','😇','🥳','🤗',
+    '😅','🙃','😜','🤩','😢','😱','💀','👀',
+    '💬','📷','🔒','❤️','💔','✅','🌈','⭐'
+  ];
+
+  EMOJIS.forEach((emoji) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = emoji;
+    b.addEventListener('click', () => insertAtCursor(emoji));
+    emojiPicker.appendChild(b);
+  });
+
+  function insertAtCursor(text) {
+    const start = inputEl.selectionStart ?? inputEl.value.length;
+    const end   = inputEl.selectionEnd ?? inputEl.value.length;
+    inputEl.value = inputEl.value.slice(0, start) + text + inputEl.value.slice(end);
+    const pos = start + text.length;
+    inputEl.focus();
+    inputEl.setSelectionRange(pos, pos);
+    updateSendState();
+  }
+
+  emojiBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    emojiPicker.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
+      emojiPicker.classList.remove('open');
+    }
+  });
+
+  /* ---------------- Messages ---------------- */
+  function addBubble({ text, img, type = 'out' }) {
+    const bubble = document.createElement('div');
+    bubble.className = 'msg ' + type;
+
+    if (img) {
+      const image = document.createElement('img');
+      image.src = img;
+      image.alt = 'Shared photo';
+      bubble.appendChild(image);
+    }
+    if (text) {
+      const t = document.createElement('div');
+      t.textContent = text;
+      bubble.appendChild(t);
+    }
+
+    messagesEl.appendChild(bubble);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function updateSendState() {
+    sendBtn.classList.toggle('ready', inputEl.value.trim().length > 0);
+  }
+
+  function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+    addBubble({ text, type: 'out' });
+    inputEl.value = '';
+    updateSendState();
+    inputEl.focus();
+    emojiPicker.classList.remove('open');
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  inputEl.addEventListener('input', updateSendState);
+
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  /* ---------------- Photo ---------------- */
+  photoBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => addBubble({ img: e.target.result, type: 'out' });
+    reader.readAsDataURL(file);
+
+    fileInput.value = '';
+  });
+
+  updateSendState();
+</script>
+
+</body>
+</html>
