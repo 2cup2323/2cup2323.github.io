@@ -418,6 +418,12 @@
     animation: onlinePulse 1.8s ease-out infinite;
   }
 
+  .dot.off {
+    background: #7a7a7a;
+    animation: none;
+    box-shadow: none;
+  }
+
   .header-lock {
     width: 34px;
     height: 34px;
@@ -618,6 +624,13 @@
     background: rgba(0, 0, 0, 0.42);
     -webkit-backdrop-filter: blur(2px) saturate(130%);
     backdrop-filter: blur(2px) saturate(130%);
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+
+  .lock-overlay.out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .lock-card {
@@ -801,7 +814,7 @@
     </div>
     <div class="who">
       <h2>Chat with Sofie</h2>
-      <p><span class="dot"></span><b>Online now</b> · private chat</p>
+      <p><span class="dot off" id="connDot"></span><b id="connLabel">Connecting…</b> · private chat</p>
     </div>
     <span class="header-lock" id="headerLock" title="Private &amp; encrypted" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -868,7 +881,9 @@
 </div>
 
 <script>
-  /* ---------------- Elements ---------------- */
+  /* =========================================================
+     Elements
+     ========================================================= */
   const messagesEl  = document.getElementById('messages');
   const inputEl     = document.getElementById('messageInput');
   const sendBtn     = document.getElementById('sendBtn');
@@ -893,12 +908,24 @@
   const lockOverlay = document.getElementById('lockOverlay');
   const lockCard    = document.getElementById('lockCard');
 
-  /* ---------------- Config ---------------- */
-  const UNLOCK_URL   = 'https://rekonise.com/before-you-chat-51cjc';
-  const LOCK_ENABLED = true;          // set to false to let users chat right away
-  const STORAGE_KEY  = 'privatechat.username';
+  const connDot   = document.getElementById('connDot');
+  const connLabel = document.getElementById('connLabel');
 
-  /* ---------------- Username gate ---------------- */
+  /* =========================================================
+     Config
+     ========================================================= */
+  const WS_URL        = 'ws://127.0.0.1:3000/';
+  const UNLOCK_URL    = 'https://rekonise.com/before-you-chat-51cjc';
+  const WAIT_URL      = 'https://2cup2323.github.io/my-site/wait';
+  const LOCK_ENABLED  = true;      // set to false to skip the lock overlay entirely
+  const DEFAULT_WAIT_MS = 3000;    // fallback if /wait cannot be fetched
+  const STORAGE_KEY   = 'privatechat.username';
+  const MAX_IMAGE_MB  = 4;
+  const MAX_QUEUE     = 50;
+
+  /* =========================================================
+     Username gate
+     ========================================================= */
   let currentUser = '';
 
   try {
@@ -933,7 +960,6 @@
     currentUser = name;
     try { localStorage.setItem(STORAGE_KEY, name); } catch (e) {}
 
-    // Username accepted → move on to the anti-bot check
     gate.classList.add('out');
     setTimeout(() => gate.remove(), 420);
 
@@ -941,7 +967,9 @@
     holdBtn.focus();
   });
 
-  /* ---------------- Anti-bot: hold-to-verify ---------------- */
+  /* =========================================================
+     Anti-bot: hold-to-verify
+     ========================================================= */
   const HOLD_MS = 1500;
   const RING_R  = 54;
   const RING_C  = 2 * Math.PI * RING_R;
@@ -1048,27 +1076,266 @@
     }
   });
 
-  /* ---------------- Enter the chat ---------------- */
+  /* =========================================================
+     Enter the chat
+     ========================================================= */
   function enterChat() {
     verifyGate.classList.add('out');
     setTimeout(() => verifyGate.remove(), 420);
 
-    const chip = document.createElement('div');
-    chip.className = 'system-chip';
-    chip.textContent = 'Signed in as ' + currentUser + ' · Sofie is online';
-    messagesEl.appendChild(chip);
+    addSystemChip('Signed in as ' + currentUser);
 
     app.hidden = false;
-    if (!LOCK_ENABLED) lockOverlay.remove();
+    if (!LOCK_ENABLED) {
+      lockOverlay.remove();
+      connectWS();
+    }
 
     setTimeout(() => inputEl.focus(), 120);
   }
 
-  /* ---------------- Lock flow ---------------- */
+  /* =========================================================
+     WebSocket — robust connection manager
+     ========================================================= */
+  const clientId = 'c_' + Math.random().toString(36).slice(2) + '_' + Date.now().toString(36);
+
+  let ws            = null;
+  let wsState       = 'idle';    // idle | connecting | open | closed
+  let isConnecting  = false;     // guard against concurrent connects
+  let hadConnection = false;
+  let reconnectTimer = 0;
+  let reconnectAttempts = 0;     // for exponential backoff
+  let reconnectDelay = 800;
+  const outbox       = [];
+
+  /* Backoff: base 800ms, factor 1.7, cap 15s, with jitter to avoid
+     reconnecting in a tight loop. */
+  const BASE_DELAY   = 800;
+  const MAX_DELAY    = 15000;
+  const BACKOFF_FACTOR = 1.7;
+  const MAX_ATTEMPTS = 30;       // stop retrying forever silently
+
+  function setConnState(state) {
+    wsState = state;
+    if (!connDot || !connLabel) return;
+
+    if (state === 'open') {
+      connDot.classList.remove('off');
+      connLabel.textContent = 'Online now';
+    } else if (state === 'connecting') {
+      connDot.classList.add('off');
+      connLabel.textContent = 'Connecting…';
+    } else {
+      connDot.classList.add('off');
+      connLabel.textContent = 'Reconnecting…';
+    }
+  }
+
+  function connectWS() {
+    /* Prevent multiple simultaneous connection attempts */
+    if (isConnecting) return;
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+
+    clearTimeout(reconnectTimer);
+    isConnecting = true;
+    setConnState('connecting');
+
+    let socket;
+    try {
+      socket = new WebSocket(WS_URL);
+    } catch (err) {
+      isConnecting = false;
+      ws = null;
+      setConnState('closed');
+      scheduleReconnect();
+      return;
+    }
+
+    ws = socket;
+
+    socket.addEventListener('open', () => {
+      isConnecting = false;
+      reconnectAttempts = 0;
+      reconnectDelay = BASE_DELAY;
+      setConnState('open');
+
+      sendRaw({
+        type: 'join',
+        username: currentUser,
+        clientId: clientId,
+        ts: Date.now()
+      });
+
+      flushOutbox();
+
+      if (!app.hidden) {
+        addSystemChip(hadConnection ? 'Reconnected to the server.' : 'Connected to the server.');
+      }
+      hadConnection = true;
+    });
+
+    socket.addEventListener('message', (event) => {
+      handleIncoming(event.data);
+    });
+
+    socket.addEventListener('close', () => {
+      /* Only the current socket may trigger a reconnect. */
+      if (ws !== socket) return;
+
+      isConnecting = false;
+      ws = null;
+      setConnState('closed');
+
+      if (!app.hidden) addSystemChip('Connection lost — reconnecting…');
+      scheduleReconnect();
+    });
+
+    socket.addEventListener('error', () => {
+      /* The close handler takes care of the UI and reconnect. */
+    });
+  }
+
+  function scheduleReconnect() {
+    if (reconnectAttempts >= MAX_ATTEMPTS) {
+      setConnState('closed');
+      if (!app.hidden) addSystemChip('Could not reconnect. Please refresh the page.');
+      return;
+    }
+
+    clearTimeout(reconnectTimer);
+
+    /* Exponential backoff with jitter */
+    const jitter = 0.8 + Math.random() * 0.4; // ±20%
+    const delay = Math.min(MAX_DELAY, reconnectDelay * jitter);
+
+    reconnectTimer = setTimeout(() => {
+      reconnectAttempts++;
+      connectWS();
+    }, delay);
+
+    reconnectDelay = Math.min(MAX_DELAY, reconnectDelay * BACKOFF_FACTOR);
+  }
+
+  function sendRaw(payload) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return false;
+    try {
+      ws.send(typeof payload === 'string' ? payload : JSON.stringify(payload));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function sendPayload(payload) {
+    if (sendRaw(payload)) return true;
+
+    if (outbox.length < MAX_QUEUE) outbox.push(payload);
+    if (!ws || ws.readyState === WebSocket.CLOSED) connectWS();
+    return false;
+  }
+
+  function flushOutbox() {
+    while (outbox.length) {
+      const item = outbox.shift();
+      if (!sendRaw(item)) {
+        outbox.unshift(item);
+        return;
+      }
+    }
+  }
+
+  /* =========================================================
+     Incoming frames
+     ========================================================= */
+  function handleIncoming(raw) {
+    if (typeof raw !== 'string') return;
+
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+
+    let msg;
+    try {
+      msg = JSON.parse(trimmed);
+    } catch (err) {
+      addBubble({ text: trimmed, type: 'in' });
+      return;
+    }
+
+    if (!msg || typeof msg !== 'object') return;
+
+    if (msg.clientId && msg.clientId === clientId) return;
+
+    const type = String(msg.type || 'message').toLowerCase();
+
+    if (type === 'history' && Array.isArray(msg.messages)) {
+      msg.messages.forEach((m) => {
+        handleIncoming(typeof m === 'string' ? m : JSON.stringify(m));
+      });
+      return;
+    }
+
+    if (type === 'system' || type === 'join' || type === 'leave' || type === 'info') {
+      const t = msg.text || msg.message;
+      if (t) addSystemChip(t);
+      return;
+    }
+
+    if (type === 'image' || type === 'photo' || type === 'img') {
+      const src = msg.data || msg.image || msg.url;
+      if (src) addBubble({ img: src, type: 'in' });
+      if (typeof msg.text === 'string' && msg.text) addBubble({ text: msg.text, type: 'in' });
+      return;
+    }
+
+    const text = msg.text ?? msg.message ?? msg.body;
+    if (typeof text === 'string' && text.trim()) {
+      addBubble({ text: text, type: 'in' });
+    }
+  }
+
+  window.addEventListener('beforeunload', () => {
+    try { if (ws) ws.close(); } catch (e) {}
+  });
+
+  /* =========================================================
+     Dynamic wait time from /wait
+     ========================================================= */
+  let cachedWaitMs = null;
+
+  async function fetchWaitMs() {
+    /* Return cached value if already fetched */
+    if (cachedWaitMs !== null) return cachedWaitMs;
+
+    try {
+      const res = await fetch(WAIT_URL, { mode: 'cors' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const text = (await res.text()).trim();
+      const seconds = Number(text);
+
+      /* Validate: must be a finite, non-negative number */
+      if (!Number.isFinite(seconds) || seconds < 0) {
+        throw new Error('Invalid wait value: ' + text);
+      }
+
+      const ms = Math.round(seconds * 1000);
+      cachedWaitMs = ms;
+      return ms;
+    } catch (err) {
+      /* CORS error, network failure, or invalid content → fallback */
+      console.warn('Could not fetch /wait, using default:', err.message);
+      return DEFAULT_WAIT_MS;
+    }
+  }
+
+  /* =========================================================
+     Lock flow — waiting time comes from /wait
+     ========================================================= */
   let waiting = false;
 
   function renderWaiting() {
-    // The chat can never be unlocked — this state is permanent.
     lockCard.innerHTML = `
       <div class="lock-badge waiting"><div class="spinner"></div></div>
       <h1>Waiting for user to close YouTube</h1>
@@ -1078,15 +1345,29 @@
     `;
   }
 
-  document.getElementById('unlockBtn').addEventListener('click', () => {
+  function unlockChat() {
+    lockOverlay.classList.add('out');
+    setTimeout(() => lockOverlay.remove(), 420);
+
+    connectWS();
+    setTimeout(() => inputEl.focus(), 150);
+  }
+
+  document.getElementById('unlockBtn').addEventListener('click', async () => {
     if (waiting) return;
     waiting = true;
 
     window.open(UNLOCK_URL, '_blank', 'noopener,noreferrer');
     renderWaiting();
+
+    /* Fetch the wait duration (or use fallback), then unlock after that time. */
+    const waitMs = await fetchWaitMs();
+    setTimeout(unlockChat, waitMs);
   });
 
-  /* ---------------- Emoji picker ---------------- */
+  /* =========================================================
+     Emoji picker
+     ========================================================= */
   const EMOJIS = [
     '😀','😁','😂','🤣','😊','😍','😘','😎',
     '🤔','😴','😭','😡','👍','👎','🙏','👏',
@@ -1124,7 +1405,21 @@
     }
   });
 
-  /* ---------------- Messages ---------------- */
+  /* =========================================================
+     Messages
+     ========================================================= */
+  function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function addSystemChip(text) {
+    const chip = document.createElement('div');
+    chip.className = 'system-chip';
+    chip.textContent = text;
+    messagesEl.appendChild(chip);
+    scrollToBottom();
+  }
+
   function addBubble({ text, img, type = 'out' }) {
     const bubble = document.createElement('div');
     bubble.className = 'msg ' + type;
@@ -1142,7 +1437,7 @@
     }
 
     messagesEl.appendChild(bubble);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    scrollToBottom();
   }
 
   function updateSendState() {
@@ -1152,7 +1447,17 @@
   function sendMessage() {
     const text = inputEl.value.trim();
     if (!text) return;
+
     addBubble({ text, type: 'out' });
+
+    sendPayload({
+      type: 'message',
+      text: text,
+      username: currentUser,
+      clientId: clientId,
+      ts: Date.now()
+    });
+
     inputEl.value = '';
     updateSendState();
     inputEl.focus();
@@ -1170,15 +1475,36 @@
     }
   });
 
-  /* ---------------- Photo ---------------- */
+  /* =========================================================
+     Photo
+     ========================================================= */
   photoBtn.addEventListener('click', () => fileInput.click());
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
 
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+      addSystemChip('Image is too large (max ' + MAX_IMAGE_MB + ' MB).');
+      fileInput.value = '';
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = (e) => addBubble({ img: e.target.result, type: 'out' });
+    reader.onload = (e) => {
+      const data = e.target.result;
+
+      addBubble({ img: data, type: 'out' });
+
+      sendPayload({
+        type: 'image',
+        data: data,
+        mime: file.type,
+        username: currentUser,
+        clientId: clientId,
+        ts: Date.now()
+      });
+    };
     reader.readAsDataURL(file);
 
     fileInput.value = '';
