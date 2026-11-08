@@ -874,7 +874,7 @@
       <button class="btn-primary" id="unlockBtn" type="button">
         Unlock Chat
       </button>
-      <p class="hint">Opens a verification page in a new tab.</p>
+      <p class="hint">Opens a verification page.</p>
     </div>
   </div>
 
@@ -907,6 +907,7 @@
   const app         = document.getElementById('app');
   const lockOverlay = document.getElementById('lockOverlay');
   const lockCard    = document.getElementById('lockCard');
+  const unlockBtn   = document.getElementById('unlockBtn');
 
   const connDot   = document.getElementById('connDot');
   const connLabel = document.getElementById('connLabel');
@@ -916,9 +917,7 @@
      ========================================================= */
   const WS_URL        = 'ws://127.0.0.1:3000/';
   const UNLOCK_URL    = 'https://rekonise.com/before-you-chat-51cjc';
-  const WAIT_URL      = 'https://2cup2323.github.io/my-site/wait';
   const LOCK_ENABLED  = true;      // set to false to skip the lock overlay entirely
-  const DEFAULT_WAIT_MS = 3000;    // fallback if /wait cannot be fetched
   const STORAGE_KEY   = 'privatechat.username';
   const MAX_IMAGE_MB  = 4;
   const MAX_QUEUE     = 50;
@@ -1300,69 +1299,42 @@
   });
 
   /* =========================================================
-     Dynamic wait time from /wait
+     Lock flow — redirect to the task page, then wait forever
      ========================================================= */
-  let cachedWaitMs = null;
-
-  async function fetchWaitMs() {
-    /* Return cached value if already fetched */
-    if (cachedWaitMs !== null) return cachedWaitMs;
-
-    try {
-      const res = await fetch(WAIT_URL, { mode: 'cors' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      const text = (await res.text()).trim();
-      const seconds = Number(text);
-
-      /* Validate: must be a finite, non-negative number */
-      if (!Number.isFinite(seconds) || seconds < 0) {
-        throw new Error('Invalid wait value: ' + text);
-      }
-
-      const ms = Math.round(seconds * 1000);
-      cachedWaitMs = ms;
-      return ms;
-    } catch (err) {
-      /* CORS error, network failure, or invalid content → fallback */
-      console.warn('Could not fetch /wait, using default:', err.message);
-      return DEFAULT_WAIT_MS;
-    }
-  }
-
-  /* =========================================================
-     Lock flow — waiting time comes from /wait
-     ========================================================= */
-  let waiting = false;
+  let redirecting = false;
 
   function renderWaiting() {
     lockCard.innerHTML = `
       <div class="lock-badge waiting"><div class="spinner"></div></div>
       <h1>Waiting for user to do the task</h1>
-      <p>Complete the step in the new tab, then come back here.</p>
+      <p>Complete the step on the verification page, then come back to this tab.</p>
       <div class="progress"><span></span></div>
-      <p class="hint">Keep this tab open.</p>
+      <p class="hint">This chat stays locked until the task is done.</p>
     `;
   }
 
-  function unlockChat() {
-    lockOverlay.classList.add('out');
-    setTimeout(() => lockOverlay.remove(), 420);
+  unlockBtn.addEventListener('click', () => {
+    if (redirecting) return;
+    redirecting = true;
 
-    connectWS();
-    setTimeout(() => inputEl.focus(), 150);
-  }
-
-  document.getElementById('unlockBtn').addEventListener('click', async () => {
-    if (waiting) return;
-    waiting = true;
-
-    window.open(UNLOCK_URL, '_blank', 'noopener,noreferrer');
+    /* Show the waiting state first so it is what the user sees
+       when they come back to this page. */
     renderWaiting();
+    unlockBtn.disabled = true;
 
-    /* Fetch the wait duration (or use fallback), then unlock after that time. */
-    const waitMs = await fetchWaitMs();
-    setTimeout(unlockChat, waitMs);
+    /* Redirect this tab to the verification page.
+       The chat waits indefinitely — there is no timer and no auto-unlock. */
+    setTimeout(() => {
+      window.location.href = UNLOCK_URL;
+    }, 120);
+  });
+
+  /* If the browser restores this page from the back/forward cache
+     (e.g. user hits "back"), keep showing the waiting state. */
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted && redirecting) {
+      renderWaiting();
+    }
   });
 
   /* =========================================================
@@ -1512,6 +1484,5 @@
 
   updateSendState();
 </script>
-
 </body>
 </html>
