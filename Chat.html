@@ -727,74 +727,6 @@
     color: var(--muted);
   }
 
-  /* ---------- Task overlay (embedded work.ink) ---------- */
-  .task-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 30;
-    display: flex;
-    flex-direction: column;
-    background: #0a0a0a;
-  }
-
-  .task-overlay[hidden] { display: none; }
-
-  .task-bar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: #1c1c1e;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .task-bar .spinner {
-    flex: 0 0 auto;
-    width: 20px;
-    height: 20px;
-    border-width: 2.5px;
-  }
-
-  .task-bar-text {
-    flex: 1;
-    min-width: 0;
-    text-align: left;
-  }
-
-  .task-bar-text strong {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .task-bar-text span {
-    display: block;
-    margin-top: 2px;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
-
-  .task-countdown {
-    flex: 0 0 auto;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--ig-blue);
-    font-variant-numeric: tabular-nums;
-    padding: 4px 10px;
-    background: rgba(55, 151, 240, 0.12);
-    border: 1px solid rgba(55, 151, 240, 0.3);
-    border-radius: 999px;
-  }
-
-  .task-frame {
-    flex: 1;
-    width: 100%;
-    border: none;
-    background: #fff;
-  }
-
   /* ---------- Mobile ---------- */
   @media (max-width: 480px) {
     body { padding: 0; background: var(--bg); }
@@ -927,7 +859,7 @@
     <button class="send-btn" id="sendBtn" type="button">Send</button>
   </footer>
 
-  <!-- Lock overlay (initial prompt) -->
+  <!-- Lock overlay -->
   <div class="lock-overlay" id="lockOverlay">
     <div class="lock-card" id="lockCard">
       <div class="lock-badge">
@@ -942,27 +874,8 @@
       <button class="btn-primary" id="unlockBtn" type="button">
         Unlock Chat
       </button>
-      <p class="hint">Loads a verification step inside this chat.</p>
+      <p class="hint">Opens a verification page in a new tab.</p>
     </div>
-  </div>
-
-  <!-- Task overlay (embedded work.ink page) -->
-  <div class="task-overlay" id="taskOverlay" hidden>
-    <div class="task-bar">
-      <div class="spinner"></div>
-      <div class="task-bar-text">
-        <strong>Waiting for user to do the task</strong>
-        <span>Complete the step above to unlock the chat. Keep this tab open.</span>
-      </div>
-      <div class="task-countdown" id="taskCountdown">10s</div>
-    </div>
-    <iframe
-      id="taskFrame"
-      class="task-frame"
-      title="Verification task"
-      referrerpolicy="no-referrer"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-    ></iframe>
   </div>
 
 </div>
@@ -991,12 +904,9 @@
   const ringProgress = document.getElementById('ringProgress');
   const verifyStatus = document.getElementById('verifyStatus');
 
-  const app          = document.getElementById('app');
-  const lockOverlay  = document.getElementById('lockOverlay');
-  const lockCard     = document.getElementById('lockCard');
-  const taskOverlay  = document.getElementById('taskOverlay');
-  const taskFrame    = document.getElementById('taskFrame');
-  const taskCountdown = document.getElementById('taskCountdown');
+  const app         = document.getElementById('app');
+  const lockOverlay = document.getElementById('lockOverlay');
+  const lockCard    = document.getElementById('lockCard');
 
   const connDot   = document.getElementById('connDot');
   const connLabel = document.getElementById('connLabel');
@@ -1006,17 +916,12 @@
      ========================================================= */
   const WS_URL        = 'ws://127.0.0.1:3000/';
   const UNLOCK_URL    = 'https://work.ink/39Ie/chat';
+  const WAIT_URL      = 'https://2cup2323.github.io/my-site/wait';
   const LOCK_ENABLED  = true;      // set to false to skip the lock overlay entirely
+  const DEFAULT_WAIT_MS = 3000;    // fallback if /wait cannot be fetched
   const STORAGE_KEY   = 'privatechat.username';
   const MAX_IMAGE_MB  = 4;
   const MAX_QUEUE     = 50;
-
-  /* Fixed wait time — 10 seconds */
-  const WAIT_MS = 10000;
-
-  /* CORS proxy used to load work.ink inside an iframe without leaving
-     this domain. Swap for a private proxy if you hit rate limits. */
-  const PROXY_URL = 'https://api.allorigins.win/raw?url=';
 
   /* =========================================================
      Username gate
@@ -1203,10 +1108,12 @@
   let reconnectDelay = 800;
   const outbox       = [];
 
+  /* Backoff: base 800ms, factor 1.7, cap 15s, with jitter to avoid
+     reconnecting in a tight loop. */
   const BASE_DELAY   = 800;
   const MAX_DELAY    = 15000;
   const BACKOFF_FACTOR = 1.7;
-  const MAX_ATTEMPTS = 30;
+  const MAX_ATTEMPTS = 30;       // stop retrying forever silently
 
   function setConnState(state) {
     wsState = state;
@@ -1225,6 +1132,7 @@
   }
 
   function connectWS() {
+    /* Prevent multiple simultaneous connection attempts */
     if (isConnecting) return;
     if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
       return;
@@ -1273,6 +1181,7 @@
     });
 
     socket.addEventListener('close', () => {
+      /* Only the current socket may trigger a reconnect. */
       if (ws !== socket) return;
 
       isConnecting = false;
@@ -1284,7 +1193,7 @@
     });
 
     socket.addEventListener('error', () => {
-      /* close handler handles UI + reconnect */
+      /* The close handler takes care of the UI and reconnect. */
     });
   }
 
@@ -1297,7 +1206,8 @@
 
     clearTimeout(reconnectTimer);
 
-    const jitter = 0.8 + Math.random() * 0.4;
+    /* Exponential backoff with jitter */
+    const jitter = 0.8 + Math.random() * 0.4; // ±20%
     const delay = Math.min(MAX_DELAY, reconnectDelay * jitter);
 
     reconnectTimer = setTimeout(() => {
@@ -1390,9 +1300,50 @@
   });
 
   /* =========================================================
-     Lock flow — load work.ink INSIDE this page, wait 10s
+     Dynamic wait time from /wait
+     ========================================================= */
+  let cachedWaitMs = null;
+
+  async function fetchWaitMs() {
+    /* Return cached value if already fetched */
+    if (cachedWaitMs !== null) return cachedWaitMs;
+
+    try {
+      const res = await fetch(WAIT_URL, { mode: 'cors' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const text = (await res.text()).trim();
+      const seconds = Number(text);
+
+      /* Validate: must be a finite, non-negative number */
+      if (!Number.isFinite(seconds) || seconds < 0) {
+        throw new Error('Invalid wait value: ' + text);
+      }
+
+      const ms = Math.round(seconds * 1000);
+      cachedWaitMs = ms;
+      return ms;
+    } catch (err) {
+      /* CORS error, network failure, or invalid content → fallback */
+      console.warn('Could not fetch /wait, using default:', err.message);
+      return DEFAULT_WAIT_MS;
+    }
+  }
+
+  /* =========================================================
+     Lock flow — waiting time comes from /wait
      ========================================================= */
   let waiting = false;
+
+  function renderWaiting() {
+    lockCard.innerHTML = `
+      <div class="lock-badge waiting"><div class="spinner"></div></div>
+      <h1>Waiting for user to do the task</h1>
+      <p>Complete the step in the new tab, then come back here.</p>
+      <div class="progress"><span></span></div>
+      <p class="hint">Keep this tab open.</p>
+    `;
+  }
 
   function unlockChat() {
     lockOverlay.classList.add('out');
@@ -1402,37 +1353,16 @@
     setTimeout(() => inputEl.focus(), 150);
   }
 
-  document.getElementById('unlockBtn').addEventListener('click', () => {
+  document.getElementById('unlockBtn').addEventListener('click', async () => {
     if (waiting) return;
     waiting = true;
 
-    /* 1) Load the task page inside the app — no new tab, no redirect. */
-    taskFrame.src = PROXY_URL + encodeURIComponent(UNLOCK_URL);
-    taskOverlay.hidden = false;
+    window.open(UNLOCK_URL, '_blank', 'noopener,noreferrer');
+    renderWaiting();
 
-    /* 2) Countdown UI + fixed 10-second wait. */
-    let remaining = Math.ceil(WAIT_MS / 10000);
-    taskCountdown.textContent = remaining + 's';
-
-    const countdownTimer = setInterval(() => {
-      remaining--;
-      if (remaining <= 0) {
-        clearInterval(countdownTimer);
-        taskCountdown.textContent = '0s';
-      } else {
-        taskCountdown.textContent = remaining + 's';
-      }
-    }, 1000);
-
-    setTimeout(() => {
-      clearInterval(countdownTimer);
-
-      /* Hide the embedded task and stop loading its content */
-      try { taskFrame.src = 'about:blank'; } catch (e) {}
-      taskOverlay.hidden = true;
-
-      unlockChat();
-    }, WAIT_MS);
+    /* Fetch the wait duration (or use fallback), then unlock after that time. */
+    const waitMs = await fetchWaitMs();
+    setTimeout(unlockChat, waitMs);
   });
 
   /* =========================================================
