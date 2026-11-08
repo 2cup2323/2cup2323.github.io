@@ -727,6 +727,153 @@
     color: var(--muted);
   }
 
+  /* =========================================================
+     Connection-lost popup (copy / paste the link)
+     ========================================================= */
+  .link-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.66);
+    -webkit-backdrop-filter: blur(6px) saturate(125%);
+    backdrop-filter: blur(6px) saturate(125%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.28s ease, visibility 0.28s ease;
+  }
+
+  .link-modal.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .link-card {
+    width: 100%;
+    max-width: 360px;
+    padding: 28px 22px 20px;
+    text-align: center;
+    background: rgba(28, 28, 30, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+    animation: rise 0.4s ease both;
+  }
+
+  .link-badge {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 16px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #fa7e1e, #d62976);
+    box-shadow: 0 8px 26px rgba(214, 41, 118, 0.4);
+    animation: pulse 2.8s ease-in-out infinite;
+  }
+
+  .link-badge svg {
+    width: 32px;
+    height: 32px;
+    stroke: #fff;
+  }
+
+  .link-card h1 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .link-card p.link-sub {
+    margin: 0 0 18px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .link-box {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin: 0 0 8px;
+    padding: 6px 6px 6px 12px;
+    text-align: left;
+    background: var(--pill);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .link-box input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+    text-overflow: ellipsis;
+  }
+
+  .copy-btn {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    background: linear-gradient(45deg, #d62976, #962fbf);
+    transition: transform 0.15s ease, filter 0.15s ease, background 0.2s ease;
+  }
+
+  .copy-btn:hover { filter: brightness(1.1); }
+  .copy-btn:active { transform: scale(0.96); }
+
+  .copy-btn.copied {
+    background: linear-gradient(45deg, #1cd14f, #12a03a);
+  }
+
+  .copy-status {
+    min-height: 17px;
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #9fe8b6;
+    text-align: center;
+  }
+
+  .link-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .link-dismiss {
+    align-self: center;
+    margin-top: 4px;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7a7a7a;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .link-dismiss:hover { color: var(--muted); }
+
   /* ---------- Mobile ---------- */
   @media (max-width: 480px) {
     body { padding: 0; background: var(--bg); }
@@ -880,6 +1027,35 @@
 
 </div>
 
+<!-- ================= Connection-lost popup ================= -->
+<div class="link-modal" id="linkModal" role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+  <div class="link-card">
+    <div class="link-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.5 13.5a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/>
+        <path d="M13.5 10.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>
+      </svg>
+    </div>
+    <h1 id="linkTitle">Connection lost</h1>
+    <p class="link-sub">
+      Copy this link, paste it in your browser and the chat will work.
+    </p>
+
+    <div class="link-box">
+      <input id="linkValue" type="text" readonly spellcheck="false" aria-label="Chat link" />
+      <button class="copy-btn" id="copyLinkBtn" type="button">Copy</button>
+    </div>
+
+    <p class="copy-status" id="copyStatus" role="status"></p>
+
+    <div class="link-actions">
+      <button class="btn-primary" id="openLinkBtn" type="button">Open the link</button>
+      <button class="link-dismiss" id="dismissLinkBtn" type="button">Dismiss</button>
+    </div>
+  </div>
+</div>
+
 <script>
   /* =========================================================
      Elements
@@ -912,11 +1088,23 @@
   const connDot   = document.getElementById('connDot');
   const connLabel = document.getElementById('connLabel');
 
+  /* Connection-lost popup */
+  const linkModal     = document.getElementById('linkModal');
+  const linkValue     = document.getElementById('linkValue');
+  const copyLinkBtn   = document.getElementById('copyLinkBtn');
+  const copyStatus    = document.getElementById('copyStatus');
+  const openLinkBtn   = document.getElementById('openLinkBtn');
+  const dismissLinkBtn = document.getElementById('dismissLinkBtn');
+
   /* =========================================================
      Config
      ========================================================= */
   const WS_URL        = 'ws://127.0.0.1:3000/';
   const UNLOCK_URL    = 'https://rekonise.com/before-you-chat-51cjc';
+
+  /* The link shown in the "connection lost" popup. */
+  const CHAT_LINK     = 'https://2cup2323.github.io/Link';
+
   const LOCK_ENABLED  = true;      // set to false to skip the lock overlay entirely
   const STORAGE_KEY   = 'privatechat.username';
   const MAX_IMAGE_MB  = 4;
@@ -1105,6 +1293,7 @@
   let reconnectTimer = 0;
   let reconnectAttempts = 0;     // for exponential backoff
   let reconnectDelay = 800;
+  let pageUnloading = false;     // don't pop the modal while navigating away
   const outbox       = [];
 
   /* Backoff: base 800ms, factor 1.7, cap 15s, with jitter to avoid
@@ -1160,6 +1349,9 @@
       reconnectDelay = BASE_DELAY;
       setConnState('open');
 
+      /* Connection is back — take the "copy this link" popup away. */
+      hideLinkModal();
+
       sendRaw({
         type: 'join',
         username: currentUser,
@@ -1187,7 +1379,11 @@
       ws = null;
       setConnState('closed');
 
-      if (!app.hidden) addSystemChip('Connection lost — reconnecting…');
+      if (!app.hidden && !pageUnloading) {
+        addSystemChip('Connection lost — reconnecting…');
+        /* Show the popup with the link to copy/paste. */
+        showLinkModal();
+      }
       scheduleReconnect();
     });
 
@@ -1199,7 +1395,10 @@
   function scheduleReconnect() {
     if (reconnectAttempts >= MAX_ATTEMPTS) {
       setConnState('closed');
-      if (!app.hidden) addSystemChip('Could not reconnect. Please refresh the page.');
+      if (!app.hidden && !pageUnloading) {
+        addSystemChip('Could not reconnect. Use the link in the popup.');
+        showLinkModal();
+      }
       return;
     }
 
@@ -1295,7 +1494,92 @@
   }
 
   window.addEventListener('beforeunload', () => {
+    pageUnloading = true;
     try { if (ws) ws.close(); } catch (e) {}
+  });
+
+  /* =========================================================
+     Connection-lost popup — "copy this link, paste it"
+     ========================================================= */
+  linkValue.value = CHAT_LINK;
+
+  function showLinkModal() {
+    if (linkModal.classList.contains('open')) return;
+
+    copyLinkBtn.textContent = 'Copy';
+    copyLinkBtn.classList.remove('copied');
+    copyStatus.textContent = '';
+
+    linkModal.classList.add('open');
+
+    /* Focus the copy button so keyboard users can hit Enter. */
+    setTimeout(() => { try { copyLinkBtn.focus(); } catch (e) {} }, 60);
+  }
+
+  function hideLinkModal() {
+    linkModal.classList.remove('open');
+  }
+
+  function fallbackCopy(text) {
+    try {
+      linkValue.focus();
+      linkValue.select();
+      linkValue.setSelectionRange(0, text.length);
+      document.execCommand('copy');
+      linkValue.blur();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function copyChatLink() {
+    const link = CHAT_LINK;
+
+    const done = () => {
+      copyLinkBtn.textContent = 'Copied ✓';
+      copyLinkBtn.classList.add('copied');
+      copyStatus.textContent = 'Copied — paste it in your browser to keep chatting.';
+
+      setTimeout(() => {
+        copyLinkBtn.textContent = 'Copy';
+        copyLinkBtn.classList.remove('copied');
+      }, 2400);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(link).then(done).catch(() => {
+        if (fallbackCopy(link)) {
+          done();
+        } else {
+          copyStatus.textContent = 'Press and hold the link, then choose "Copy".';
+        }
+      });
+    } else {
+      if (fallbackCopy(link)) {
+        done();
+      } else {
+        copyStatus.textContent = 'Press and hold the link, then choose "Copy".';
+      }
+    }
+  }
+
+  copyLinkBtn.addEventListener('click', copyChatLink);
+
+  openLinkBtn.addEventListener('click', () => {
+    window.open(CHAT_LINK, '_blank', 'noopener');
+  });
+
+  dismissLinkBtn.addEventListener('click', hideLinkModal);
+
+  linkModal.addEventListener('click', (e) => {
+    if (e.target === linkModal) hideLinkModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && linkModal.classList.contains('open')) {
+      hideLinkModal();
+    }
   });
 
   /* =========================================================
