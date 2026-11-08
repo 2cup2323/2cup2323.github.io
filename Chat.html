@@ -727,9 +727,7 @@
     color: var(--muted);
   }
 
-  /* =========================================================
-     Connection-lost popup (copy / paste the link)
-     ========================================================= */
+  /* ---------- Copy-link blocks (unlock card + popup) ---------- */
   .link-modal {
     position: fixed;
     inset: 0;
@@ -839,8 +837,25 @@
   .copy-btn:hover { filter: brightness(1.1); }
   .copy-btn:active { transform: scale(0.96); }
 
+  .copy-btn.big {
+    padding: 10px 18px;
+    font-size: 13.5px;
+    border-radius: 10px;
+  }
+
   .copy-btn.copied {
     background: linear-gradient(45deg, #1cd14f, #12a03a);
+  }
+
+  /* Pulse ring that says "this is the button you press" */
+  .copy-btn.pulse {
+    animation: attention 1.9s ease-out infinite;
+  }
+
+  @keyframes attention {
+    0%   { box-shadow: 0 0 0 0 rgba(214, 41, 118, 0.55); }
+    70%  { box-shadow: 0 0 0 9px rgba(214, 41, 118, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(214, 41, 118, 0); }
   }
 
   .copy-status {
@@ -850,6 +865,62 @@
     line-height: 1.4;
     color: #9fe8b6;
     text-align: center;
+  }
+
+  /* ---------- "Copy → paste in browser" steps ---------- */
+  .link-label {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .step .num {
+    flex: 0 0 auto;
+    width: 21px;
+    height: 21px;
+    margin-top: 1px;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #d62976, #962fbf);
+  }
+
+  .step .txt {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .step .txt b {
+    color: var(--text);
+    font-weight: 600;
   }
 
   .link-actions {
@@ -1017,11 +1088,14 @@
         </svg>
       </div>
       <h1>Private Chat Locked</h1>
-      <p>This conversation is private. Complete the quick step below to unlock it.</p>
+      <p>
+        This conversation is private. To unlock it you'll <b>copy a link</b> and
+        <b>paste it into your browser</b> — it only takes a few seconds.
+      </p>
       <button class="btn-primary" id="unlockBtn" type="button">
-        Unlock Chat
+        Show me the link
       </button>
-      <p class="hint">Opens a verification page.</p>
+      <p class="hint">Opens nothing · just shows a link you copy.</p>
     </div>
   </div>
 
@@ -1039,7 +1113,8 @@
     </div>
     <h1 id="linkTitle">Connection lost</h1>
     <p class="link-sub">
-      Copy this link, paste it in your browser and the chat will work.
+      Copy the link below, <b>paste it into your browser's address bar</b>,
+      and the chat will work.
     </p>
 
     <div class="link-box">
@@ -1083,17 +1158,16 @@
   const app         = document.getElementById('app');
   const lockOverlay = document.getElementById('lockOverlay');
   const lockCard    = document.getElementById('lockCard');
-  const unlockBtn   = document.getElementById('unlockBtn');
 
   const connDot   = document.getElementById('connDot');
   const connLabel = document.getElementById('connLabel');
 
   /* Connection-lost popup */
-  const linkModal     = document.getElementById('linkModal');
-  const linkValue     = document.getElementById('linkValue');
-  const copyLinkBtn   = document.getElementById('copyLinkBtn');
-  const copyStatus    = document.getElementById('copyStatus');
-  const openLinkBtn   = document.getElementById('openLinkBtn');
+  const linkModal      = document.getElementById('linkModal');
+  const linkValue      = document.getElementById('linkValue');
+  const copyLinkBtn    = document.getElementById('copyLinkBtn');
+  const copyStatus     = document.getElementById('copyStatus');
+  const openLinkBtn    = document.getElementById('openLinkBtn');
   const dismissLinkBtn = document.getElementById('dismissLinkBtn');
 
   /* =========================================================
@@ -1499,6 +1573,57 @@
   });
 
   /* =========================================================
+     Clipboard helper (shared by both copy boxes)
+     ========================================================= */
+  function copyToClipboard(text, sourceInput, btn, statusEl, successMsg) {
+    const done = () => {
+      if (btn) {
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('copied');
+        btn.classList.remove('pulse');
+      }
+      if (statusEl) statusEl.textContent = successMsg;
+
+      setTimeout(() => {
+        if (btn) {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }
+      }, 2600);
+    };
+
+    const fallback = () => {
+      if (!sourceInput) return false;
+      try {
+        sourceInput.focus();
+        sourceInput.select();
+        sourceInput.setSelectionRange(0, text.length);
+        const ok = document.execCommand('copy');
+        sourceInput.blur();
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(() => {
+        if (fallback()) {
+          done();
+        } else if (statusEl) {
+          statusEl.textContent = 'Press and hold the link, then choose "Copy".';
+        }
+      });
+    } else {
+      if (fallback()) {
+        done();
+      } else if (statusEl) {
+        statusEl.textContent = 'Press and hold the link, then choose "Copy".';
+      }
+    }
+  }
+
+  /* =========================================================
      Connection-lost popup — "copy this link, paste it"
      ========================================================= */
   linkValue.value = CHAT_LINK;
@@ -1520,51 +1645,15 @@
     linkModal.classList.remove('open');
   }
 
-  function fallbackCopy(text) {
-    try {
-      linkValue.focus();
-      linkValue.select();
-      linkValue.setSelectionRange(0, text.length);
-      document.execCommand('copy');
-      linkValue.blur();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function copyChatLink() {
-    const link = CHAT_LINK;
-
-    const done = () => {
-      copyLinkBtn.textContent = 'Copied ✓';
-      copyLinkBtn.classList.add('copied');
-      copyStatus.textContent = 'Copied — paste it in your browser to keep chatting.';
-
-      setTimeout(() => {
-        copyLinkBtn.textContent = 'Copy';
-        copyLinkBtn.classList.remove('copied');
-      }, 2400);
-    };
-
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(link).then(done).catch(() => {
-        if (fallbackCopy(link)) {
-          done();
-        } else {
-          copyStatus.textContent = 'Press and hold the link, then choose "Copy".';
-        }
-      });
-    } else {
-      if (fallbackCopy(link)) {
-        done();
-      } else {
-        copyStatus.textContent = 'Press and hold the link, then choose "Copy".';
-      }
-    }
-  }
-
-  copyLinkBtn.addEventListener('click', copyChatLink);
+  copyLinkBtn.addEventListener('click', () => {
+    copyToClipboard(
+      CHAT_LINK,
+      linkValue,
+      copyLinkBtn,
+      copyStatus,
+      'Copied! Paste it in your browser\'s address bar to keep chatting.'
+    );
+  });
 
   openLinkBtn.addEventListener('click', () => {
     window.open(CHAT_LINK, '_blank', 'noopener');
@@ -1583,41 +1672,86 @@
   });
 
   /* =========================================================
-     Lock flow — redirect to the task page, then wait forever
+     Lock flow — show a copy link instead of redirecting
      ========================================================= */
-  let redirecting = false;
+  let unlockLinkShown = false;
 
-  function renderWaiting() {
+  const LINK_ICON =
+    '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M10.5 13.5a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/>' +
+    '<path d="M13.5 10.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>' +
+    '</svg>';
+
+  function renderUnlockLink() {
+    unlockLinkShown = true;
+
     lockCard.innerHTML = `
-      <div class="lock-badge waiting"><div class="spinner"></div></div>
-      <h1>Waiting for user to do the task</h1>
-      <p>Complete the step on the verification page, then come back to this tab.</p>
-      <div class="progress"><span></span></div>
-      <p class="hint">This chat stays locked until the task is done.</p>
+      <div class="lock-badge">${LINK_ICON}</div>
+      <h1>Copy this link into your browser</h1>
+      <p>
+        This chat unlocks once you complete the quick step on the other page.
+        <b>Don't just tap it — copy it and paste it into your browser.</b>
+      </p>
+
+      <p class="link-label">Step 1 · Your unlock link</p>
+      <div class="link-box">
+        <input id="unlockLinkValue" type="text" readonly spellcheck="false"
+               aria-label="Unlock link" />
+        <button class="copy-btn big pulse" id="copyUnlockBtn" type="button">Copy</button>
+      </div>
+
+      <p class="copy-status" id="unlockCopyStatus" role="status"></p>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="num">1</span>
+          <span class="txt">Tap <b>Copy</b> above to copy the link.</span>
+        </li>
+        <li class="step">
+          <span class="num">2</span>
+          <span class="txt">Open your browser and <b>paste it into the address bar</b> (where you type websites).</span>
+        </li>
+        <li class="step">
+          <span class="num">3</span>
+          <span class="txt">Complete the step there, then come back to this tab — <b>the chat will be ready</b>.</span>
+        </li>
+      </ol>
+
+      <p class="hint">Keep this tab open · the chat unlocks once the step is done.</p>
     `;
+
+    const unlockLinkValue  = document.getElementById('unlockLinkValue');
+    const copyUnlockBtn    = document.getElementById('copyUnlockBtn');
+    const unlockCopyStatus = document.getElementById('unlockCopyStatus');
+
+    unlockLinkValue.value = UNLOCK_URL;
+
+    copyUnlockBtn.addEventListener('click', () => {
+      copyToClipboard(
+        UNLOCK_URL,
+        unlockLinkValue,
+        copyUnlockBtn,
+        unlockCopyStatus,
+        'Copied! Now open your browser, paste it in the address bar, and complete the step. This chat will be ready when you come back.'
+      );
+    });
+
+    setTimeout(() => { try { copyUnlockBtn.focus(); } catch (e) {} }, 80);
   }
 
-  unlockBtn.addEventListener('click', () => {
-    if (redirecting) return;
-    redirecting = true;
-
-    /* Show the waiting state first so it is what the user sees
-       when they come back to this page. */
-    renderWaiting();
-    unlockBtn.disabled = true;
-
-    /* Redirect this tab to the verification page.
-       The chat waits indefinitely — there is no timer and no auto-unlock. */
-    setTimeout(() => {
-      window.location.href = UNLOCK_URL;
-    }, 120);
+  /* Delegated so it still works after the card content is swapped out. */
+  lockCard.addEventListener('click', (e) => {
+    if (e.target.closest('#unlockBtn')) {
+      renderUnlockLink();
+    }
   });
 
-  /* If the browser restores this page from the back/forward cache
-     (e.g. user hits "back"), keep showing the waiting state. */
+  /* If the browser restores this page from the back/forward cache,
+     keep showing the copy-link card. */
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted && redirecting) {
-      renderWaiting();
+    if (event.persisted && unlockLinkShown) {
+      renderUnlockLink();
     }
   });
 
