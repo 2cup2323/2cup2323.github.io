@@ -69,10 +69,17 @@
   .hint {
     margin: 14px 0 0 !important;
     font-size: 11.5px !important;
+    line-height: 1.6 !important;
     color: #7a7a7a !important;
   }
 
   .hint .white { color: #ffffff !important; }
+
+  .hint .handle {
+    color: #f5f5f5 !important;
+    font-weight: 700;
+    white-space: nowrap;
+  }
 
   /* ---------- Online pill ---------- */
   .online-pill {
@@ -104,7 +111,7 @@
     100% { box-shadow: 0 0 0 0 rgba(28, 209, 79, 0); }
   }
 
-  /* ---------- Quick / easy / private badges ---------- */
+  /* ---------- Mini badges ---------- */
   .mini-badges {
     display: flex;
     justify-content: center;
@@ -124,7 +131,7 @@
     border-radius: 999px;
   }
 
-  /* ---------- Full-screen gate (username + anti-bot) ---------- */
+  /* ---------- Full-screen gate ---------- */
   .gate {
     position: fixed;
     inset: 0;
@@ -727,8 +734,78 @@
     color: var(--muted);
   }
 
+  .lock-card p .handle {
+    color: #f5f5f5;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Steps list inside the lock card */
+  .follow-steps {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+    counter-reset: step;
+  }
+
+  .follow-steps li {
+    position: relative;
+    margin: 0 0 8px;
+    padding: 0 0 0 30px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    counter-increment: step;
+  }
+
+  .follow-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #d62976, #962fbf);
+  }
+
+  .follow-steps li b {
+    color: #f5f5f5;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Secondary "open Threads" pill */
+  .threads-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .threads-link:hover { background: rgba(255, 255, 255, 0.13); }
+  .threads-link:active { transform: scale(0.97); }
+
   /* =========================================================
-     Connection-lost popup (copy / paste the link)
+     Connection-lost popup
      ========================================================= */
   .link-modal {
     position: fixed;
@@ -902,7 +979,7 @@
     </div>
     <h1>Private chat</h1>
 
-    <p class="online-pill"><span class="dot"></span> ❤Sofie❤ is  online</p>
+    <p class="online-pill"><span class="dot"></span> ❤Sofie❤ is online</p>
 
     <p class="gate-sub">
       Quick and easy: pick a username and start your private chat in seconds —
@@ -917,8 +994,12 @@
     </label>
     <p class="gate-error" id="gateError" role="alert"></p>
 
-    <button class="btn-primary" type="submit">Enter The Chat </button>
-    <p class="hint">Takes seconds · <span class="white">no account needed</span></p>
+    <button class="btn-primary" type="submit">Enter The Chat</button>
+    <p class="hint">
+      Takes seconds · <span class="white">no account needed</span><br>
+      You must follow <span class="handle">@sofie.thegentle._.girl</span> on
+      Threads to unlock the chat.
+    </p>
   </form>
 </div>
 
@@ -1010,18 +1091,38 @@
   <div class="lock-overlay" id="lockOverlay">
     <div class="lock-card" id="lockCard">
       <div class="lock-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9"
              stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
-          <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+          <circle cx="9" cy="8" r="3.6"/>
+          <path d="M2.6 19.6c0-3.4 2.9-5.6 6.4-5.6s6.4 2.2 6.4 5.6"/>
+          <line x1="18.2" y1="6.6" x2="18.2" y2="12.6"/>
+          <line x1="15.2" y1="9.6" x2="21.2" y2="9.6"/>
         </svg>
       </div>
-      <h1>Follow this thread account</h1>
-      <p>Follow <strong>@sofie.thegentle._.girl</strong> on Threads to unlock this private chat.</p>
+      <h1>Follow to unlock</h1>
+      <p>
+        This chat is private. You must follow
+        <span class="handle">@sofie.thegentle._.girl</span> on Threads to
+        continue.
+      </p>
+
+      <ul class="follow-steps">
+        <li>Open Threads and go to <b>@sofie.thegentle._.girl</b></li>
+        <li>Tap <b>Follow</b></li>
+        <li>Come back to this tab to continue the chat</li>
+      </ul>
+
       <button class="btn-primary" id="unlockBtn" type="button">
         Follow on Threads
       </button>
-      <p class="hint">A quick wait page, then Threads opens.</p>
+
+      <a class="threads-link"
+         href="https://www.threads.com/@sofie.thegentle._.girl"
+         target="_blank" rel="noopener">
+        Open Threads ↗
+      </a>
+
+      <p class="hint">You must be following to continue.</p>
     </div>
   </div>
 
@@ -1089,19 +1190,21 @@
   const connLabel = document.getElementById('connLabel');
 
   /* Connection-lost popup */
-  const linkModal     = document.getElementById('linkModal');
-  const linkValue     = document.getElementById('linkValue');
-  const copyLinkBtn   = document.getElementById('copyLinkBtn');
-  const copyStatus    = document.getElementById('copyStatus');
-  const openLinkBtn   = document.getElementById('openLinkBtn');
+  const linkModal      = document.getElementById('linkModal');
+  const linkValue      = document.getElementById('linkValue');
+  const copyLinkBtn    = document.getElementById('copyLinkBtn');
+  const copyStatus     = document.getElementById('copyStatus');
+  const openLinkBtn    = document.getElementById('openLinkBtn');
   const dismissLinkBtn = document.getElementById('dismissLinkBtn');
 
   /* =========================================================
      Config
      ========================================================= */
   const WS_URL        = 'ws://127.0.0.1:3000/';
-  const WAIT_URL      = 'https://2cup2323.github.io/my-site/wait';
-  const THREADS_URL   = 'https://www.threads.com/@sofie.thegentle._.girl';
+
+  /* ⬇️ The follow-gate: users are sent here to follow, then come back. */
+  const THREADS_URL    = 'https://www.threads.com/@sofie.thegentle._.girl';
+  const THREADS_HANDLE = '@sofie.thegentle._.girl';
 
   /* The link shown in the "connection lost" popup. */
   const CHAT_LINK     = 'https://2cup2323.github.io/Link';
@@ -1297,10 +1400,12 @@
   let pageUnloading = false;     // don't pop the modal while navigating away
   const outbox       = [];
 
-  const BASE_DELAY   = 800;
-  const MAX_DELAY    = 15000;
+  /* Backoff: base 800ms, factor 1.7, cap 15s, with jitter to avoid
+     reconnecting in a tight loop. */
+  const BASE_DELAY     = 800;
+  const MAX_DELAY      = 15000;
   const BACKOFF_FACTOR = 1.7;
-  const MAX_ATTEMPTS = 30;
+  const MAX_ATTEMPTS   = 30;     // stop retrying forever silently
 
   function setConnState(state) {
     wsState = state;
@@ -1319,6 +1424,7 @@
   }
 
   function connectWS() {
+    /* Prevent multiple simultaneous connection attempts */
     if (isConnecting) return;
     if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
       return;
@@ -1347,6 +1453,7 @@
       reconnectDelay = BASE_DELAY;
       setConnState('open');
 
+      /* Connection is back — take the "copy this link" popup away. */
       hideLinkModal();
 
       sendRaw({
@@ -1369,6 +1476,7 @@
     });
 
     socket.addEventListener('close', () => {
+      /* Only the current socket may trigger a reconnect. */
       if (ws !== socket) return;
 
       isConnecting = false;
@@ -1377,12 +1485,15 @@
 
       if (!app.hidden && !pageUnloading) {
         addSystemChip('Connection lost — reconnecting…');
+        /* Show the popup with the link to copy/paste. */
         showLinkModal();
       }
       scheduleReconnect();
     });
 
-    socket.addEventListener('error', () => {});
+    socket.addEventListener('error', () => {
+      /* The close handler takes care of the UI and reconnect. */
+    });
   }
 
   function scheduleReconnect() {
@@ -1397,7 +1508,8 @@
 
     clearTimeout(reconnectTimer);
 
-    const jitter = 0.8 + Math.random() * 0.4;
+    /* Exponential backoff with jitter */
+    const jitter = 0.8 + Math.random() * 0.4; // ±20%
     const delay = Math.min(MAX_DELAY, reconnectDelay * jitter);
 
     reconnectTimer = setTimeout(() => {
@@ -1491,7 +1603,7 @@
   });
 
   /* =========================================================
-     Connection-lost popup
+     Connection-lost popup — "copy this link, paste it"
      ========================================================= */
   linkValue.value = CHAT_LINK;
 
@@ -1504,6 +1616,7 @@
 
     linkModal.classList.add('open');
 
+    /* Focus the copy button so keyboard users can hit Enter. */
     setTimeout(() => { try { copyLinkBtn.focus(); } catch (e) {} }, 60);
   }
 
@@ -1574,17 +1687,23 @@
   });
 
   /* =========================================================
-     Lock flow — go to wait page, then Threads
+     Lock flow — send the user to Threads to follow, then wait
      ========================================================= */
   let redirecting = false;
 
   function renderWaiting() {
     lockCard.innerHTML = `
       <div class="lock-badge waiting"><div class="spinner"></div></div>
-      <h1>Waiting for the timer</h1>
-      <p>Complete the short wait on the next page, then follow the Threads account.</p>
+      <h1>Waiting for you to follow</h1>
+      <p>
+        Follow <span class="handle">${THREADS_HANDLE}</span> on Threads,
+        then come back to this tab to continue the chat.
+      </p>
       <div class="progress"><span></span></div>
-      <p class="hint">Threads will open after the wait.</p>
+      <a class="threads-link" href="${THREADS_URL}" target="_blank" rel="noopener">
+        Open Threads again ↗
+      </a>
+      <p class="hint">This chat stays locked until you're following.</p>
     `;
   }
 
@@ -1592,16 +1711,19 @@
     if (redirecting) return;
     redirecting = true;
 
+    /* Show the waiting state first so it is what the user sees
+       when they come back to this page. */
     renderWaiting();
-    unlockBtn.disabled = true;
 
-    /* Send the user to the wait page.
-       The wait page will handle the countdown and forward to Threads. */
+    /* Redirect this tab to the Threads profile.
+       The chat waits indefinitely — there is no timer and no auto-unlock. */
     setTimeout(() => {
-      window.location.href = WAIT_URL;
+      window.location.href = THREADS_URL;
     }, 120);
   });
 
+  /* If the browser restores this page from the back/forward cache
+     (e.g. user hits "back"), keep showing the waiting state. */
   window.addEventListener('pageshow', (event) => {
     if (event.persisted && redirecting) {
       renderWaiting();
